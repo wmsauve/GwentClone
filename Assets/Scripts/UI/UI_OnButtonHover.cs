@@ -37,12 +37,12 @@ namespace GwentClone
 
         private void OnEnable()
         {
-            UI_Manager.initializeAllUI += InitializeThisButton;
+            GlobalActions.OnInitializeAllUI += InitializeThisButton;
         }
 
         private void OnDisable()
         {
-            UI_Manager.initializeAllUI -= InitializeThisButton;
+            GlobalActions.OnInitializeAllUI -= InitializeThisButton;
         }
 
         private void InitializeThisButton()
