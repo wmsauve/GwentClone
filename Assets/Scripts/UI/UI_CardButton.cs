@@ -35,7 +35,7 @@ namespace GwentClone
 
         private void SendCardData()
         {
-            GlobalActions.OnPressCardButton.Invoke(m_myData);
+            GlobalActions.OnPressCardButton?.Invoke(m_myData);
         }
 
     }

@@ -5,12 +5,11 @@ using UnityEngine;
 
 namespace GwentClone
 {
-    public class UI_FillCardMenu : MonoBehaviour
+    public class UI_FillCardMenu : UI_ScrollView
     {
-
+        [Header("All Available Cards Related")]
         [SerializeField] private Card[] m_allCards = null;
-        [SerializeField] private Transform m_content = null;
-        [SerializeField] private GameObject m_buttonPrefab = null;
+
 
         private void OnEnable()
         {
@@ -24,18 +23,6 @@ namespace GwentClone
 
         private void InitializeCardList()
         {
-            if (m_content == null)
-            {
-                Debug.LogWarning("You didn't put your content object in the Scroll View component.");
-                return;
-            }
-
-            if(m_buttonPrefab == null)
-            {
-                Debug.LogWarning("You aren't going to instantiate any buttons.");
-                return;
-            }
-
             foreach(Card _card in m_allCards)
             {
                 var _newButton = Instantiate(m_buttonPrefab, m_content);

@@ -30,5 +30,15 @@ namespace GwentClone
         Unit,
         Weather
     }
+
+    public enum EnumFactionType
+    {
+        Neutral,
+        Monsters,
+        Nilfgaardian,
+        NorthernRealms,
+        Scoiatael,
+        Skellige
+    }
 }
 

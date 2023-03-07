@@ -32,9 +32,11 @@ namespace GwentClone
             if (!m_cardMenu.activeSelf) m_cardMenu.SetActive(true);
 
             Debug.Log("Main Initialization: Initialize all UI elements");
-            GlobalActions.OnInitializeAllUI.Invoke();
+            GlobalActions.OnInitializeAllUI?.Invoke();
 
             m_cardMenu.SetActive(false);
+
+
         }
 
 

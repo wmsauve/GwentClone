@@ -13,8 +13,13 @@ namespace GwentClone
 
         public EnumUnitType unitType;
         public EnumCardType cardType;
+        public EnumUnitPlacement unitPlacement;
+        public EnumFactionType factionType;
         public bool specialEffect;
+        public bool isHero;
         public int cardPower;
+        public int maxPerDeck;
+
 
         public Sprite cardImage;
     }
