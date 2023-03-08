@@ -22,8 +22,9 @@ namespace GwentClone
         [SerializeField] private TextMeshProUGUI deckNameText = null;
 
         private RightClick rightClickComp = null;
+        private Deck whichDeck;
 
-        public void InitializeDeckButton()
+        public void InitializeDeckButton(Deck newDeck)
         {
 
             if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null)
@@ -44,10 +45,11 @@ namespace GwentClone
             cancelButton.onClick.AddListener(CancelNameChange);
             buttonComp.onClick.AddListener(SelectThisDeck);
 
-            deckNameText.text = "New Deck";
+            var _name = newDeck.DeckName;
+            deckNameText.text = _name;
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
-
+            whichDeck = newDeck;
         }
 
         private void CancelNameChange()
@@ -55,17 +57,27 @@ namespace GwentClone
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             buttonComp.interactable = true;
-            changeNameField.text = "";
         }
 
         private void AcceptNameChange()
         {
-            var _newDeckName = changeNameField.text;
+            var _newDeckName = changeNameField.text.ToUpper().Trim();
             deckNameText.text = _newDeckName;
+            whichDeck.SetDeckName(_newDeckName);
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             buttonComp.interactable = true;
-            changeNameField.text = "";
+
+            var deckStatus = MainMenu_DeckManager.RunCheckForDeckChange();
+            switch (deckStatus)
+            {
+                case EnumDeckStatus.Changed:
+                    Debug.LogWarning("Deck changed");
+                    break;
+                case EnumDeckStatus.NotChanged:
+                    Debug.LogWarning("Deck no longer changed");
+                    break;
+            }
         }
 
         private void BeginNameChange()
@@ -77,7 +89,7 @@ namespace GwentClone
 
         private void SelectThisDeck()
         {
-            Debug.LogWarning("Select this deck yo.");
+            MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
         }
     }
 

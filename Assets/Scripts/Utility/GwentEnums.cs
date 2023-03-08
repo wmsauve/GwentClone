@@ -40,5 +40,11 @@ namespace GwentClone
         Scoiatael,
         Skellige
     }
+
+    public enum EnumDeckStatus
+    {
+        NotChanged,
+        Changed
+    }
 }
 

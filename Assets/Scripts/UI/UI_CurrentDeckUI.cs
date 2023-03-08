@@ -73,8 +73,8 @@ namespace GwentClone
 
         private void CreateFirstDeck()
         {
-            MainMenu_DeckManager.AddDeck();
-            m_decksList.AddDeck();
+            var _newDeck = MainMenu_DeckManager.AddDeck();
+            m_decksList.AddDeck(_newDeck);
             TurnOnHasDeck(true);
         }
     }
