@@ -15,7 +15,7 @@ namespace GwentClone
 
         [Header("Change Name Object Related")]
         [SerializeField] private GameObject changeNameObject = null;
-        [SerializeField] private TextMeshProUGUI changeNameField = null;
+        [SerializeField] private TMP_InputField changeNameField = null;
 
         [Header("Deck Name Object Related")]
         [SerializeField] private GameObject deckNameObject = null;
@@ -33,8 +33,23 @@ namespace GwentClone
                 return;
             }
 
+            var _name = newDeck.DeckName;
+            deckNameText.text = _name;
+            changeNameObject.SetActive(false);
+            deckNameObject.SetActive(true);
+            whichDeck = newDeck;
+        }
+
+        private void OnEnable()
+        {
+            if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null)
+            {
+                Debug.LogWarning("Your deck button does not have all of its components initialized.");
+                return;
+            }
+
             rightClickComp = GetComponent<RightClick>();
-            if(rightClickComp == null)
+            if (rightClickComp == null)
             {
                 Debug.LogWarning("You can't right click this button to change the name of your deck");
                 return;
@@ -44,12 +59,14 @@ namespace GwentClone
             acceptButton.onClick.AddListener(AcceptNameChange);
             cancelButton.onClick.AddListener(CancelNameChange);
             buttonComp.onClick.AddListener(SelectThisDeck);
+        }
 
-            var _name = newDeck.DeckName;
-            deckNameText.text = _name;
-            changeNameObject.SetActive(false);
-            deckNameObject.SetActive(true);
-            whichDeck = newDeck;
+        private void OnDisable()
+        {
+            rightClickComp.rightClick.RemoveListener(BeginNameChange);
+            acceptButton.onClick.RemoveListener(AcceptNameChange);
+            cancelButton.onClick.RemoveListener(CancelNameChange);
+            buttonComp.onClick.RemoveListener(SelectThisDeck);
         }
 
         private void CancelNameChange()
@@ -69,15 +86,7 @@ namespace GwentClone
             buttonComp.interactable = true;
 
             var deckStatus = MainMenu_DeckManager.RunCheckForDeckChange();
-            switch (deckStatus)
-            {
-                case EnumDeckStatus.Changed:
-                    Debug.LogWarning("Deck changed");
-                    break;
-                case EnumDeckStatus.NotChanged:
-                    Debug.LogWarning("Deck no longer changed");
-                    break;
-            }
+            MainMenu_DeckSaved.DeckChangedStatus = deckStatus;
         }
 
         private void BeginNameChange()

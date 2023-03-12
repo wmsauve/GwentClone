@@ -12,7 +12,10 @@ namespace GwentClone
         private string _deckName;
         public string DeckName { get { return _deckName; } }
 
-        public Deck() { }
+        public Deck() 
+        {
+            cards = new List<Card>();
+        }
 
         public void AddCard(Card _card)
         {

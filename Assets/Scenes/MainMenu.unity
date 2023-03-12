@@ -934,6 +934,17 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &729235979 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2977419913409030367, guid: 82df4a92a34b452499d37342326cc0e3, type: 3}
+  m_PrefabInstance: {fileID: 899975796}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &809075040
 GameObject:
   m_ObjectHideFlags: 0
@@ -2386,7 +2397,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1166877743}
   m_HandleRect: {fileID: 1166877742}
   m_Direction: 0
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -2506,6 +2517,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1386464240}
   m_CullTransparentMesh: 1
+--- !u!114 &1521517940 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2977419913409030367, guid: 82df4a92a34b452499d37342326cc0e3, type: 3}
+  m_PrefabInstance: {fileID: 1116740315}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1532473850
 GameObject:
   m_ObjectHideFlags: 0
@@ -2791,6 +2813,7 @@ GameObject:
   - component: {fileID: 1719873957}
   - component: {fileID: 1719873959}
   - component: {fileID: 1719873960}
+  - component: {fileID: 1719873961}
   m_Layer: 5
   m_Name: CardPanel
   m_TagString: Untagged
@@ -2921,6 +2944,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_content: {fileID: 809075041}
   m_buttonPrefab: {fileID: 8589721032708266297, guid: f8b32074895093346adcd6ad203cb6b1, type: 3}
+--- !u!114 &1719873961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1719873953}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9a778bfa50d87f4db37245be3ff9758, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_saveDeckBtn: {fileID: 1521517940}
+  m_newDeckBtn: {fileID: 729235979}
 --- !u!1 &1745432665
 GameObject:
   m_ObjectHideFlags: 0

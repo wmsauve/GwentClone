@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace GwentClone
 {
-    public class UI_ScrollView : MonoBehaviour
+    public class UI_ScrollView : UI_InitializeFromManager
     {
         [Header("Scrollview Specific Related")]
         [SerializeField] protected Transform m_content = null;

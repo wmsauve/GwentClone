@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace GwentClone
 {
-    public class UI_OnButtonHover : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class UI_OnButtonHover : UI_InitializeFromManager, IPointerEnterHandler, IPointerExitHandler
     {
         [Header("Objects Related")]
         [SerializeField] private GameObject m_borderElement = null;
@@ -35,17 +35,7 @@ namespace GwentClone
 
         }
 
-        private void OnEnable()
-        {
-            GlobalActions.OnInitializeAllUI += InitializeThisButton;
-        }
-
-        private void OnDisable()
-        {
-            GlobalActions.OnInitializeAllUI -= InitializeThisButton;
-        }
-
-        private void InitializeThisButton()
+        protected override void InitializeThisUIComp()
         {
             var _text = transform.GetComponentInChildren<TextMeshProUGUI>();
             if (_text == null) return;

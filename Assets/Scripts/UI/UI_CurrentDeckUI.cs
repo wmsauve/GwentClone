@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace GwentClone
 {
-    public class UI_CurrentDeckUI : MonoBehaviour
+    public class UI_CurrentDeckUI : UI_InitializeFromManager
     {
         [Header("Major Panels Related")]
         [SerializeField] private GameObject m_noDeckUI = null;
@@ -16,18 +16,7 @@ namespace GwentClone
         [SerializeField] private Button m_createFirstDeck = null;
         [SerializeField] private UI_DeckScrollBar m_decksList = null;
 
-        
-        private void OnEnable()
-        {
-            GlobalActions.OnInitializeAllUI += InitializeCurrentDeckUI;
-        }
-
-        private void OnDisable()
-        {
-            GlobalActions.OnInitializeAllUI -= InitializeCurrentDeckUI;
-        }
-
-        private void InitializeCurrentDeckUI()
+        protected override void InitializeThisUIComp()
         {
             if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null)
             {
@@ -37,7 +26,11 @@ namespace GwentClone
 
             if(MainMenu_DeckManager.MyDecks.Count == 0) TurnOnHasDeck(false);
             else TurnOnHasDeck(true);
+        }
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
             if (m_createFirstDeck == null)
             {
                 Debug.LogWarning("You didn't add the button to create your first deck.");
@@ -45,6 +38,12 @@ namespace GwentClone
             }
 
             m_createFirstDeck.onClick.AddListener(CreateFirstDeck);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            m_createFirstDeck.onClick.RemoveListener(CreateFirstDeck);
         }
 
         private void InitializeNoDeckUI()

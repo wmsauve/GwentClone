@@ -14,6 +14,11 @@ namespace GwentClone
         /// Use this for pressing card buttons.
         /// </summary>
         public static Action<Card> OnPressCardButton;
+
+        /// <summary>
+        /// Invoke in MainMenu_DeckSaved.
+        /// </summary>
+        public static Action<EnumDeckStatus> OnDeckChanged;
     }
     
 }

@@ -10,18 +10,7 @@ namespace GwentClone
         [Header("All Available Cards Related")]
         [SerializeField] private Card[] m_allCards = null;
 
-
-        private void OnEnable()
-        {
-            GlobalActions.OnInitializeAllUI += InitializeCardList;
-        }
-
-        private void OnDisable()
-        {
-            GlobalActions.OnInitializeAllUI -= InitializeCardList;
-        }
-
-        private void InitializeCardList()
+        protected override void InitializeThisUIComp()
         {
             foreach(Card _card in m_allCards)
             {

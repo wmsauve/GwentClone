@@ -1194,7 +1194,7 @@ MonoBehaviour:
   acceptButton: {fileID: 1600614428808891655}
   cancelButton: {fileID: 207403975248623206}
   changeNameObject: {fileID: 4581660227512175440}
-  changeNameField: {fileID: 4804363910564766832}
+  changeNameField: {fileID: 6120923631181719785}
   deckNameObject: {fileID: 4938100779587635924}
   deckNameText: {fileID: 3070194581843720296}
 --- !u!1 &8806907908990354569

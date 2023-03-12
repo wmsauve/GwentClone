@@ -6,12 +6,12 @@ namespace GwentClone
 {
     public class UI_DeckListManager : UI_ScrollView
     {
-        private void OnEnable()
+        protected override void OnEnable()
         {
             GlobalActions.OnPressCardButton += AddCardToDeckList;    
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
             GlobalActions.OnPressCardButton -= AddCardToDeckList;
         }

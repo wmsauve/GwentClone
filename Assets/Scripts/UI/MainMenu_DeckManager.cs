@@ -17,11 +17,29 @@ namespace GwentClone
         public static Deck AddDeck()
         {
             var _newDeck = new Deck();
-            var _newName = "New Deck";
+            var _newName = "NEW DECK";
             _newDeck.SetDeckName(_newName.ToUpper().Trim());
             myDecks.Add(_newDeck);
             if (currentDeck == null) SwitchFocusedDeck(_newDeck);
             return _newDeck;
+        }
+
+        public static void AddCardToCurrentDeck(Card newCard)
+        {
+            if(currentDeck == null)
+            {
+                Debug.LogWarning("Check to see why you are adding a new card to a null deck.");
+                return;
+            }
+
+            currentDeck.AddCard(newCard);
+            var _status = RunCheckForDeckChange();
+            GlobalActions.OnDeckChanged?.Invoke(_status);
+        }
+
+        public static void RemoveCardFromCurrentDeck()
+        {
+
         }
 
         public static void SwitchFocusedDeck(Deck newFocused)
@@ -36,11 +54,6 @@ namespace GwentClone
             var newDeckName = currentDeck.DeckName;
             var cloneDeckName = cloneDeck.DeckName;
 
-            Debug.LogWarning(newDeckName + " new deck");
-            Debug.LogWarning(newDeckName.Equals("NEW DECK") + " new deck vs string");
-
-            Debug.LogWarning(cloneDeckName.Equals("NEW DECK") + " clone deck vs string");
-
             if (!newDeckName.Equals(cloneDeckName)) return EnumDeckStatus.Changed;
             var newCards = currentDeck.Cards;
             var oldCards = cloneDeck.Cards;
@@ -49,7 +62,8 @@ namespace GwentClone
 
             for (int i = 0; i < newCards.Count; i++)
             {
-                if (oldCards[i] == null) return EnumDeckStatus.Changed;
+                if (oldCards == null) return EnumDeckStatus.Changed;
+                if (oldCards.Count == 0) return EnumDeckStatus.Changed;
                 if (newCards[i].cardImage != oldCards[i].cardImage) return EnumDeckStatus.Changed;
                 if (newCards[i].id != oldCards[i].id) return EnumDeckStatus.Changed;
                 if (newCards[i].unitType != oldCards[i].unitType) return EnumDeckStatus.Changed;

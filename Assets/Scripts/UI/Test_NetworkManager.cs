@@ -45,4 +45,21 @@ public class Test_NetworkManager : MonoBehaviour
             });
         }
     }
+
+    private void OnDisable()
+    {
+        m_serverBtn.onClick.RemoveListener(() => {
+            NetworkManager.Singleton.StartServer();
+        });
+
+        m_hostBtn.onClick.RemoveListener(() => {
+            NetworkManager.Singleton.StartHost();
+        });
+
+        m_clientBtn.onClick.RemoveListener(() => {
+            NetworkManager.Singleton.StartClient();
+        });
+    }
+
+
 }

@@ -10,6 +10,8 @@ namespace GwentClone
         private Image m_image = null;
         private Card m_myData = null;
 
+        private Button myBtnComp = null;
+
         public void InitializeCardButton(Card cardData)
         {
             m_image = GetComponent<Image>();
@@ -22,20 +24,28 @@ namespace GwentClone
             m_myData = cardData;
 
             m_image.sprite = m_myData.cardImage;
+        }
 
-            var _btnComp = gameObject.GetComponent<Button>();
-            if(_btnComp == null)
+        private void OnEnable()
+        {
+            myBtnComp = gameObject.GetComponent<Button>();
+            if (myBtnComp == null)
             {
                 Debug.LogWarning("This should have a button comp");
                 return;
             }
+            myBtnComp.onClick.AddListener(SendCardData);
+        }
 
-            _btnComp.onClick.AddListener(SendCardData);
+        private void OnDisable()
+        {
+            myBtnComp.onClick.RemoveListener(SendCardData);
         }
 
         private void SendCardData()
         {
             GlobalActions.OnPressCardButton?.Invoke(m_myData);
+            MainMenu_DeckManager.AddCardToCurrentDeck(m_myData);
         }
 
     }
