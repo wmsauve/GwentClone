@@ -28,7 +28,6 @@ namespace GwentClone
 
         public void CloneDeck(Deck deckToClone)
         {
-            Debug.LogWarning(deckToClone.DeckName + " huh?");
             _deckName = deckToClone.DeckName;
 
             var _otherCards = deckToClone.Cards;

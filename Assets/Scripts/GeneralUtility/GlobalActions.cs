@@ -19,6 +19,11 @@ namespace GwentClone
         /// Invoke in MainMenu_DeckSaved.
         /// </summary>
         public static Action<EnumDeckStatus> OnDeckChanged;
+
+        /// <summary>
+        /// Provide feedback when a user input is invalid for some reason.
+        /// </summary>
+        public static Action<string> OnDisplayFeedbackInUI;
     }
     
 }

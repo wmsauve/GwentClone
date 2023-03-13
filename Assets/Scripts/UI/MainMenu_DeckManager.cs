@@ -24,17 +24,24 @@ namespace GwentClone
             return _newDeck;
         }
 
-        public static void AddCardToCurrentDeck(Card newCard)
+        public static bool AddCardToCurrentDeck(Card newCard)
         {
             if(currentDeck == null)
             {
-                Debug.LogWarning("Check to see why you are adding a new card to a null deck.");
-                return;
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_NODECKYET);
+                return false;
             }
+
+
+            var _validCard = RunCheckForValidCardAdd(newCard);
+            if (!_validCard) return false;
+
+
 
             currentDeck.AddCard(newCard);
             var _status = RunCheckForDeckChange();
             GlobalActions.OnDeckChanged?.Invoke(_status);
+            return true;
         }
 
         public static void RemoveCardFromCurrentDeck()
@@ -83,6 +90,24 @@ namespace GwentClone
         {
             cloneDeck = new Deck();
             cloneDeck.CloneDeck(currentDeck);
+        }
+
+        private static bool RunCheckForValidCardAdd(Card newCard)
+        {
+            if (currentDeck.Cards.Count > 0)
+            {
+                foreach (Card card in currentDeck.Cards)
+                {
+
+                    if (newCard.isHero && newCard.id == card.id)
+                    {
+                        GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_DUPLICATEHEROES);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
     }
 

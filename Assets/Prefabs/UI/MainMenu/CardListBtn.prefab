@@ -349,3 +349,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cardName: {fileID: 8389240304094134952}
   borderHighlight: {fileID: 7704442298590960022}
+  myBtnComp: {fileID: 7367629282117923133}

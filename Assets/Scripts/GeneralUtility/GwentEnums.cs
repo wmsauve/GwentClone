@@ -46,5 +46,22 @@ namespace GwentClone
         NotChanged,
         Changed
     }
+
+    /// <summary>
+    /// Generally applies to any kind of animation.
+    /// </summary>
+    [System.Serializable]
+    public enum EnumAnimDirection
+    {
+        Upward,
+        Downward
+    }
+
+    [System.Serializable]
+    public enum EnumAnimEffect
+    {
+        Fade,
+        Nothing
+    }
 }
 

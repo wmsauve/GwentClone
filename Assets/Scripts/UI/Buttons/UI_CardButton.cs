@@ -44,8 +44,12 @@ namespace GwentClone
 
         private void SendCardData()
         {
+            var addCard = MainMenu_DeckManager.AddCardToCurrentDeck(m_myData);
+
+            if (!addCard) return;
+
             GlobalActions.OnPressCardButton?.Invoke(m_myData);
-            MainMenu_DeckManager.AddCardToCurrentDeck(m_myData);
+            
         }
 
     }
