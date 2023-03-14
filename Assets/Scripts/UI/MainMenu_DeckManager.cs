@@ -32,11 +32,8 @@ namespace GwentClone
                 return false;
             }
 
-
             var _validCard = RunCheckForValidCardAdd(newCard);
             if (!_validCard) return false;
-
-
 
             currentDeck.AddCard(newCard);
             var _status = RunCheckForDeckChange();
@@ -44,9 +41,18 @@ namespace GwentClone
             return true;
         }
 
-        public static void RemoveCardFromCurrentDeck()
+        public static bool RemoveCardFromCurrentDeck(Card newCard)
         {
+            if (currentDeck == null)
+            {
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_NODECKYET);
+                return false;
+            }
 
+            currentDeck.RemoveCard(newCard);
+            var _status = RunCheckForDeckChange();
+            GlobalActions.OnDeckChanged?.Invoke(_status);
+            return true;
         }
 
         public static void SwitchFocusedDeck(Deck newFocused)

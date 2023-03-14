@@ -20,7 +20,30 @@ namespace GwentClone
         public void AddCard(Card _card)
         {
             cards.Add(_card);
+
+            for(int i = 0; i < cards.Count; i++)
+            {
+                Debug.LogWarning(cards[i].id + " this is a card in the deck.");
+            }
         }
+
+        public void RemoveCard(Card _cardToRemove)
+        {
+            foreach(Card card in cards)
+            {
+                if(card.id == _cardToRemove.id)
+                {
+                    cards.Remove(card);
+                    break;
+                }
+            }
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                Debug.LogWarning(cards[i].id + " this is a card in the deck.");
+            }
+        }
+
         public void SetDeckName(string newName)
         {
             _deckName = newName;

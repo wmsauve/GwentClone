@@ -15,8 +15,15 @@ namespace GwentClone
         [SerializeField] private Button myBtnComp = null;
 
         private Card myData = null;
+        public Card CardData { get { return myData; } }
 
-        public void InitializeButton(Card card)
+        private UI_DeckListManager deckListManager = null;
+        private Coroutine deckRemoval;
+        private int duplicateNumber = 1;
+        private string cacheBaseName;
+        private bool ranDecrement = false;
+
+        public void InitializeButton(Card card, UI_DeckListManager manager)
         {
             if(cardName == null || borderHighlight == null)
             {
@@ -27,6 +34,10 @@ namespace GwentClone
             myData = card;
 
             cardName.text = myData.id;
+            cacheBaseName = cardName.text;
+
+            deckListManager = manager;
+
             if (myData.isHero)
             {
                 borderHighlight.color = Color.yellow;
@@ -35,6 +46,20 @@ namespace GwentClone
             {
                 borderHighlight.color = new Color(0f,0f,0f,0f);
             }
+        }
+
+        public void IncrementCardNumber()
+        {
+            duplicateNumber++;
+            cardName.text = cacheBaseName + " x" + duplicateNumber;
+        }
+
+        public void DecrementCardNumber()
+        {
+            duplicateNumber--;
+            if (duplicateNumber == 1) cardName.text = cacheBaseName;
+            else if (duplicateNumber == 0) return;
+            else cardName.text = cacheBaseName + " x" + duplicateNumber;
         }
 
         private void OnEnable()
@@ -50,12 +75,48 @@ namespace GwentClone
 
         private void OnDisable()
         {
+            if (deckRemoval != null) StopCoroutine(deckRemoval);
             myBtnComp.onClick.RemoveListener(RemoveCardFromDeck);
         }
 
         private void RemoveCardFromDeck()
         {
-            Debug.LogWarning(myData.id + " This should remove the card for the deck.");
+            if(deckRemoval != null) return;
+            deckRemoval = StartCoroutine(StartRemovingProcess());
+        }
+
+        private IEnumerator StartRemovingProcess()
+        {
+            if (myData == null)
+            {
+                Debug.LogWarning("Find out why this button doesn't have the reference to its own card.");
+                yield return null;
+            }
+
+            var _cardRemoved = MainMenu_DeckManager.RemoveCardFromCurrentDeck(myData);
+            if (!_cardRemoved)
+            {
+                Debug.LogWarning("Find out why the card data couldn't be removed from the card manager");
+                yield return null;
+            }
+
+            if (!ranDecrement)
+            {
+                DecrementCardNumber();
+                ranDecrement = true;
+            }
+ 
+            if (deckListManager == null)
+            {
+                Debug.LogWarning("Find out why you don't have a reference to the manager");
+                yield return null;
+            }
+            StartCoroutine(deckListManager.RemoveFromCurrentButtons(myData, 
+                (result) => {
+                    ranDecrement = false;
+                    if (duplicateNumber == 0) Destroy(gameObject);
+                }));
+
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -65,7 +126,7 @@ namespace GwentClone
                 Debug.LogWarning("Find out why this button doesn't have the reference to its own card.");
                 return;
             }
-            Debug.LogWarning(myData.id + " going in card.");
+            //Debug.LogWarning(myData.id + " going in card.");
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -75,7 +136,7 @@ namespace GwentClone
                 Debug.LogWarning("Find out why this button doesn't have the reference to its own card.");
                 return;
             }
-            Debug.LogWarning(myData.id + " leaving card.");
+            //Debug.LogWarning(myData.id + " leaving card.");
         }
     }
 
