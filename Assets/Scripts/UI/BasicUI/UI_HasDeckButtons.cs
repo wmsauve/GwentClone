@@ -7,14 +7,15 @@ namespace GwentClone
 {
     public class UI_HasDeckButtons : UI_InitializeFromManager
     {
+        [Header("Individual Components Related")]
         [SerializeField] private Button m_saveDeckBtn = null;
         [SerializeField] private Button m_newDeckBtn = null;
-
+        [SerializeField] private UI_CurrentDeckUI m_currentDeckManager = null;
 
 
         protected override void InitializeThisUIComp()
         {
-            if (m_saveDeckBtn == null || m_newDeckBtn == null)
+            if (m_saveDeckBtn == null || m_newDeckBtn == null || m_currentDeckManager == null)
             {
                 Debug.LogWarning("You are not initializing the save deck or new deck buttons.");
                 return;
@@ -54,7 +55,19 @@ namespace GwentClone
 
         private void NewDeckFunctionality()
         {
+            if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
+            {
+                var warningComp = GetComponent<UI_DeckScrollBar>();
+                if(warningComp == null)
+                {
+                    Debug.LogWarning("Find out why you don't have a Deck scroll bar component on here.");
+                    return;
+                }
+                warningComp.TriggerDeckNotSavedYetWarning();
+                return;
+            }
 
+            m_currentDeckManager.CreateADeck();
         }
 
         private void ListenToChangeInDeckStatus(EnumDeckStatus status)

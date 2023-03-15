@@ -24,6 +24,11 @@ namespace GwentClone
         /// Provide feedback when a user input is invalid for some reason.
         /// </summary>
         public static Action<string> OnDisplayFeedbackInUI;
+
+        /// <summary>
+        /// When pressing the top deck buttons.
+        /// </summary>
+        public static Action<Deck> OnPressDeckChangeButton;
     }
     
 }

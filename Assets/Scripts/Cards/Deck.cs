@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,19 +12,18 @@ namespace GwentClone
         private string _deckName;
         public string DeckName { get { return _deckName; } }
 
+        private string _deckUID;
+        public string DeckUID { get { return _deckUID; } }
+
         public Deck() 
         {
             cards = new List<Card>();
+            _deckUID = Guid.NewGuid().ToString();
         }
 
         public void AddCard(Card _card)
         {
             cards.Add(_card);
-
-            for(int i = 0; i < cards.Count; i++)
-            {
-                Debug.LogWarning(cards[i].id + " this is a card in the deck.");
-            }
         }
 
         public void RemoveCard(Card _cardToRemove)
@@ -59,7 +58,7 @@ namespace GwentClone
 
             for(int i = 0; i < _otherCards.Count; i++)
             {
-                var _newCard = new Card();
+                var _newCard = ScriptableObject.CreateInstance<Card>();
                 _newCard.cardImage = _otherCards[i].cardImage;
                 _newCard.id = _otherCards[i].id;
                 _newCard.unitType = _otherCards[i].unitType;

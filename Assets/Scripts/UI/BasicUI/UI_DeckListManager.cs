@@ -9,6 +9,42 @@ namespace GwentClone
     {
         private List<UI_DeckListButton> _addedButtons = new List<UI_DeckListButton>();
 
+
+        protected override void Awake()
+        {
+            //I'm going to dynamically set the content here.
+            if(m_buttonPrefab == null)
+            {
+                Debug.LogWarning("You didn't add a prefab to instantiate to this scrollview component.");
+            }
+        }
+
+        public void SetCurrentContent(Transform newContent)
+        {
+            m_content = newContent;
+            _addedButtons = new List<UI_DeckListButton>();
+
+            if(m_content.childCount > 0)
+            {
+                for(int i = 0; i < m_content.childCount; i++)
+                {
+                    var _comp = m_content.transform.GetChild(i).GetComponentsInChildren<UI_DeckListButton>();
+                    if(_comp == null)
+                    {
+                        Debug.LogWarning("Find out where your button component went.");
+                        continue;
+                    }
+                    else if(_comp.Length > 1)
+                    {
+                        Debug.LogWarning("Find out why you have more than one of these components on the decklist button");
+                        continue;
+                    }
+
+                    _addedButtons.Add(_comp[0]);
+                }
+            }
+        }
+
         protected override void OnEnable()
         {
             GlobalActions.OnPressCardButton += AddCardToDeckList;    
@@ -25,6 +61,11 @@ namespace GwentClone
             if(_addedButtons == null)
             {
                 Debug.LogWarning("Find out why you don't have a list of buttons here.");
+                return;
+            }
+            if (m_content == null)
+            {
+                Debug.LogWarning("Find out why you don't have a content here.");
                 return;
             }
 

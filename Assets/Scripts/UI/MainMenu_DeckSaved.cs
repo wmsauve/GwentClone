@@ -6,7 +6,7 @@ namespace GwentClone
 {
     public static class MainMenu_DeckSaved 
     {
-        private static EnumDeckStatus deckChangedStatus;
+        private static EnumDeckStatus deckChangedStatus = EnumDeckStatus.NotChanged;
         public static EnumDeckStatus DeckChangedStatus { 
             get { return deckChangedStatus; } 
             set {
@@ -14,6 +14,8 @@ namespace GwentClone
                 GlobalActions.OnDeckChanged?.Invoke(deckChangedStatus);
             } 
         } 
+
+
     }
 
 }

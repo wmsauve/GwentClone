@@ -23,8 +23,9 @@ namespace GwentClone
 
         private RightClick rightClickComp = null;
         private Deck whichDeck;
+        private UI_DeckScrollBar managerReference = null;
 
-        public void InitializeDeckButton(Deck newDeck)
+        public void InitializeDeckButton(Deck newDeck, UI_DeckScrollBar manager)
         {
 
             if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null)
@@ -38,6 +39,8 @@ namespace GwentClone
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             whichDeck = newDeck;
+
+            managerReference = manager;
         }
 
         private void OnEnable()
@@ -98,7 +101,14 @@ namespace GwentClone
 
         private void SelectThisDeck()
         {
+            if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
+            {
+                managerReference.TriggerDeckNotSavedYetWarning();
+                return;
+            }
+
             MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
+            GlobalActions.OnPressDeckChangeButton?.Invoke(whichDeck);
         }
     }
 

@@ -37,6 +37,7 @@ namespace GwentClone
 
             currentDeck.AddCard(newCard);
             var _status = RunCheckForDeckChange();
+            MainMenu_DeckSaved.DeckChangedStatus = _status;
             GlobalActions.OnDeckChanged?.Invoke(_status);
             return true;
         }
@@ -51,12 +52,17 @@ namespace GwentClone
 
             currentDeck.RemoveCard(newCard);
             var _status = RunCheckForDeckChange();
+            MainMenu_DeckSaved.DeckChangedStatus = _status;
             GlobalActions.OnDeckChanged?.Invoke(_status);
             return true;
         }
 
         public static void SwitchFocusedDeck(Deck newFocused)
         {
+            if (currentDeck != null)
+            {
+                if (newFocused.DeckUID == currentDeck.DeckUID) return;
+            }
             currentDeck = newFocused;
             cloneDeck = new Deck();
             cloneDeck.CloneDeck(newFocused);
