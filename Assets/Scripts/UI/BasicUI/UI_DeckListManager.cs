@@ -47,12 +47,19 @@ namespace GwentClone
 
         protected override void OnEnable()
         {
-            GlobalActions.OnPressCardButton += AddCardToDeckList;    
+            GlobalActions.OnPressCardButton += AddCardToDeckList;
+            GlobalActions.OnNotSavingDeck += SetOldDeckListButtons;
         }
 
         protected override void OnDisable()
         {
             GlobalActions.OnPressCardButton -= AddCardToDeckList;
+            GlobalActions.OnNotSavingDeck -= SetOldDeckListButtons;
+        }
+
+        private void SetOldDeckListButtons(bool revertDeckButtons)
+        {
+
         }
 
 

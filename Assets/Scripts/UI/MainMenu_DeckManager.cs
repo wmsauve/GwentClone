@@ -104,6 +104,13 @@ namespace GwentClone
             cloneDeck.CloneDeck(currentDeck);
         }
 
+        public static bool RevertCurrentDeckToClone()
+        {
+            currentDeck = new Deck();
+            currentDeck.CloneDeck(cloneDeck);
+            return true;
+        }
+
         private static bool RunCheckForValidCardAdd(Card newCard)
         {
             if (currentDeck.Cards.Count > 0)
@@ -120,6 +127,11 @@ namespace GwentClone
             }
 
             return true;
+        }
+
+        public static string GetCurrentDeckGUID()
+        {
+            return currentDeck.DeckUID;
         }
     }
 

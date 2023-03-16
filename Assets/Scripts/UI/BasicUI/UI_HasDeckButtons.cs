@@ -12,6 +12,8 @@ namespace GwentClone
         [SerializeField] private Button m_newDeckBtn = null;
         [SerializeField] private UI_CurrentDeckUI m_currentDeckManager = null;
 
+        private bool resolveNotSaved = false;
+        private Coroutine notSavedCoroutine;
 
         protected override void InitializeThisUIComp()
         {
@@ -36,6 +38,7 @@ namespace GwentClone
             m_saveDeckBtn.onClick.AddListener(SaveButtonFunctionality);
             m_newDeckBtn.onClick.AddListener(NewDeckFunctionality);
             GlobalActions.OnDeckChanged += ListenToChangeInDeckStatus;
+            GlobalActions.OnNotSavingDeck += ResolveUnsavedDeck;
         }
 
         protected override void OnDisable()
@@ -44,29 +47,50 @@ namespace GwentClone
             m_saveDeckBtn.onClick.RemoveListener(SaveButtonFunctionality);
             m_newDeckBtn.onClick.RemoveListener(NewDeckFunctionality);
             GlobalActions.OnDeckChanged -= ListenToChangeInDeckStatus;
+            GlobalActions.OnNotSavingDeck -= ResolveUnsavedDeck;
         }
 
+        private void ResolveUnsavedDeck(bool revertDeck)
+        {
+            if (!revertDeck)
+            {
+                if (notSavedCoroutine != null) StopCoroutine(notSavedCoroutine);
+                resolveNotSaved = false;
+                return;
+            }
+
+            resolveNotSaved = true;
+        }
 
 
         private void SaveButtonFunctionality()
         {
-
+            MainMenu_DeckManager.DeckSaved();
+            MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
         }
 
         private void NewDeckFunctionality()
         {
-            if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
+            notSavedCoroutine = StartCoroutine(StartCheckingToCreateDeck());
+        }
+
+        private IEnumerator StartCheckingToCreateDeck()
+        {
+            if (MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
             {
                 var warningComp = GetComponent<UI_DeckScrollBar>();
-                if(warningComp == null)
+                if (warningComp == null)
                 {
                     Debug.LogWarning("Find out why you don't have a Deck scroll bar component on here.");
-                    return;
+                    yield return null;
                 }
                 warningComp.TriggerDeckNotSavedYetWarning();
-                return;
+                while (!resolveNotSaved) yield return null;
+                resolveNotSaved = false;
+                m_currentDeckManager.CreateADeck();
             }
 
+            resolveNotSaved = false;
             m_currentDeckManager.CreateADeck();
         }
 
@@ -79,6 +103,8 @@ namespace GwentClone
                     break;
                 case EnumDeckStatus.NotChanged:
                     m_saveDeckBtn.interactable = false;
+                    break;
+                case EnumDeckStatus.Resolving:
                     break;
                 default:
                     Debug.LogWarning("Check to see if the Enum is correct.");

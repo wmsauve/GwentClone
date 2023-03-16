@@ -52,6 +52,8 @@ namespace GwentClone
         {
             _deckName = deckToClone.DeckName;
 
+            _deckUID = deckToClone._deckUID;
+
             var _otherCards = deckToClone.Cards;
 
             if (_otherCards == null) return;

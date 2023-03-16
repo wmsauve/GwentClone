@@ -29,6 +29,11 @@ namespace GwentClone
         /// When pressing the top deck buttons.
         /// </summary>
         public static Action<Deck> OnPressDeckChangeButton;
+
+        /// <summary>
+        /// Used when user wants to change away from current deck without saving.
+        /// </summary>
+        public static Action<bool> OnNotSavingDeck;
     }
     
 }

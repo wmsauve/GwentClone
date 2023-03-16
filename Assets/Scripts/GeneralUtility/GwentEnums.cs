@@ -44,7 +44,8 @@ namespace GwentClone
     public enum EnumDeckStatus
     {
         NotChanged,
-        Changed
+        Changed,
+        Resolving
     }
 
     /// <summary>
