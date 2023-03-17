@@ -21,18 +21,36 @@ namespace GwentClone
         [SerializeField] private GameObject deckNameObject = null;
         [SerializeField] private TextMeshProUGUI deckNameText = null;
 
+        //Selection related
         private RightClick rightClickComp = null;
         private Deck whichDeck;
+        [Header("Highlight selected button.")]
+        [SerializeField] private Image m_backGroundImage = null;
+        private Color hiddenHighlight = new Color(0f, 0f, 0f, 0f);
+        private Color shownHighlight = new Color(0f, 0f, 0f, 1f);
+        private bool isSelected = false;
+        public bool IsSelected { get { return isSelected; } }
+
         private UI_DeckScrollBar managerReference = null;
+
+        //Save related
         private string cachedDeckName;
         private bool notSaveResolved = false;
-        private Coroutine notSavedCoroutine;
-        
+        private bool markedForSwitch = false;
+
+        private void Update()
+        {
+            if (!notSaveResolved) return;
+
+            SelectFunctionality();
+            notSaveResolved = false;
+            markedForSwitch = false;
+        }
 
         public void InitializeDeckButton(Deck newDeck, UI_DeckScrollBar manager)
         {
 
-            if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null)
+            if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null || m_backGroundImage == null)
             {
                 Debug.LogWarning("Your deck button does not have all of its components initialized.");
                 return;
@@ -44,8 +62,9 @@ namespace GwentClone
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             whichDeck = newDeck;
-
+            //Swap from previous deck.
             managerReference = manager;
+            SetThisButtonAsSelected();
         }
 
         private void OnEnable()
@@ -90,23 +109,12 @@ namespace GwentClone
         {
             if (whichDeck.DeckUID != MainMenu_DeckManager.GetCurrentDeckGUID())
             {
-                Debug.LogWarning("I'm going in here arent i?");
-                return;
+                if (markedForSwitch) notSaveResolved = true;
             }
-
-            //We only dealing with 1 button.
             else
             {
-                if (!revertDeck)
-                {
-                    if (notSavedCoroutine != null) StopCoroutine(notSavedCoroutine);
-                    Debug.LogWarning("You getting here 2?");
-                    notSaveResolved = false;
-                    return;
-                }
-                Debug.LogWarning("You getting here 1?");
+                if (!revertDeck) return;
                 deckNameText.text = cachedDeckName;
-                notSaveResolved = true;
             }
         }
 
@@ -126,6 +134,8 @@ namespace GwentClone
 
         private void BeginNameChange()
         {
+            if (whichDeck.DeckUID != MainMenu_DeckManager.GetCurrentDeckGUID()) return;
+
             changeNameObject.SetActive(true);
             deckNameObject.SetActive(false);
             buttonComp.interactable = false;
@@ -133,30 +143,33 @@ namespace GwentClone
 
         private void SelectThisDeck()
         {
-            notSavedCoroutine = StartCoroutine(WaitForButton());
-        }
-
-        private IEnumerator WaitForButton()
-        {
             if (MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
             {
                 managerReference.TriggerDeckNotSavedYetWarning();
-                Debug.LogWarning("You reaching here friend1?");
-                while (!notSaveResolved)
-                {
-                    yield return null;
-                }
-                Debug.LogWarning("You reaching here friend2?");
-                notSaveResolved = false;
-                Debug.LogWarning("You reaching here friend?");
-                MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
-                GlobalActions.OnPressDeckChangeButton?.Invoke(whichDeck);
+                markedForSwitch = true;
+                return;
             }
+            SelectFunctionality();
+        }
 
-            notSaveResolved = false;
-            Debug.LogWarning("You reaching here friend?");
+        private void SelectFunctionality()
+        {
+            SetThisButtonAsSelected();
             MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
             GlobalActions.OnPressDeckChangeButton?.Invoke(whichDeck);
+        }
+
+        private void SetThisButtonAsSelected()
+        {
+            managerReference.TurnOfHighlightOfPreviousButton();
+            isSelected = true;
+            m_backGroundImage.color = shownHighlight;
+        }
+
+        public void SetThisButtonAsOff()
+        {
+            isSelected = false;
+            m_backGroundImage.color = hiddenHighlight;
         }
     }
 

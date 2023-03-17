@@ -10,6 +10,7 @@ namespace GwentClone
         [SerializeField] private Button m_acceptButton = null;
         [SerializeField] private Button m_cancelButton = null;
 
+
         // Start is called before the first frame update
         void Start()
         {

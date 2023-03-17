@@ -77,7 +77,9 @@ namespace GwentClone
             var newCards = currentDeck.Cards;
             var oldCards = cloneDeck.Cards;
 
-            if (newCards == null || newCards.Count == 0) return EnumDeckStatus.NotChanged;
+            if (newCards == null) return EnumDeckStatus.NotChanged;
+
+            if (oldCards.Count != newCards.Count) return EnumDeckStatus.Changed;
 
             for (int i = 0; i < newCards.Count; i++)
             {
