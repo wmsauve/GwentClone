@@ -6,7 +6,7 @@ using TMPro;
 
 namespace GwentClone
 {
-    public class UI_DeckButton : MonoBehaviour
+    public class UI_DeckButton : MonoBehaviour, ISaveDependentComponent
     {
         [Header("Buttons Related")]
         [SerializeField] private Button buttonComp = null;
@@ -34,9 +34,7 @@ namespace GwentClone
         private UI_DeckScrollBar managerReference = null;
 
         //Save related
-        private string cachedDeckName;
         private bool notSaveResolved = false;
-        private bool markedForSwitch = false;
 
         private void Update()
         {
@@ -44,7 +42,6 @@ namespace GwentClone
 
             SelectFunctionality();
             notSaveResolved = false;
-            markedForSwitch = false;
         }
 
         public void InitializeDeckButton(Deck newDeck, UI_DeckScrollBar manager)
@@ -58,7 +55,6 @@ namespace GwentClone
 
             var _name = newDeck.DeckName;
             deckNameText.text = _name;
-            cachedDeckName = _name;
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             whichDeck = newDeck;
@@ -86,7 +82,6 @@ namespace GwentClone
             acceptButton.onClick.AddListener(AcceptNameChange);
             cancelButton.onClick.AddListener(CancelNameChange);
             buttonComp.onClick.AddListener(SelectThisDeck);
-            GlobalActions.OnNotSavingDeck += RevertCachedName;
         }
 
         private void OnDisable()
@@ -95,7 +90,6 @@ namespace GwentClone
             acceptButton.onClick.RemoveListener(AcceptNameChange);
             cancelButton.onClick.RemoveListener(CancelNameChange);
             buttonComp.onClick.RemoveListener(SelectThisDeck);
-            GlobalActions.OnNotSavingDeck -= RevertCachedName;
         }
 
         private void CancelNameChange()
@@ -105,23 +99,9 @@ namespace GwentClone
             buttonComp.interactable = true;
         }
 
-        private void RevertCachedName(bool revertDeck)
-        {
-            if (whichDeck.DeckUID != MainMenu_DeckManager.GetCurrentDeckGUID())
-            {
-                if (markedForSwitch) notSaveResolved = true;
-            }
-            else
-            {
-                if (!revertDeck) return;
-                deckNameText.text = cachedDeckName;
-            }
-        }
-
         private void AcceptNameChange()
         {
             var _newDeckName = changeNameField.text.ToUpper().Trim();
-            cachedDeckName = deckNameText.text.ToUpper().Trim();
             deckNameText.text = _newDeckName;
             whichDeck.SetDeckName(_newDeckName);
             changeNameObject.SetActive(false);
@@ -145,8 +125,7 @@ namespace GwentClone
         {
             if (MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
             {
-                managerReference.TriggerDeckNotSavedYetWarning();
-                markedForSwitch = true;
+                managerReference.TriggerDeckNotSavedYetWarning(this);
                 return;
             }
             SelectFunctionality();
@@ -155,8 +134,9 @@ namespace GwentClone
         private void SelectFunctionality()
         {
             SetThisButtonAsSelected();
-            MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
             GlobalActions.OnPressDeckChangeButton?.Invoke(whichDeck);
+            MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
+            if (MainMenu_DeckSaved.DeckChangedStatus != EnumDeckStatus.NotChanged) MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
         }
 
         private void SetThisButtonAsSelected()
@@ -170,6 +150,18 @@ namespace GwentClone
         {
             isSelected = false;
             m_backGroundImage.color = hiddenHighlight;
+        }
+        
+        public void SetCachedName()
+        {
+            deckNameText.text = MainMenu_DeckManager.GetUnsavedDeckName();
+        }
+
+        //Interface
+        public void OnResolveSaveCheck()
+        {
+            managerReference.RevertCurrentButtonCachedName();
+            notSaveResolved = true;
         }
     }
 

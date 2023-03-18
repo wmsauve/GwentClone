@@ -115,6 +115,9 @@ namespace GwentClone
                     Debug.LogWarning("check your prefab to see if the content is a child of a child.");
                     return;
                 }
+
+                if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed) m_deckListManager.SetOldDeckListButtons();
+
                 m_deckListManager.SetCurrentContent(content);
             }
             else

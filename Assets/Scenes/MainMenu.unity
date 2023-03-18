@@ -2611,6 +2611,7 @@ MonoBehaviour:
   m_saveDeckBtn: {fileID: 1521517940}
   m_newDeckBtn: {fileID: 729235979}
   m_currentDeckManager: {fileID: 1719873957}
+  m_deckButtonScroll: {fileID: 1719873959}
 --- !u!1 &1776253308
 GameObject:
   m_ObjectHideFlags: 0

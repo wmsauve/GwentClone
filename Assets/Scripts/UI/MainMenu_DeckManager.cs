@@ -13,6 +13,7 @@ namespace GwentClone
 
         private static Deck currentDeck;
         private static Deck cloneDeck;
+        public static Deck GetCloneDeck { get { return cloneDeck; } }
 
         public static Deck AddDeck()
         {
@@ -134,6 +135,10 @@ namespace GwentClone
         public static string GetCurrentDeckGUID()
         {
             return currentDeck.DeckUID;
+        }
+        public static string GetUnsavedDeckName()
+        {
+            return cloneDeck.DeckName;
         }
     }
 

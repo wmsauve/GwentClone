@@ -10,14 +10,29 @@ namespace GwentClone
         [SerializeField] private Button m_acceptButton = null;
         [SerializeField] private Button m_cancelButton = null;
 
+        private MonoBehaviour triggeredComponent = null;
 
-        // Start is called before the first frame update
-        void Start()
+        public void InitializeTheChecker(MonoBehaviour whoTriggered)
         {
-            if(m_acceptButton == null || m_cancelButton == null)
+            if (m_acceptButton == null || m_cancelButton == null)
             {
                 Debug.LogWarning("Check your prefab and set your buttons");
+                return;
             }
+
+            if (whoTriggered == null)
+            {
+                Debug.LogWarning("Why did you not pass the target here?");
+                return;
+            }
+
+            if(!(whoTriggered is ISaveDependentComponent))
+            {
+                Debug.LogWarning("The monobehavior trying to use this needs to implement ISaveDependentComponent.");
+                return;
+            }
+
+            triggeredComponent = whoTriggered;
         }
 
         private void OnEnable()
@@ -44,8 +59,6 @@ namespace GwentClone
 
         private void CancelButtonFunctionality()
         {
-
-            GlobalActions.OnNotSavingDeck?.Invoke(false);
             Destroy(gameObject);
         }
 
@@ -55,7 +68,7 @@ namespace GwentClone
 
             if (!success) return;
 
-            GlobalActions.OnNotSavingDeck?.Invoke(true);
+            (triggeredComponent as ISaveDependentComponent).OnResolveSaveCheck();
             Destroy(gameObject);
         }
 

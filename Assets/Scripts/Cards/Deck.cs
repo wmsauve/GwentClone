@@ -24,6 +24,11 @@ namespace GwentClone
         public void AddCard(Card _card)
         {
             cards.Add(_card);
+
+            foreach(Card card in cards)
+            {
+                Debug.LogWarning(card.id + " card yo.");
+            }
         }
 
         public void RemoveCard(Card _cardToRemove)

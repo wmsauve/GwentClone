@@ -41,9 +41,16 @@ namespace GwentClone
             listOfDeckButtons.Add(_btnComp);
         }
 
-        public void TriggerDeckNotSavedYetWarning()
+        public void TriggerDeckNotSavedYetWarning(MonoBehaviour whoSelected)
         {
-            Instantiate(m_deckChangeCheckerPrefab, transform);
+            var saveChecker = Instantiate(m_deckChangeCheckerPrefab, transform);
+            var checkerComponent = saveChecker.GetComponent<SaveDeckCheckerButtons>();
+            if(checkerComponent == null)
+            {
+                Debug.LogWarning("Find out why your prefab for the checker doesn't have its component.");
+                return;
+            }
+            checkerComponent.InitializeTheChecker(whoSelected);
         }
 
         public void TurnOfHighlightOfPreviousButton()
@@ -53,6 +60,18 @@ namespace GwentClone
                 if (button.IsSelected)
                 {
                     button.SetThisButtonAsOff();
+                    return;
+                }
+            }
+        }
+
+        public void RevertCurrentButtonCachedName()
+        {
+            foreach (UI_DeckButton button in listOfDeckButtons)
+            {
+                if (button.IsSelected)
+                {
+                    button.SetCachedName();
                     return;
                 }
             }

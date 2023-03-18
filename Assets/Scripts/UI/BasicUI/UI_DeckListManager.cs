@@ -48,20 +48,32 @@ namespace GwentClone
         protected override void OnEnable()
         {
             GlobalActions.OnPressCardButton += AddCardToDeckList;
-            GlobalActions.OnNotSavingDeck += SetOldDeckListButtons;
         }
 
         protected override void OnDisable()
         {
             GlobalActions.OnPressCardButton -= AddCardToDeckList;
-            GlobalActions.OnNotSavingDeck -= SetOldDeckListButtons;
         }
 
-        private void SetOldDeckListButtons(bool revertDeckButtons)
+        public void SetOldDeckListButtons()
         {
+            
+            foreach(Transform child in m_content.transform)
+            {
+                Destroy(child.gameObject);
+            }
 
+            _addedButtons = new List<UI_DeckListButton>();
+
+            var tempDeck = new Deck();
+            tempDeck.CloneDeck(MainMenu_DeckManager.GetCloneDeck);
+
+            foreach (Card card in tempDeck.Cards)
+            {
+                
+                AddCardToDeckList(card);
+            }
         }
-
 
         private void AddCardToDeckList(Card card)
         {
