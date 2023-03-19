@@ -20,6 +20,7 @@ namespace GwentClone
             if (!resolveNotSaved) return;
 
             m_currentDeckManager.CreateADeck();
+            if (MainMenu_DeckSaved.DeckChangedStatus != EnumDeckStatus.NotChanged) MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
             resolveNotSaved = false;
         }
 
@@ -93,7 +94,6 @@ namespace GwentClone
         public void OnResolveSaveCheck()
         {
             m_deckButtonScroll.RevertCurrentButtonCachedName();
-            if (MainMenu_DeckSaved.DeckChangedStatus != EnumDeckStatus.NotChanged) MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
             resolveNotSaved = true;
         }
     }

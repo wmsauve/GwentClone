@@ -154,6 +154,7 @@ namespace GwentClone
         
         public void SetCachedName()
         {
+            whichDeck = MainMenu_DeckManager.RevertCurrentDeckToClone();
             deckNameText.text = MainMenu_DeckManager.GetUnsavedDeckName();
         }
 

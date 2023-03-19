@@ -12,6 +12,7 @@ namespace GwentClone
         public static List<Deck> MyDecks { get { return myDecks; } }
 
         private static Deck currentDeck;
+        public static Deck CurrentDeck { get { return currentDeck; } }
         private static Deck cloneDeck;
         public static Deck GetCloneDeck { get { return cloneDeck; } }
 
@@ -39,7 +40,6 @@ namespace GwentClone
             currentDeck.AddCard(newCard);
             var _status = RunCheckForDeckChange();
             MainMenu_DeckSaved.DeckChangedStatus = _status;
-            GlobalActions.OnDeckChanged?.Invoke(_status);
             return true;
         }
 
@@ -54,7 +54,6 @@ namespace GwentClone
             currentDeck.RemoveCard(newCard);
             var _status = RunCheckForDeckChange();
             MainMenu_DeckSaved.DeckChangedStatus = _status;
-            GlobalActions.OnDeckChanged?.Invoke(_status);
             return true;
         }
 
@@ -64,9 +63,20 @@ namespace GwentClone
             {
                 if (newFocused.DeckUID == currentDeck.DeckUID) return;
             }
+
             currentDeck = newFocused;
             cloneDeck = new Deck();
             cloneDeck.CloneDeck(newFocused);
+
+#if UNITY_EDITOR
+            Debug.LogWarning("=======================");
+            foreach(Card card in newFocused.Cards)
+            {
+                Debug.LogWarning(card.id + " card in this deck.");
+            }
+            Debug.LogWarning("=======================");
+#endif
+
         }
 
         public static EnumDeckStatus RunCheckForDeckChange()
@@ -107,15 +117,18 @@ namespace GwentClone
             cloneDeck.CloneDeck(currentDeck);
         }
 
-        public static bool RevertCurrentDeckToClone()
+        public static Deck RevertCurrentDeckToClone()
         {
             currentDeck = new Deck();
             currentDeck.CloneDeck(cloneDeck);
-            return true;
+
+            return currentDeck;
         }
 
         private static bool RunCheckForValidCardAdd(Card newCard)
         {
+            int bronzeCounter = 0;
+
             if (currentDeck.Cards.Count > 0)
             {
                 foreach (Card card in currentDeck.Cards)
@@ -126,8 +139,21 @@ namespace GwentClone
                         GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_DUPLICATEHEROES);
                         return false;
                     }
+
+                    if (!newCard.isHero && newCard.id == card.id)
+                    {
+                        bronzeCounter++;
+                        continue;
+                    }
                 }
             }
+
+            if (bronzeCounter == 2)
+            {
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_DUPLICATEREGULAR);
+                return false;
+            }
+
 
             return true;
         }

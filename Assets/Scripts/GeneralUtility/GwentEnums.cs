@@ -9,7 +9,8 @@ namespace GwentClone
     {
         Frontline,
         Ranged,
-        Siege
+        Siege,
+        Any
     }
 
     /// <summary>
@@ -18,7 +19,8 @@ namespace GwentClone
     public enum EnumUnitType
     {
         Regular,
-        Spy
+        Spy,
+        NotUnit
     }
 
     /// <summary>
@@ -26,9 +28,8 @@ namespace GwentClone
     /// </summary>
     public enum EnumCardType
     {
-        Spell,
+        Special,
         Unit,
-        Weather
     }
 
     public enum EnumFactionType

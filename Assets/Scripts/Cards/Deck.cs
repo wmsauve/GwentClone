@@ -15,6 +15,17 @@ namespace GwentClone
         private string _deckUID;
         public string DeckUID { get { return _deckUID; } }
 
+        private int _totalCards;
+        public int TotalCards { get { return _totalCards; } }
+        private int _numOfUnits;
+        public int NumberOfUnits { get { return _numOfUnits; } }
+        private int _specialCards;
+        public int SpecialCards { get { return _specialCards; } }
+        private int _totalStrength;
+        public int TotalStrength { get { return _totalStrength; } }
+        private int _heroCards;
+        public int HeroCards { get { return _heroCards; } }
+
         public Deck() 
         {
             cards = new List<Card>();
@@ -25,10 +36,7 @@ namespace GwentClone
         {
             cards.Add(_card);
 
-            foreach(Card card in cards)
-            {
-                Debug.LogWarning(card.id + " card yo.");
-            }
+            RecalculateDeckInfo();
         }
 
         public void RemoveCard(Card _cardToRemove)
@@ -38,13 +46,9 @@ namespace GwentClone
                 if(card.id == _cardToRemove.id)
                 {
                     cards.Remove(card);
+                    RecalculateDeckInfo();
                     break;
                 }
-            }
-
-            for (int i = 0; i < cards.Count; i++)
-            {
-                Debug.LogWarning(cards[i].id + " this is a card in the deck.");
             }
         }
 
@@ -78,6 +82,36 @@ namespace GwentClone
                 _newCard.maxPerDeck = _otherCards[i].maxPerDeck;
 
                 cards.Add(_newCard);
+            }
+        }
+
+        private void RecalculateDeckInfo()
+        {
+            _totalCards = cards.Count;
+
+            _heroCards = 0;
+            _numOfUnits = 0;
+            _specialCards = 0;
+            _totalStrength = 0;
+
+            foreach(Card card in cards)
+            {
+                if (card.isHero)
+                {
+                    _heroCards++;
+                }
+
+                if(card.cardType == EnumCardType.Unit)
+                {
+                    _numOfUnits++;
+                }
+                else
+                {
+                    _specialCards++;
+                }
+
+                _totalStrength += card.cardPower;
+
             }
         }
     }

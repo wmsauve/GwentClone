@@ -64,10 +64,6 @@ namespace GwentClone
 
         private void SkipSavingFunctionality()
         {
-            var success = MainMenu_DeckManager.RevertCurrentDeckToClone();
-
-            if (!success) return;
-
             (triggeredComponent as ISaveDependentComponent).OnResolveSaveCheck();
             Destroy(gameObject);
         }
