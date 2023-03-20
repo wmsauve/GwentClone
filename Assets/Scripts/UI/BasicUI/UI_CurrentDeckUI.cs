@@ -12,6 +12,7 @@ namespace GwentClone
         [SerializeField] private GameObject m_noDeckUI = null;
         [SerializeField] private GameObject m_hasDeckUI = null;
         [SerializeField] private GameObject m_cardListScrollPrefab = null;
+        [SerializeField] private GameObject m_leaderPage = null;
 
         [Header("Individual Components Related")]
         [SerializeField] private Button m_createFirstDeck = null;
@@ -24,7 +25,7 @@ namespace GwentClone
 
         protected override void InitializeThisUIComp()
         {
-            if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null || m_cardListScrollPrefab == null || m_deckListManager == null)
+            if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null || m_cardListScrollPrefab == null || m_deckListManager == null || m_leaderPage == null)
             {
                 Debug.LogWarning("You don't have the UIs added to this component to show your decks.");
                 return;
@@ -43,14 +44,14 @@ namespace GwentClone
                 return;
             }
 
-            m_createFirstDeck.onClick.AddListener(CreateADeck);
+            m_createFirstDeck.onClick.AddListener(OpenLeaderPage);
             GlobalActions.OnPressDeckChangeButton += SwitchCurrentDeck;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            m_createFirstDeck.onClick.RemoveListener(CreateADeck);
+            m_createFirstDeck.onClick.RemoveListener(OpenLeaderPage);
             GlobalActions.OnPressDeckChangeButton -= SwitchCurrentDeck;
         }
 
@@ -94,6 +95,17 @@ namespace GwentClone
                 TurnOnHasDeck(true);
             }
             
+        }
+
+        private void OpenLeaderPage()
+        {
+            if (m_leaderPage.activeSelf)
+            {
+                Debug.LogWarning("This doesn't make sense. Leaderpage shouldn't be open yet.");
+                return;
+            }
+
+            m_leaderPage.SetActive(true);
         }
 
         private void SwitchCurrentDeck(Deck deck)

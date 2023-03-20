@@ -31,6 +31,9 @@ namespace GwentClone
             if(!m_mainMenu.activeSelf) m_mainMenu.SetActive(true);
             if (!m_cardMenu.activeSelf) m_cardMenu.SetActive(true);
 
+            Debug.Log("Main Initialization: Set all active to ensure Initialization scripts are run");
+            MakeSureElementsEnabled(m_cardMenu);
+
             Debug.Log("Main Initialization: Initialize all UI elements");
             GlobalActions.OnInitializeAllUI?.Invoke();
 
@@ -44,6 +47,26 @@ namespace GwentClone
         {
             m_mainMenu.SetActive(false);
             m_cardMenu.SetActive(true);
+        }
+
+        private void MakeSureElementsEnabled(GameObject setActive)
+        {
+            if (!setActive.activeSelf)
+            {
+                setActive.SetActive(true);
+            }
+
+            if(setActive.transform.childCount == 0)
+            {
+                return;
+            }
+
+            for(int i = 0; i < setActive.transform.childCount; i++)
+            {
+                MakeSureElementsEnabled(setActive.transform.GetChild(i).gameObject);
+            }
+
+
         }
 
     }

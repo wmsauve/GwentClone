@@ -29,6 +29,12 @@ namespace GwentClone
         /// When pressing the top deck buttons.
         /// </summary>
         public static Action<Deck> OnPressDeckChangeButton;
+
+        /// <summary>
+        /// Used to pass either card or leader data for user's tooltip needs.
+        /// </summary>
+        public static Action<Card, Leader> OnHoveredUIButton;
+        public static Action OnStopHoveredUIButton;
     }
     
 }

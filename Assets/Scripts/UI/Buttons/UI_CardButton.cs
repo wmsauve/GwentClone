@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace GwentClone
+namespace GwentClone.UI
 {
-    public class UI_CardButton : MonoBehaviour
+    public class UI_CardButton : UI_ToolTipButton
     {
         private Image m_image = null;
         private Card m_myData = null;
@@ -52,6 +53,12 @@ namespace GwentClone
             
         }
 
+
+        public override void OnPointerEnter(PointerEventData eventData)
+        {
+            base.OnPointerEnter(eventData);
+            GlobalActions.OnHoveredUIButton?.Invoke(m_myData, null);
+        }
     }
 
 }

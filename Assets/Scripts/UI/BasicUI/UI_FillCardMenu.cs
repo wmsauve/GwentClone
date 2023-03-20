@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-namespace GwentClone
+namespace GwentClone.UI
 {
     public class UI_FillCardMenu : UI_ScrollView
     {

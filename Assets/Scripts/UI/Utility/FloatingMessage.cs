@@ -5,25 +5,8 @@ using TMPro;
 
 namespace GwentClone
 {
-    public class FloatingMessage : MonoBehaviour
+    public class FloatingMessage : UI_InstantiateToMainCanvas
     {
-        [SerializeField] private GameObject m_floatingMessagePrefab = null;
-        private GameObject _mainCanvas = null;
-
-        private void Start()
-        {
-            if(m_floatingMessagePrefab == null)
-            {
-                Debug.LogWarning("You are not instantiating a floating message.");
-            }
-           
-            _mainCanvas = GameObject.FindGameObjectWithTag(GlobalConstantValues.TAG_MAINCANVAS);
-            if(_mainCanvas == null)
-            {
-                Debug.LogWarning("Did you forget to add a MainUICanvas tag? Do you have a Canvas in your scene?");
-            }
-
-        }
 
         private void OnEnable()
         {
@@ -37,9 +20,9 @@ namespace GwentClone
 
         private void ShowMessage(string message)
         {
-            if (m_floatingMessagePrefab == null || _mainCanvas == null) return;
+            if (m_instantiatePrefab == null || _mainCanvas == null) return;
 
-            var newMessage = Instantiate(m_floatingMessagePrefab, _mainCanvas.transform);
+            var newMessage = Instantiate(m_instantiatePrefab, _mainCanvas.transform);
             var textComp = newMessage.GetComponent<TextMeshProUGUI>();
             if (textComp == null) return;
 
