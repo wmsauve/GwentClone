@@ -2,15 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace GwentClone
 {
     public class UI_HoverTooltip : MonoBehaviour
     {
+        [Header("Main Related")]
         [SerializeField] private GameObject m_leaderUI = null;
         [SerializeField] private GameObject m_cardUI = null;
         [SerializeField] private Image m_objectSprite = null;
 
+        [Header("Leader Related")]
+        [SerializeField] private TextMeshProUGUI m_leaderName = null;
+        [SerializeField] private TextMeshProUGUI m_leaderAbility = null;
+ 
         private RectTransform canvasRect = null;
         private RectTransform mainRect = null;
 
@@ -19,6 +25,12 @@ namespace GwentClone
             if(m_leaderUI == null || m_cardUI == null || m_objectSprite == null)
             {
                 Debug.LogWarning("Your tooltip doesnt have the references for the different UIs");
+                return;
+            }
+
+            if(m_leaderName == null || m_leaderAbility == null)
+            {
+                Debug.LogWarning("You don't have leader text fields added for the tooltip.");
                 return;
             }
 
@@ -62,13 +74,19 @@ namespace GwentClone
             if(typeof(T) == typeof(Card))
             {
                 var cardInfo = info as Card;
+                m_leaderUI.SetActive(false);
+                m_cardUI.SetActive(true);
                 m_objectSprite.sprite = cardInfo.cardImage;
 
             }
             else if (typeof(T) == typeof(Leader))
             {
                 var leaderInfo = info as Leader;
+                m_leaderUI.SetActive(true);
+                m_cardUI.SetActive(false);
                 m_objectSprite.sprite = leaderInfo.cardImage;
+                m_leaderName.text = leaderInfo.id;
+                m_leaderAbility.text = leaderInfo.abilityDescription;
             }
             else
             {

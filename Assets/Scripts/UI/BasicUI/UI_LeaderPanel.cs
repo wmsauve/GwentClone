@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GwentClone.UI
 {
@@ -8,13 +9,16 @@ namespace GwentClone.UI
     {
         [Header("Specific Objects Related")]
         [SerializeField] private GameObject m_mainPanel = null;
+        [SerializeField] private Button m_cancelButton = null;
+        [SerializeField] private UI_CurrentDeckUI m_createDeckManager = null;
 
         [Header("Leaders Related")]
         [SerializeField] private List<Leader> m_leaders = new List<Leader>();
+        
 
         protected override void InitializeThisUIComp()
         {
-            if(m_mainPanel == null)
+            if(m_mainPanel == null || m_cancelButton == null || m_createDeckManager == null)
             {
                 Debug.LogWarning("You didn't add the correct objects or components to initialize this component.");
                 return;
@@ -45,8 +49,27 @@ namespace GwentClone.UI
                     return;
                 }
 
-                _buttonComp.InitializeButton(leader);
+                _buttonComp.InitializeButton(leader, m_createDeckManager, this);
             }
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (m_cancelButton == null) return;
+            m_cancelButton.onClick.AddListener(CloseLeaderPanel);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (m_cancelButton == null) return;
+            m_cancelButton.onClick.RemoveListener(CloseLeaderPanel);
+        }
+
+        public void CloseLeaderPanel()
+        {
+            m_mainPanel.SetActive(false);
         }
     }
 

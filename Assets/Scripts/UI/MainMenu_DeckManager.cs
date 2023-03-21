@@ -16,10 +16,11 @@ namespace GwentClone
         private static Deck cloneDeck;
         public static Deck GetCloneDeck { get { return cloneDeck; } }
 
-        public static Deck AddDeck()
+        public static Deck AddDeck(Leader leader)
         {
             var _newDeck = new Deck();
             var _newName = "NEW DECK";
+            _newDeck.SetDeckLeader(leader);
             _newDeck.SetDeckName(_newName.ToUpper().Trim());
             myDecks.Add(_newDeck);
             if (currentDeck == null) SwitchFocusedDeck(_newDeck);

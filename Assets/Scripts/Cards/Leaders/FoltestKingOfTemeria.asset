@@ -15,3 +15,4 @@ MonoBehaviour:
   id: 'Foltest: King of Temeria'
   factionType: 3
   cardImage: {fileID: 21300000, guid: d2c3c6195f0de2e42994fc31a6aea47a, type: 3}
+  abilityDescription: Pick an Impenetrable Fog card from your deck and play it instantly.

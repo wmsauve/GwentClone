@@ -14,8 +14,10 @@ namespace GwentClone.UI
         [SerializeField] private TextMeshProUGUI m_leaderName = null;
 
         private Leader whichLeader = null;
+        private UI_CurrentDeckUI createDeckManager = null;
+        private UI_LeaderPanel manager = null;
 
-        public void InitializeButton(Leader leader)
+        public void InitializeButton(Leader leader, UI_CurrentDeckUI createDeckMngr, UI_LeaderPanel mngr)
         {
             if(m_borderHighlight == null || m_buttonComp == null || m_leaderName == null)
             {
@@ -25,30 +27,12 @@ namespace GwentClone.UI
 
             m_leaderName.text = leader.id;
 
-            switch (leader.factionType)
-            {
-                case EnumFactionType.Monsters:
-                    m_borderHighlight.color = Color.red;
-                    break;
-                case EnumFactionType.Neutral:
-                    m_borderHighlight.color = new Color(0f,0f,0f,0f);
-                    break;
-                case EnumFactionType.Nilfgaardian:
-                    m_borderHighlight.color = Color.black;
-                    break;
-                case EnumFactionType.NorthernRealms:
-                    m_borderHighlight.color = Color.blue;
-                    break;
-                case EnumFactionType.Scoiatael:
-                    m_borderHighlight.color = Color.green;
-                    break;
-                case EnumFactionType.Skellige:
-                    m_borderHighlight.color = Color.magenta;
-                    break;
-
-            }
+            m_borderHighlight.color = GeneralPurposeFunctions.ReturnColorBasedOnFaction(leader.factionType);
 
             whichLeader = leader;
+
+            createDeckManager = createDeckMngr;
+            manager = mngr;
         }
 
         private void OnEnable()
@@ -65,7 +49,10 @@ namespace GwentClone.UI
 
         private void SelectedHero()
         {
-
+            if (whichLeader == null) return;
+            createDeckManager.CreateADeck(whichLeader);
+            GlobalActions.OnStopHoveredUIButton?.Invoke();
+            manager.CloseLeaderPanel();
         }
 
         public override void OnPointerEnter(PointerEventData eventData)

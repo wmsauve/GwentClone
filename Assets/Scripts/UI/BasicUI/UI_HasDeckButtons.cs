@@ -3,30 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GwentClone
+namespace GwentClone.UI
 {
     public class UI_HasDeckButtons : UI_InitializeFromManager, ISaveDependentComponent
     {
         [Header("Individual Components Related")]
         [SerializeField] private Button m_saveDeckBtn = null;
         [SerializeField] private Button m_newDeckBtn = null;
-        [SerializeField] private UI_CurrentDeckUI m_currentDeckManager = null;
         [SerializeField] private UI_DeckScrollBar m_deckButtonScroll = null;
+        [SerializeField] private UI_CurrentDeckUI m_createDeckFunctionality = null;
 
         private bool resolveNotSaved = false;
 
         private void Update()
         {
             if (!resolveNotSaved) return;
-
-            m_currentDeckManager.CreateADeck();
-            if (MainMenu_DeckSaved.DeckChangedStatus != EnumDeckStatus.NotChanged) MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
+            m_createDeckFunctionality.OpenLeaderPage();
             resolveNotSaved = false;
         }
 
         protected override void InitializeThisUIComp()
         {
-            if (m_saveDeckBtn == null || m_newDeckBtn == null || m_currentDeckManager == null || m_deckButtonScroll == null)
+            if (m_saveDeckBtn == null || m_newDeckBtn == null || m_createDeckFunctionality == null || m_deckButtonScroll == null)
             {
                 Debug.LogWarning("You are not initializing the save deck or new deck buttons.");
                 return;
@@ -70,7 +68,7 @@ namespace GwentClone
                 m_deckButtonScroll.TriggerDeckNotSavedYetWarning(this);
                 return;
             }
-            m_currentDeckManager.CreateADeck();
+            m_createDeckFunctionality.OpenLeaderPage();
         }
 
         private void ListenToChangeInDeckStatus(EnumDeckStatus status)

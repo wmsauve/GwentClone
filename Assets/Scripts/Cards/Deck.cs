@@ -26,6 +26,9 @@ namespace GwentClone
         private int _heroCards;
         public int HeroCards { get { return _heroCards; } }
 
+        private Leader deckLeader;
+        public Leader DeckLeader { get { return deckLeader; } }
+
         public Deck() 
         {
             cards = new List<Card>();
@@ -57,6 +60,23 @@ namespace GwentClone
             _deckName = newName;
         }
 
+        public void SetDeckLeader(Leader leader)
+        {
+            if(deckLeader == null)
+            {
+                deckLeader = leader;
+                return;
+            }
+
+            if(deckLeader.factionType != leader.factionType)
+            {
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_INVALIDLEADERSWITCH);
+                return;
+            }
+
+            deckLeader = leader;
+        }
+
         public void CloneDeck(Deck deckToClone)
         {
             _deckName = deckToClone.DeckName;
@@ -83,6 +103,12 @@ namespace GwentClone
 
                 cards.Add(_newCard);
             }
+
+            deckLeader = ScriptableObject.CreateInstance<Leader>();
+            deckLeader.cardImage = deckToClone.DeckLeader.cardImage;
+            deckLeader.factionType = deckToClone.DeckLeader.factionType;
+            deckLeader.id = deckToClone.DeckLeader.id;
+            deckLeader.abilityDescription = deckToClone.DeckLeader.abilityDescription;
         }
 
         private void RecalculateDeckInfo()

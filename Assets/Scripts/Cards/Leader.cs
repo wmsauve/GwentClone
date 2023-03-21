@@ -12,6 +12,8 @@ namespace GwentClone
         public string id;
         public EnumFactionType factionType;
         public Sprite cardImage;
+        [TextArea(3, 10)]
+        public string abilityDescription;
     }
 
 }

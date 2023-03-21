@@ -24,7 +24,7 @@ namespace GwentClone
         //Selection related
         private RightClick rightClickComp = null;
         private Deck whichDeck;
-        [Header("Highlight selected button.")]
+        [Header("Highlights Related")]
         [SerializeField] private Image m_backGroundImage = null;
         private Color hiddenHighlight = new Color(0f, 0f, 0f, 0f);
         private Color shownHighlight = new Color(0f, 0f, 0f, 1f);
@@ -58,6 +58,8 @@ namespace GwentClone
             changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             whichDeck = newDeck;
+            deckNameText.color = GeneralPurposeFunctions.ReturnColorBasedOnFaction(whichDeck.DeckLeader.factionType);
+
             //Swap from previous deck.
             managerReference = manager;
             SetThisButtonAsSelected();
@@ -136,7 +138,6 @@ namespace GwentClone
             SetThisButtonAsSelected();
             GlobalActions.OnPressDeckChangeButton?.Invoke(whichDeck);
             MainMenu_DeckManager.SwitchFocusedDeck(whichDeck);
-            if (MainMenu_DeckSaved.DeckChangedStatus != EnumDeckStatus.NotChanged) MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
         }
 
         private void SetThisButtonAsSelected()

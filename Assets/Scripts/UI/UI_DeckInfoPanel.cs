@@ -11,8 +11,10 @@ public class UI_DeckInfoPanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI m_specialCards;
     [SerializeField] private TextMeshProUGUI m_totalStrength;
     [SerializeField] private TextMeshProUGUI m_heroCards;
+    [SerializeField] private TextMeshProUGUI m_deckLeader;
 
     private int cacheCardAmount = 0;
+    private string cacheLeaderName;
 
     private void Start()
     {
@@ -31,7 +33,7 @@ public class UI_DeckInfoPanel : MonoBehaviour
 
         if (MainMenu_DeckManager.CurrentDeck == null) return;
 
-        if (MainMenu_DeckManager.CurrentDeck.TotalCards != cacheCardAmount)
+        if (MainMenu_DeckManager.CurrentDeck.TotalCards != cacheCardAmount || MainMenu_DeckManager.CurrentDeck.DeckLeader.id != cacheLeaderName)
         {
             OnUpdateUIInfo();
         }
@@ -47,6 +49,9 @@ public class UI_DeckInfoPanel : MonoBehaviour
         m_specialCards.text = currentInfo.SpecialCards.ToString() + "/10";
         m_totalStrength.text = currentInfo.TotalStrength.ToString();
         m_heroCards.text = currentInfo.HeroCards.ToString();
+
+        cacheLeaderName = currentInfo.DeckLeader.id;
+        m_deckLeader.text = currentInfo.DeckLeader.id;
     }
 
 }

@@ -13,6 +13,7 @@ namespace GwentClone
         public const string MESSAGE_DUPLICATEHEROES = "This deck is not allowed copies of this hero card.";
         public const string MESSAGE_NODECKYET = "Create a deck first before trying to add cards.";
         public const string MESSAGE_DUPLICATEREGULAR = "This deck is not allowed more than 2 copies of regular cards.";
+        public const string MESSAGE_INVALIDLEADERSWITCH = "The new leader is not part of this deck's faction.";
     }
 
 }

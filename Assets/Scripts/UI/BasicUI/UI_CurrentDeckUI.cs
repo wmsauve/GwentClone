@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-namespace GwentClone
+namespace GwentClone.UI
 {
     public class UI_CurrentDeckUI : UI_InitializeFromManager
     {
@@ -79,11 +79,11 @@ namespace GwentClone
             }
         }
 
-        public void CreateADeck()
+        public void CreateADeck(Leader leader)
         {
             if (m_cardListScrollPrefab == null) return;
 
-            var _newDeck = MainMenu_DeckManager.AddDeck();
+            var _newDeck = MainMenu_DeckManager.AddDeck(leader);
             m_decksList.AddDeck(_newDeck);
             var newWindow = Instantiate(m_cardListScrollPrefab, m_hasDeckUI.transform);
             _deckScrolls.Add(_newDeck.DeckUID, newWindow);
@@ -97,7 +97,7 @@ namespace GwentClone
             
         }
 
-        private void OpenLeaderPage()
+        public void OpenLeaderPage()
         {
             if (m_leaderPage.activeSelf)
             {
@@ -128,7 +128,11 @@ namespace GwentClone
                     return;
                 }
 
-                if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed) m_deckListManager.SetOldDeckListButtons();
+                if(MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
+                {
+                    m_deckListManager.SetOldDeckListButtons();
+                    MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
+                }
 
                 m_deckListManager.SetCurrentContent(content);
             }
