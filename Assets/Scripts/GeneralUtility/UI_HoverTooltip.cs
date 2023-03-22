@@ -16,7 +16,12 @@ namespace GwentClone
         [Header("Leader Related")]
         [SerializeField] private TextMeshProUGUI m_leaderName = null;
         [SerializeField] private TextMeshProUGUI m_leaderAbility = null;
- 
+
+        [Header("Card Related")]
+        [SerializeField] private TextMeshProUGUI m_cardName = null;
+        [SerializeField] private TextMeshProUGUI m_cardAbility = null;
+        [SerializeField] private TextMeshProUGUI m_cardPower = null;
+
         private RectTransform canvasRect = null;
         private RectTransform mainRect = null;
 
@@ -77,6 +82,16 @@ namespace GwentClone
                 m_leaderUI.SetActive(false);
                 m_cardUI.SetActive(true);
                 m_objectSprite.sprite = cardInfo.cardImage;
+                m_cardName.text = cardInfo.id;
+
+                string _effects = "";
+                foreach(EnumCardEffects effect in cardInfo.cardEffects)
+                {
+                    _effects += " " + GeneralPurposeFunctions.ReturnSkillDescription(effect);
+                }
+
+                m_cardAbility.text = _effects;
+                m_cardPower.text = "Card Power: " + cardInfo.cardPower.ToString();
 
             }
             else if (typeof(T) == typeof(Leader))

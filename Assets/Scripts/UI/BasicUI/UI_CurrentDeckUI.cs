@@ -18,6 +18,7 @@ namespace GwentClone.UI
         [SerializeField] private Button m_createFirstDeck = null;
         [SerializeField] private UI_DeckScrollBar m_decksList = null;
         [SerializeField] private UI_DeckListManager m_deckListManager = null;
+        [SerializeField] private UI_FillCardMenu m_selectableCardsManager = null;
 
         private Dictionary<string, GameObject> _deckScrolls = new Dictionary<string, GameObject>();
         private GameObject _currentWindow = null;
@@ -25,7 +26,7 @@ namespace GwentClone.UI
 
         protected override void InitializeThisUIComp()
         {
-            if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null || m_cardListScrollPrefab == null || m_deckListManager == null || m_leaderPage == null)
+            if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null || m_cardListScrollPrefab == null || m_deckListManager == null || m_leaderPage == null || m_selectableCardsManager == null)
             {
                 Debug.LogWarning("You don't have the UIs added to this component to show your decks.");
                 return;
@@ -134,6 +135,7 @@ namespace GwentClone.UI
                     MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
                 }
 
+                m_selectableCardsManager.ResetListBasedOnFaction(deck.DeckLeader.factionType);
                 m_deckListManager.SetCurrentContent(content);
             }
             else

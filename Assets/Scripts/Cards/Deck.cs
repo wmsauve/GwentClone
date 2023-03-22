@@ -95,7 +95,7 @@ namespace GwentClone
                 _newCard.unitType = _otherCards[i].unitType;
                 _newCard.unitPlacement = _otherCards[i].unitPlacement;
                 _newCard.factionType = _otherCards[i].factionType;
-                _newCard.specialEffect = _otherCards[i].specialEffect;
+                _newCard.cardEffects = _otherCards[i].cardEffects;
                 _newCard.isHero = _otherCards[i].isHero;
                 _newCard.cardPower = _otherCards[i].cardPower;
                 _newCard.cardType = _otherCards[i].cardType;

@@ -32,6 +32,18 @@ namespace GwentClone
         Unit,
     }
 
+    /// <summary>
+    /// Effects that a card can have. 
+    /// </summary>
+    public enum EnumCardEffects
+    {
+        Decoy,
+        Hero,
+        Medic,
+        Muster,
+        None
+    }
+
     public enum EnumFactionType
     {
         Neutral,

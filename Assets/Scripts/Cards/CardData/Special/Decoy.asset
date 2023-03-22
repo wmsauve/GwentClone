@@ -17,7 +17,7 @@ MonoBehaviour:
   cardType: 0
   unitPlacement: 3
   factionType: 0
-  specialEffect: 1
+  cardEffects: 00000000
   isHero: 0
   cardPower: 0
   maxPerDeck: 2

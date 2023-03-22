@@ -11,6 +11,8 @@ namespace GwentClone.UI
         private Image m_image = null;
         private Card m_myData = null;
 
+        public Card CardData { get { return m_myData; } }
+
         private Button myBtnComp = null;
 
         public void InitializeCardButton(Card cardData)
