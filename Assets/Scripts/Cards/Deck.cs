@@ -100,6 +100,7 @@ namespace GwentClone
                 _newCard.cardPower = _otherCards[i].cardPower;
                 _newCard.cardType = _otherCards[i].cardType;
                 _newCard.maxPerDeck = _otherCards[i].maxPerDeck;
+                _newCard.musterTag = _otherCards[i].musterTag;
 
                 cards.Add(_newCard);
             }

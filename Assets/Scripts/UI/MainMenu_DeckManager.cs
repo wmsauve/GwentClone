@@ -107,6 +107,7 @@ namespace GwentClone
                 if (newCards[i].isHero != oldCards[i].isHero) return EnumDeckStatus.Changed;
                 if (newCards[i].cardPower != oldCards[i].cardPower) return EnumDeckStatus.Changed;
                 if (newCards[i].maxPerDeck != oldCards[i].maxPerDeck) return EnumDeckStatus.Changed;
+                if (newCards[i].musterTag != oldCards[i].musterTag) return EnumDeckStatus.Changed;
             }
 
             return EnumDeckStatus.NotChanged;

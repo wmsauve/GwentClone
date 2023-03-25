@@ -5036,6 +5036,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c46687df6b9ca0a49b20083ec3b63e7e, type: 2}
   - {fileID: 11400000, guid: 77adbec471160fc468af41ec607b7ddd, type: 2}
   - {fileID: 11400000, guid: 51eb91a295c9fa44bb79eddf32ded719, type: 2}
+  - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
+  - {fileID: 11400000, guid: 8efdc8fc0b3aa2942976ece526fea941, type: 2}
   m_closeCombat: {fileID: 89769077}
   m_ranged: {fileID: 1580238982}
   m_siege: {fileID: 774951419}

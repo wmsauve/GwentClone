@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a0a38c8174343e04eb7790095036d39f, type: 3}
-  m_Name: Arachas
+  m_Name: Ballista
   m_EditorClassIdentifier: 
-  id: Arachas
+  id: Ballista
   unitType: 0
   cardType: 1
-  unitPlacement: 0
-  factionType: 1
-  cardEffects: 03000000
+  unitPlacement: 2
+  factionType: 3
+  cardEffects: 
   isHero: 0
-  cardPower: 4
+  cardPower: 6
   maxPerDeck: 2
-  cardImage: {fileID: 21300000, guid: 31ad8e9da6cf16940afc2f306d54357d, type: 3}
+  musterTag: 
+  cardImage: {fileID: 21300000, guid: 7fc17eaf7c59e3e429ee4ecb32baf8b8, type: 3}

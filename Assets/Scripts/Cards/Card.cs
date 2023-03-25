@@ -19,7 +19,7 @@ namespace GwentClone
         public bool isHero;
         public int cardPower;
         public int maxPerDeck;
-
+        public string musterTag;
 
         public Sprite cardImage;
     }
