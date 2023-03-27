@@ -18,7 +18,6 @@ namespace GwentClone
 
         protected virtual void InitializeThisUIComp()
         {
-
         }
     }
 
