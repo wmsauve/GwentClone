@@ -103,6 +103,12 @@ namespace GwentClone
 
         private void AcceptNameChange()
         {
+            if (changeNameField.text.Length > 20)
+            {
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_INPUTFIELDTOOLONG);
+                return;
+            }
+
             var _newDeckName = changeNameField.text.ToUpper().Trim();
             deckNameText.text = _newDeckName;
             whichDeck.SetDeckName(_newDeckName);
