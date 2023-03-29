@@ -12,6 +12,12 @@ namespace BackendFunctionality
         public string username;
         public string password;
     }
+    [System.Serializable]
+    public struct ResponseFromServer
+    {
+        public string message;
+        public bool isSuccess;
+    }
 
     public class APIManager: Singleton<APIManager>
     {
@@ -51,10 +57,12 @@ namespace BackendFunctionality
             request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
-            Debug.Log("Status Code: " + request.responseCode);
-            Debug.Log("Message: " + request.result);
+            //Debug.Log("Status Code: " + request.responseCode);
+            //Debug.Log("Message: " + request.downloadHandler.text);
+
+            var _fromServer = JsonUtility.FromJson<ResponseFromServer>(request.downloadHandler.text);
             request.Dispose();
-            GlobalBackendActions.OnFinishedAPICall?.Invoke(type);
+            GlobalBackendActions.OnFinishedAPICall?.Invoke(type, _fromServer);
             yield return null;
         }
     }

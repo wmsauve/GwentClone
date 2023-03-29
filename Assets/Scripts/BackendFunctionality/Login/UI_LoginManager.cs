@@ -4,6 +4,8 @@ using UnityEngine;
 using GwentClone;
 using UnityEngine.UI;
 using TMPro;
+using System;
+using UnityEngine.EventSystems;
 
 namespace BackendFunctionality.Login
 {
@@ -12,6 +14,7 @@ namespace BackendFunctionality.Login
         [Header("Main Panels")]
         [SerializeField] private GameObject m_loginButtons = null;
         [SerializeField] private GameObject m_fillInFields = null;
+        [SerializeField] private GameObject m_toEnableOnLogin = null;
 
         [Header("Buttons")]
         [SerializeField] private Button m_login = null;
@@ -22,6 +25,7 @@ namespace BackendFunctionality.Login
         [Header("Text Related")]
         [SerializeField] private TMP_InputField m_username = null;
         [SerializeField] private TMP_InputField m_password = null;
+        [SerializeField] private Selectable[] m_inputFields = null;
         [SerializeField] private TextMeshProUGUI m_userFeedbackText = null;
 
         private string fullAPI;
@@ -32,7 +36,7 @@ namespace BackendFunctionality.Login
         protected override void InitializeThisUIComp()
         {
 
-            if (m_loginButtons == null || m_fillInFields == null)
+            if (m_loginButtons == null || m_fillInFields == null || m_toEnableOnLogin == null)
             {
                 Debug.LogWarning("Add login objects here.");
                 return;
@@ -50,6 +54,12 @@ namespace BackendFunctionality.Login
                 return;
             }
 
+            if (m_inputFields == null)
+            {
+                Debug.LogWarning("Add your input fields here to be able to tab through it.");
+                return;
+            }
+
             if(m_return.transform.parent != null) m_return.transform.parent.gameObject.SetActive(false);
             else m_return.gameObject.SetActive(false);
 
@@ -57,11 +67,36 @@ namespace BackendFunctionality.Login
             m_fillInFields.SetActive(false);
             m_userFeedbackText.gameObject.SetActive(false);
 
+            char passwordMask = '*';
+            m_password.contentType = TMP_InputField.ContentType.Password;
+            m_password.asteriskChar = passwordMask;
+
             manager = APIManager.Instance;
             if(manager == null)
             {
                 Debug.LogWarning("Did you set a master instance of this Monobehavior?");
             }
+        }
+
+        private void Update()
+        {
+            if (m_accept.isActiveAndEnabled && m_accept.interactable)
+            {
+                if (Input.GetKeyDown(KeyCode.Return))
+                {
+                    RequestInfoFromServer();
+                }
+            }
+
+            if(m_inputFields.Length > 0)
+            {
+                if (Input.GetKeyDown(KeyCode.Tab))
+                {
+                    Selectable _next = FunctionLibrary.CycleBetweenSelectables(m_inputFields);
+                    if (_next != null) _next.Select();
+                }
+            }
+
         }
 
         protected override void OnEnable()
@@ -75,7 +110,7 @@ namespace BackendFunctionality.Login
 
             m_login.onClick.AddListener(UserIsLoggingIn);
             m_signUp.onClick.AddListener(UserIsSigningUp);
-            m_return.onClick.AddListener(ReturnFunctionality);
+            m_return.onClick.AddListener(delegate { ReturnFunctionality(""); });
             m_accept.onClick.AddListener(RequestInfoFromServer);
 
             GlobalBackendActions.OnFinishedAPICall += OnSuccessfulAPICall;
@@ -92,7 +127,7 @@ namespace BackendFunctionality.Login
 
             m_login.onClick.RemoveListener(UserIsLoggingIn);
             m_signUp.onClick.RemoveListener(UserIsSigningUp);
-            m_return.onClick.RemoveListener(ReturnFunctionality);
+            m_return.onClick.RemoveListener(delegate { ReturnFunctionality(""); });
             m_accept.onClick.RemoveListener(RequestInfoFromServer);
 
             GlobalBackendActions.OnFinishedAPICall -= OnSuccessfulAPICall;
@@ -126,13 +161,13 @@ namespace BackendFunctionality.Login
             whichAPICall = EnumAPIType.signup;
         }
 
-        private void ReturnFunctionality()
+        private void ReturnFunctionality(string message)
         {
             m_fillInFields.SetActive(false);
             m_loginButtons.SetActive(true);
             if (m_return.transform.parent != null) m_return.transform.parent.gameObject.SetActive(false);
             else m_return.gameObject.SetActive(false);
-            m_userFeedbackText.gameObject.SetActive(false);
+            m_userFeedbackText.text = message;
             fullAPI = "";
         }
 
@@ -166,18 +201,40 @@ namespace BackendFunctionality.Login
             
         }
 
-        public void OnSuccessfulAPICall(EnumAPIType type)
+        public void OnSuccessfulAPICall(EnumAPIType type, ResponseFromServer response)
         {
             if (type != whichAPICall) return;
 
-            if (ongoingCoroutine != null) StopCoroutine(ongoingCoroutine);
+            if (ongoingCoroutine != null)
+            {
+                StopCoroutine(ongoingCoroutine);
+                ongoingCoroutine = null;
+            }
             m_return.interactable = true;
             m_accept.interactable = true;
+
+            m_username.text = "";
+            m_password.text = "";
 
             switch (whichAPICall)
             {
                 case EnumAPIType.login:
-
+                    if(response.isSuccess)
+                    {
+                        m_toEnableOnLogin.SetActive(true);
+                        gameObject.SetActive(false);
+                        break;
+                    }
+                    m_userFeedbackText.text = response.message;
+                    
+                    break;
+                case EnumAPIType.signup:
+                    if (response.isSuccess)
+                    {
+                        ReturnFunctionality(response.message);
+                        break;
+                    }
+                    m_userFeedbackText.text = response.message;
                     break;
             }
         }

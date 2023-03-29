@@ -1991,6 +1991,7 @@ GameObject:
   - component: {fileID: 540248129}
   - component: {fileID: 540248128}
   - component: {fileID: 540248131}
+  - component: {fileID: 540248132}
   m_Layer: 0
   m_Name: GameInstance
   m_TagString: Untagged
@@ -2051,6 +2052,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_instantiatePrefab: {fileID: 2195638889970919471, guid: 847f19694727df8449142b4512544d0b, type: 3}
+--- !u!114 &540248132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540248127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87f33c5d270934b468d23db124a4e416, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &582889378
 GameObject:
   m_ObjectHideFlags: 0
@@ -2548,7 +2561,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &769151982
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2625,12 +2638,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_loginButtons: {fileID: 1367443190}
   m_fillInFields: {fileID: 1074583827}
+  m_toEnableOnLogin: {fileID: 1364477822}
   m_login: {fileID: 279214200}
   m_signUp: {fileID: 1642475735}
   m_return: {fileID: 960631185}
   m_accept: {fileID: 214776637}
   m_username: {fileID: 1438299653}
   m_password: {fileID: 372251784}
+  m_inputFields:
+  - {fileID: 1438299653}
+  - {fileID: 372251784}
   m_userFeedbackText: {fileID: 302192280}
 --- !u!1 &774951417
 GameObject:
@@ -4659,7 +4676,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1364477823
 RectTransform:
   m_ObjectHideFlags: 0

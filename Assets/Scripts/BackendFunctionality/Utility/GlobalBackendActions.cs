@@ -7,7 +7,7 @@ namespace BackendFunctionality
         /// <summary>
         /// Used for returning back to whoever made the api call.
         /// </summary>
-        public static Action<EnumAPIType> OnFinishedAPICall;
+        public static Action<EnumAPIType, ResponseFromServer> OnFinishedAPICall;
     }
 
 }
