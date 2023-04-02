@@ -221,6 +221,9 @@ namespace BackendFunctionality.Login
                 case EnumAPIType.login:
                     if(response.isSuccess)
                     {
+                        Debug.LogWarning(response.information + " what is this?");
+                        //Add way to parse this json.
+
                         m_toEnableOnLogin.SetActive(true);
                         gameObject.SetActive(false);
                         break;

@@ -16,6 +16,7 @@ namespace BackendFunctionality
     public struct ResponseFromServer
     {
         public string message;
+        public string information;
         public bool isSuccess;
     }
 
