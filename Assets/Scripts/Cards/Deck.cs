@@ -6,6 +6,9 @@ namespace GwentClone
 {
     public class Deck
     {
+        private bool isCurrentDeck;
+        public bool IsCurrentDeck { get { return isCurrentDeck; } set { isCurrentDeck = value; } }
+
         private List<Card> cards;
         public List<Card> Cards { get { return cards; } }
 
@@ -28,6 +31,7 @@ namespace GwentClone
 
         private Leader deckLeader;
         public Leader DeckLeader { get { return deckLeader; } }
+
 
         public Deck() 
         {
@@ -79,6 +83,8 @@ namespace GwentClone
 
         public void CloneDeck(Deck deckToClone)
         {
+            isCurrentDeck = deckToClone.IsCurrentDeck;
+
             _deckName = deckToClone.DeckName;
 
             _deckUID = deckToClone._deckUID;

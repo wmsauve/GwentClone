@@ -201,7 +201,7 @@ namespace BackendFunctionality.Login
             
         }
 
-        public void OnSuccessfulAPICall(EnumAPIType type, ResponseFromServer response)
+        public void OnSuccessfulAPICall(EnumAPIType type, ResponseFromServer response, int code)
         {
             if (type != whichAPICall) return;
 
@@ -216,13 +216,18 @@ namespace BackendFunctionality.Login
             m_username.text = "";
             m_password.text = "";
 
+            if (code != 200)
+            {
+                m_userFeedbackText.text = GlobalConstantValues.MESSAGE_SERVERDOWN;
+                return;
+            }
+
             switch (whichAPICall)
             {
                 case EnumAPIType.login:
                     if(response.isSuccess)
                     {
-                        Debug.LogWarning(response.information + " what is this?");
-                        //Add way to parse this json.
+                        ProcessLoginInfo(response.information);
 
                         m_toEnableOnLogin.SetActive(true);
                         gameObject.SetActive(false);
@@ -271,6 +276,16 @@ namespace BackendFunctionality.Login
                 
             }
             return m_password.text;
+        }
+
+        private void ProcessLoginInfo(string information)
+        {
+            GwentUser _loggedIn = JsonUtility.FromJson<GwentUser>(information);
+            Debug.LogWarning(_loggedIn.username);
+            Debug.LogWarning(_loggedIn.decks.decks[0].isCurrent);
+            Debug.LogWarning(_loggedIn.decks.decks[0].name);
+            Debug.LogWarning(_loggedIn.decks.decks[0].cards[0].name);
+            Debug.LogWarning(_loggedIn.decks.decks[0].cards[1].name);
         }
     }
 }

@@ -54,16 +54,23 @@ namespace BackendFunctionality
             var request = new UnityWebRequest(url, "POST");
             string json = JsonUtility.ToJson(data);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(json);
-            request.uploadHandler = (UploadHandler)new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
             yield return request.SendWebRequest();
             //Debug.Log("Status Code: " + request.responseCode);
             //Debug.Log("Message: " + request.downloadHandler.text);
 
-            var _fromServer = JsonUtility.FromJson<ResponseFromServer>(request.downloadHandler.text);
+            ResponseFromServer _fromServer = new ResponseFromServer();
+            if (request.responseCode == 200)
+            {
+                _fromServer = JsonUtility.FromJson<ResponseFromServer>(request.downloadHandler.text);
+                Debug.Log(_fromServer.message);
+                Debug.Log(_fromServer.isSuccess);
+                Debug.Log(_fromServer.information);
+            }
+            GlobalBackendActions.OnFinishedAPICall?.Invoke(type, _fromServer, (int)request.responseCode);
             request.Dispose();
-            GlobalBackendActions.OnFinishedAPICall?.Invoke(type, _fromServer);
             yield return null;
         }
     }

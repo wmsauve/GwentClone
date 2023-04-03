@@ -8,8 +8,7 @@ namespace GwentClone.UI
 {
     public class UI_FillCardMenu : UI_ScrollView
     {
-        [Header("All Available Cards Related")]
-        [SerializeField] private Card[] m_allCards = null;
+
 
         [Header("Filter Related")]
         [SerializeField] private Button m_closeCombat = null;
@@ -29,8 +28,9 @@ namespace GwentClone.UI
                 return;
             }
 
+            var allCards = GameInstance.CardRepo.AllCards;
 
-            foreach (Card _card in m_allCards)
+            foreach (Card _card in allCards)
             {
                 CreateCardSelectButton(_card);
             }

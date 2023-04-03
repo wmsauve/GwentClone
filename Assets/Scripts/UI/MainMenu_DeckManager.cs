@@ -65,7 +65,17 @@ namespace GwentClone
                 if (newFocused.DeckUID == currentDeck.DeckUID) return;
             }
 
+            foreach(Deck _deck in myDecks)
+            {
+                if (_deck.IsCurrentDeck)
+                {
+                    _deck.IsCurrentDeck = false;
+                    break;
+                }
+            }
+
             currentDeck = newFocused;
+            currentDeck.IsCurrentDeck = true;
             cloneDeck = new Deck();
             cloneDeck.CloneDeck(newFocused);
 

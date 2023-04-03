@@ -1992,6 +1992,7 @@ GameObject:
   - component: {fileID: 540248128}
   - component: {fileID: 540248131}
   - component: {fileID: 540248132}
+  - component: {fileID: 540248133}
   m_Layer: 0
   m_Name: GameInstance
   m_TagString: Untagged
@@ -2064,6 +2065,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87f33c5d270934b468d23db124a4e416, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &540248133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 540248127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7b9421c42df6141ac1c9acddde1569, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_allCards:
+  - {fileID: 11400000, guid: bb9a1344d9650dd4c82af90587a7d7b4, type: 2}
+  - {fileID: 11400000, guid: 880b895a2286b9d439b0fe336fd94249, type: 2}
+  - {fileID: 11400000, guid: 8efdc8fc0b3aa2942976ece526fea941, type: 2}
+  - {fileID: 11400000, guid: c46687df6b9ca0a49b20083ec3b63e7e, type: 2}
+  - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
+  - {fileID: 11400000, guid: 51eb91a295c9fa44bb79eddf32ded719, type: 2}
+  - {fileID: 11400000, guid: 77adbec471160fc468af41ec607b7ddd, type: 2}
 --- !u!1 &582889378
 GameObject:
   m_ObjectHideFlags: 0
@@ -4250,7 +4271,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1242020105
 GameObject:
@@ -6897,14 +6918,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_content: {fileID: 1242020106}
   m_buttonPrefab: {fileID: 6696292006126324387, guid: 088858bcbede5a44cb19e0d8be5d1b3f, type: 3}
-  m_allCards:
-  - {fileID: 11400000, guid: bb9a1344d9650dd4c82af90587a7d7b4, type: 2}
-  - {fileID: 11400000, guid: 880b895a2286b9d439b0fe336fd94249, type: 2}
-  - {fileID: 11400000, guid: c46687df6b9ca0a49b20083ec3b63e7e, type: 2}
-  - {fileID: 11400000, guid: 77adbec471160fc468af41ec607b7ddd, type: 2}
-  - {fileID: 11400000, guid: 51eb91a295c9fa44bb79eddf32ded719, type: 2}
-  - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
-  - {fileID: 11400000, guid: 8efdc8fc0b3aa2942976ece526fea941, type: 2}
   m_closeCombat: {fileID: 89769077}
   m_ranged: {fileID: 1580238982}
   m_siege: {fileID: 774951419}
@@ -7136,7 +7149,7 @@ RectTransform:
   - {fileID: 1719873954}
   - {fileID: 1666086852}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
