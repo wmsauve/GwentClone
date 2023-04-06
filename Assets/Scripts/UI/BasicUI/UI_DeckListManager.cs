@@ -75,7 +75,7 @@ namespace GwentClone
             }
         }
 
-        private void AddCardToDeckList(Card card)
+        public void AddCardToDeckList(Card card)
         {
             if(_addedButtons == null)
             {

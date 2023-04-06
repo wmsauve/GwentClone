@@ -23,6 +23,7 @@ namespace GwentClone
             public struct Deck
             {
                 public string name;
+                public string leaderName;
                 public bool isCurrent;
                 public Card[] cards;
                 public string _id;
@@ -37,18 +38,15 @@ namespace GwentClone
         }
     }
 
-    public class GameInstance : MonoBehaviour
+    public class GameInstance : Singleton<GameInstance>
     {
-        private static GameInstance _instance;
-        public static GameInstance Instance { get { return _instance; } }
+        private GwentUser _user;
+        public GwentUser User { get { return _user; } }
 
-        private static GwentUser _user;
-        public static GwentUser User { get { return _user; } set { _user = value; } }
+        private CardRepository _cardRepo;
+        public CardRepository CardRepo { get { return _cardRepo; } }
 
-        private static CardRepository _cardRepo;
-        public static CardRepository CardRepo { get { return _cardRepo; } }
-
-        private void Awake()
+        protected override void Awake()
         {
             Debug.Log("Main Initialization: Initializing GameInstance.");
             if(GetComponent<FloatingMessage>() == null)
@@ -71,9 +69,12 @@ namespace GwentClone
             {
                 Debug.LogWarning("Your GameInstance is missing the card repository.");
             }
+        }
 
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
+        public void PassNewUser(GwentUser _newUser)
+        {
+            _user.username = _newUser.username;
+            _user.decks = _newUser.decks;
         }
     }
 

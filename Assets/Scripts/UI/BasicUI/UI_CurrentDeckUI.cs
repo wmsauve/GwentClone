@@ -80,11 +80,11 @@ namespace GwentClone.UI
             }
         }
 
-        public void CreateADeck(Leader leader)
+        public Deck CreateADeck(Leader leader, string name = "NEW DECK")
         {
-            if (m_cardListScrollPrefab == null) return;
+            if (m_cardListScrollPrefab == null) return null;
 
-            var _newDeck = MainMenu_DeckManager.AddDeck(leader);
+            var _newDeck = MainMenu_DeckManager.AddDeck(leader, name);
             m_decksList.AddDeck(_newDeck);
             var newWindow = Instantiate(m_cardListScrollPrefab, m_hasDeckUI.transform);
             _deckScrolls.Add(_newDeck.DeckUID, newWindow);
@@ -95,6 +95,8 @@ namespace GwentClone.UI
             {
                 TurnOnHasDeck(true);
             }
+
+            return _newDeck;
             
         }
 

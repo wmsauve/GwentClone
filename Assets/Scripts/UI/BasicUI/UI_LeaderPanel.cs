@@ -12,10 +12,6 @@ namespace GwentClone.UI
         [SerializeField] private Button m_cancelButton = null;
         [SerializeField] private UI_CurrentDeckUI m_createDeckManager = null;
 
-        [Header("Leaders Related")]
-        [SerializeField] private List<Leader> m_leaders = new List<Leader>();
-        
-
         protected override void InitializeThisUIComp()
         {
             if(m_mainPanel == null || m_cancelButton == null || m_createDeckManager == null)
@@ -24,22 +20,15 @@ namespace GwentClone.UI
                 return;
             }
 
-            if (m_leaders == null) return;
-            if (m_leaders.Count == 0)
-            {
-                Debug.LogWarning("Add heroes here.");
-                return;
-            }
-
             AddLeaderButtons();
-
-
             m_mainPanel.SetActive(false);
         }
 
         private void AddLeaderButtons()
         {
-            foreach(Leader leader in m_leaders)
+            var leaders = GameInstance.Instance.CardRepo.AllLeaders;
+
+            foreach(Leader leader in leaders)
             {
                 var _newButton = Instantiate(m_buttonPrefab, m_content);
                 var _buttonComp = _newButton.GetComponentInChildren<UI_LeaderButton>();

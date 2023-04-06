@@ -26,10 +26,12 @@ namespace BackendFunctionality
         [SerializeField] private string m_apiURL;
         [SerializeField] private string m_loginEndpoint;
         [SerializeField] private string m_signupEndpoint;
+        [SerializeField] private string m_saveDeckEndpoint;
 
         public string API_URL { get { return m_apiURL; } }
         public string API_ENDPOINT_LOGIN { get { return m_loginEndpoint; } }
         public string API_ENDPOINT_SIGNUP { get { return m_signupEndpoint; } }
+        public string API_ENDPOINT_SAVEDECK { get { return m_saveDeckEndpoint; } }
 
         public IEnumerator GetRequest(string url, EnumAPIType type)
         {
@@ -65,9 +67,6 @@ namespace BackendFunctionality
             if (request.responseCode == 200)
             {
                 _fromServer = JsonUtility.FromJson<ResponseFromServer>(request.downloadHandler.text);
-                Debug.Log(_fromServer.message);
-                Debug.Log(_fromServer.isSuccess);
-                Debug.Log(_fromServer.information);
             }
             GlobalBackendActions.OnFinishedAPICall?.Invoke(type, _fromServer, (int)request.responseCode);
             request.Dispose();

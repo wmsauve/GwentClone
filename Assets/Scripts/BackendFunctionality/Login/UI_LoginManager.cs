@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using GwentClone;
 using UnityEngine.UI;
 using TMPro;
-using System;
-using UnityEngine.EventSystems;
+using GwentClone.UI;
 
 namespace BackendFunctionality.Login
 {
@@ -15,6 +12,7 @@ namespace BackendFunctionality.Login
         [SerializeField] private GameObject m_loginButtons = null;
         [SerializeField] private GameObject m_fillInFields = null;
         [SerializeField] private GameObject m_toEnableOnLogin = null;
+        [SerializeField] private GameObject m_mainDeckUIHolder = null;
 
         [Header("Buttons")]
         [SerializeField] private Button m_login = null;
@@ -57,6 +55,12 @@ namespace BackendFunctionality.Login
             if (m_inputFields == null)
             {
                 Debug.LogWarning("Add your input fields here to be able to tab through it.");
+                return;
+            }
+
+            if (m_mainDeckUIHolder == null)
+            {
+                Debug.LogWarning("You didn't add the main thing to initialize with decks after login.");
                 return;
             }
 
@@ -281,11 +285,48 @@ namespace BackendFunctionality.Login
         private void ProcessLoginInfo(string information)
         {
             GwentUser _loggedIn = JsonUtility.FromJson<GwentUser>(information);
-            Debug.LogWarning(_loggedIn.username);
-            Debug.LogWarning(_loggedIn.decks.decks[0].isCurrent);
-            Debug.LogWarning(_loggedIn.decks.decks[0].name);
-            Debug.LogWarning(_loggedIn.decks.decks[0].cards[0].name);
-            Debug.LogWarning(_loggedIn.decks.decks[0].cards[1].name);
+            GameInstance.Instance.PassNewUser(_loggedIn);
+            
+            var decks = _loggedIn.decks.decks;
+            if(decks.Length == 0) return;
+            
+            var cardRepo = GameInstance.Instance.CardRepo;
+            var currentDecks = m_mainDeckUIHolder.GetComponent<UI_CurrentDeckUI>();
+            var currentCards = m_mainDeckUIHolder.GetComponent<UI_DeckListManager>();
+
+            for (int i = 0; i < decks.Length; i++)
+            {
+                Leader _newLeader = ScriptableObject.CreateInstance<Leader>();
+                _newLeader = cardRepo.GetLeader(decks[i].leaderName);
+
+                Deck _newDeck = currentDecks.CreateADeck(_newLeader, decks[i].name);
+                _newDeck.SetDeckName(decks[i].name);
+
+                var cards = decks[i].cards;
+                for(int j = 0; j < cards.Length; j++)
+                {
+                    Card _newCard = ScriptableObject.CreateInstance<Card>();
+                    _newCard = cardRepo.GetCard(cards[j].name);
+
+                    _newDeck.AddCard(_newCard);
+                    currentCards.AddCardToDeckList(_newCard);
+                }
+            }
+
+            MainMenu_DeckSaved.DeckChangedStatus = EnumDeckStatus.NotChanged;
+
+            //Now set active deck
+            var _newlySetDecks = MainMenu_DeckManager.MyDecks;
+            for (int i = 0; i < decks.Length; i++)
+            {
+                _newlySetDecks[i].IsCurrentDeck = decks[i].isCurrent;
+                if (_newlySetDecks[i].IsCurrentDeck)
+                {
+                    MainMenu_DeckManager.SwitchFocusedDeck(_newlySetDecks[i]);
+                }
+            }
+
+
         }
     }
 }

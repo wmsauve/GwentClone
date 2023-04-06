@@ -5,6 +5,7 @@ namespace BackendFunctionality
     {
         login,
         signup,
+        savedeck,
     }
 
 }

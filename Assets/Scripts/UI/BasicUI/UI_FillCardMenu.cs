@@ -28,7 +28,7 @@ namespace GwentClone.UI
                 return;
             }
 
-            var allCards = GameInstance.CardRepo.AllCards;
+            var allCards = GameInstance.Instance.CardRepo.AllCards;
 
             foreach (Card _card in allCards)
             {

@@ -15,11 +15,13 @@ namespace GwentClone
               
 
         [Header("Login Related")]
-        [SerializeField] private bool m_testLogin = false;
+        [SerializeField] private bool m_login = false;
         [SerializeField] private GameObject m_loginMenu = null;
         [SerializeField] private GameObject m_startGameButtons = null;
 
-        void Start()
+
+
+        private void Start()
         {
 
             if (m_canvas == null)
@@ -57,7 +59,7 @@ namespace GwentClone
             m_cardMenu.SetActive(false);
 
 #if UNITY_EDITOR
-            if (m_testLogin)
+            if (m_login)
             {
                 m_loginMenu.SetActive(true);
                 m_startGameButtons.SetActive(false);
