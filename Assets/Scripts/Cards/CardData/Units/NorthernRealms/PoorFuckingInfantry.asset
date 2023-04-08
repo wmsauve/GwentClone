@@ -17,8 +17,8 @@ MonoBehaviour:
   cardType: 1
   unitPlacement: 0
   factionType: 3
-  cardEffects: 04000000
-  isHero: 0
+  cardEffects: 05000000
   cardPower: 1
   maxPerDeck: 2
+  musterTag: 
   cardImage: {fileID: 21300000, guid: 32ce3baba8d38b8449c67c400483e89a, type: 3}

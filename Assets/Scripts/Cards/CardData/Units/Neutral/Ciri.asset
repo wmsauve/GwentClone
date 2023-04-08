@@ -21,4 +21,5 @@ MonoBehaviour:
   isHero: 1
   cardPower: 15
   maxPerDeck: 1
+  musterTag: 
   cardImage: {fileID: 21300000, guid: be07c547ad53c624ca710de33b1f3054, type: 3}

@@ -16,7 +16,6 @@ namespace GwentClone
         public EnumUnitPlacement unitPlacement;
         public EnumFactionType factionType;
         public List<EnumCardEffects> cardEffects;
-        public bool isHero;
         public int cardPower;
         public int maxPerDeck;
         public string musterTag;

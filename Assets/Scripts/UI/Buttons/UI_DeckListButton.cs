@@ -38,7 +38,7 @@ namespace GwentClone
 
             deckListManager = manager;
 
-            if (myData.isHero)
+            if (myData.cardEffects.Contains(EnumCardEffects.Hero))
             {
                 borderHighlight.color = Color.yellow;
             }

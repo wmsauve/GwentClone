@@ -114,7 +114,6 @@ namespace GwentClone
                 if (newCards[i].unitPlacement != oldCards[i].unitPlacement) return EnumDeckStatus.Changed;
                 if (newCards[i].factionType != oldCards[i].factionType) return EnumDeckStatus.Changed;
                 if (newCards[i].cardEffects != oldCards[i].cardEffects) return EnumDeckStatus.Changed;
-                if (newCards[i].isHero != oldCards[i].isHero) return EnumDeckStatus.Changed;
                 if (newCards[i].cardPower != oldCards[i].cardPower) return EnumDeckStatus.Changed;
                 if (newCards[i].maxPerDeck != oldCards[i].maxPerDeck) return EnumDeckStatus.Changed;
                 if (newCards[i].musterTag != oldCards[i].musterTag) return EnumDeckStatus.Changed;
@@ -146,13 +145,13 @@ namespace GwentClone
                 foreach (Card card in currentDeck.Cards)
                 {
 
-                    if (newCard.isHero && newCard.id == card.id)
+                    if (newCard.cardEffects.Contains(EnumCardEffects.Hero) && newCard.id == card.id)
                     {
                         GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_DUPLICATEHEROES);
                         return false;
                     }
 
-                    if (!newCard.isHero && newCard.id == card.id)
+                    if (!newCard.cardEffects.Contains(EnumCardEffects.Hero) && newCard.id == card.id)
                     {
                         bronzeCounter++;
                         continue;
@@ -160,7 +159,7 @@ namespace GwentClone
                 }
             }
 
-            if (bronzeCounter == 2)
+            if (bronzeCounter == 3)
             {
                 GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_DUPLICATEREGULAR);
                 return false;

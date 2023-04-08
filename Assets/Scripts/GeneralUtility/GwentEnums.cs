@@ -39,8 +39,17 @@ namespace GwentClone
     {
         Decoy,
         Hero,
+        Weather,
         Medic,
         Muster,
+        TightBond,
+        Spy,
+        Berserker,
+        Agile,
+        CommandersHorn,
+        Mardroeme,
+        MoraleBoost,
+        Scorch,
         None
     }
 

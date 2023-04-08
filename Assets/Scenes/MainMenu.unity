@@ -2081,11 +2081,33 @@ MonoBehaviour:
   m_allCards:
   - {fileID: 11400000, guid: bb9a1344d9650dd4c82af90587a7d7b4, type: 2}
   - {fileID: 11400000, guid: 880b895a2286b9d439b0fe336fd94249, type: 2}
-  - {fileID: 11400000, guid: 8efdc8fc0b3aa2942976ece526fea941, type: 2}
-  - {fileID: 11400000, guid: c46687df6b9ca0a49b20083ec3b63e7e, type: 2}
-  - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
   - {fileID: 11400000, guid: 51eb91a295c9fa44bb79eddf32ded719, type: 2}
   - {fileID: 11400000, guid: 77adbec471160fc468af41ec607b7ddd, type: 2}
+  - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
+  - {fileID: 11400000, guid: f42ac35931fe4054ca1f269329ff816f, type: 2}
+  - {fileID: 11400000, guid: 257e7f5273200b94ea14be3854471c57, type: 2}
+  - {fileID: 11400000, guid: d9e8e75f44d4cd24bb1a70022f691c2b, type: 2}
+  - {fileID: 11400000, guid: 8efdc8fc0b3aa2942976ece526fea941, type: 2}
+  - {fileID: 11400000, guid: 95350824b86747b45a180cb912a9b3a2, type: 2}
+  - {fileID: 11400000, guid: 101822cdbf480f549b5ac5593973603c, type: 2}
+  - {fileID: 11400000, guid: e30792095188982428cc33f1afa720a3, type: 2}
+  - {fileID: 11400000, guid: a2ab13f232692714389faf52980a4e38, type: 2}
+  - {fileID: 11400000, guid: 8fa37ab525c0a9545aff1997465188ab, type: 2}
+  - {fileID: 11400000, guid: 94c61bce357a6934d8082d4a66af84ce, type: 2}
+  - {fileID: 11400000, guid: c46687df6b9ca0a49b20083ec3b63e7e, type: 2}
+  - {fileID: 11400000, guid: 58bf26ee87590144eb4c3d1f23f877af, type: 2}
+  - {fileID: 11400000, guid: 0987f8569bbadc7488f834373b4df418, type: 2}
+  - {fileID: 11400000, guid: 30d9424f46d66414fade52f6661e3497, type: 2}
+  - {fileID: 11400000, guid: 722769afe9ce0ec41a820ea4a1332c45, type: 2}
+  - {fileID: 11400000, guid: c90c7eb2cd857fa4b90f2230ba6b3ce7, type: 2}
+  - {fileID: 11400000, guid: 1c483f44ac9857641bd657fa099eaa33, type: 2}
+  - {fileID: 11400000, guid: 5efdfe5794a4cf740aa1d3d9ddc6c88c, type: 2}
+  - {fileID: 11400000, guid: 5e627e6cb993cac48b8fcbabec99bd39, type: 2}
+  - {fileID: 11400000, guid: 4b91a947491fd9448ac2d5946715bc85, type: 2}
+  - {fileID: 11400000, guid: 1e9160ba99a802c418afd49c2803af3a, type: 2}
+  - {fileID: 11400000, guid: 916f95cea622b4940b5d5a0081ebb494, type: 2}
+  - {fileID: 11400000, guid: 21a026ae9a2d8764abb05a308f3b294f, type: 2}
+  - {fileID: 11400000, guid: 8ccab209b621e8a44add865d89ca729d, type: 2}
   m_allLeaders:
   - {fileID: 11400000, guid: 70661f7cc46632d43a1185463cee84b2, type: 2}
   - {fileID: 11400000, guid: 4eb1313f1edddd145adb0d05ba4d0c0e, type: 2}
@@ -7037,9 +7059,6 @@ MonoBehaviour:
   m_mainPanel: {fileID: 803362340}
   m_cancelButton: {fileID: 1942196690}
   m_createDeckManager: {fileID: 1719873957}
-  m_leaders:
-  - {fileID: 11400000, guid: 70661f7cc46632d43a1185463cee84b2, type: 2}
-  - {fileID: 11400000, guid: 4eb1313f1edddd145adb0d05ba4d0c0e, type: 2}
 --- !u!1 &1776253308
 GameObject:
   m_ObjectHideFlags: 0
@@ -7072,7 +7091,7 @@ MonoBehaviour:
   m_canvas: {fileID: 1806394667}
   m_mainMenu: {fileID: 1666086851}
   m_cardMenu: {fileID: 1719873953}
-  m_login: 1
+  m_login: 0
   m_loginMenu: {fileID: 769151981}
   m_startGameButtons: {fileID: 1364477822}
 --- !u!4 &1776253310

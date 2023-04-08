@@ -17,8 +17,7 @@ MonoBehaviour:
   cardType: 1
   unitPlacement: 0
   factionType: 1
-  cardEffects: 03000000
-  isHero: 0
+  cardEffects: 04000000
   cardPower: 4
   maxPerDeck: 2
   musterTag: Arachas
