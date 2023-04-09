@@ -10,7 +10,8 @@ namespace GwentClone
         Frontline,
         Ranged,
         Siege,
-        Any
+        Any,
+        Agile_FR
     }
 
     /// <summary>
