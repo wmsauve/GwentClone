@@ -87,6 +87,11 @@ namespace GwentClone
                 string _effects = "";
                 foreach(EnumCardEffects effect in cardInfo.cardEffects)
                 {
+                    if(effect == EnumCardEffects.Scorch || effect == EnumCardEffects.Weather)
+                    {
+                        _effects += " " + GeneralPurposeFunctions.ReturnSkillDescription(effect, cardInfo.unitPlacement);
+                        continue;
+                    }
                     _effects += " " + GeneralPurposeFunctions.ReturnSkillDescription(effect);
                 }
 

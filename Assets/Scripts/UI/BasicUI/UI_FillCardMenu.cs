@@ -116,8 +116,8 @@ namespace GwentClone.UI
                 var cardObj = _card.gameObject;
 
                 if (cardData.unitPlacement == pos && (cardData.factionType == cacheFactionType || cardData.factionType == EnumFactionType.Neutral)) cardObj.SetActive(true);
+                else if (cardData.cardEffects.Contains(EnumCardEffects.Agile) && (pos == EnumUnitPlacement.Frontline || pos == EnumUnitPlacement.Ranged)) cardObj.SetActive(true);
                 else cardObj.SetActive(false);
-
             }
         }
 
