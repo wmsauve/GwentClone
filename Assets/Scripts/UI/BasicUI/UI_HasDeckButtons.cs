@@ -48,7 +48,7 @@ namespace GwentClone.UI
             resolveNotSaved = false;
         }
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
             if (m_saveDeckBtn == null || m_newDeckBtn == null || m_createDeckFunctionality == null || m_deckButtonScroll == null)
             {

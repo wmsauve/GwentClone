@@ -35,7 +35,7 @@ namespace GwentClone
 
         }
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
             var _text = transform.GetComponentInChildren<TextMeshProUGUI>();
             if (_text == null) return;

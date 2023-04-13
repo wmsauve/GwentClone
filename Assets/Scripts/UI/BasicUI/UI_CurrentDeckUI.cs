@@ -24,7 +24,7 @@ namespace GwentClone.UI
         private GameObject _currentWindow = null;
 
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
             if(m_hasDeckUI == null || m_noDeckUI == null || m_decksList == null || m_cardListScrollPrefab == null || m_deckListManager == null || m_leaderPage == null || m_selectableCardsManager == null)
             {

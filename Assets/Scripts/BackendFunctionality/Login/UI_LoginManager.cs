@@ -31,7 +31,7 @@ namespace BackendFunctionality.Login
         private APIManager manager;
         private Coroutine ongoingCoroutine;
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
 
             if (m_loginButtons == null || m_fillInFields == null || m_toEnableOnLogin == null)

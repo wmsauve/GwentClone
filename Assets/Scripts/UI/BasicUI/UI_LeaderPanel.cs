@@ -12,7 +12,7 @@ namespace GwentClone.UI
         [SerializeField] private Button m_cancelButton = null;
         [SerializeField] private UI_CurrentDeckUI m_createDeckManager = null;
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
             if(m_mainPanel == null || m_cancelButton == null || m_createDeckManager == null)
             {

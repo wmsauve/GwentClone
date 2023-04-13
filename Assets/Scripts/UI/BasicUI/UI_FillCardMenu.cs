@@ -20,7 +20,7 @@ namespace GwentClone.UI
         private List<UI_CardButton> cardButtons = new List<UI_CardButton>();
         private Button currentFilter = null;
 
-        protected override void InitializeThisUIComp()
+        public override void InitializeThisUIComp()
         {
             if (m_closeCombat == null || m_ranged == null || m_siege == null)
             {

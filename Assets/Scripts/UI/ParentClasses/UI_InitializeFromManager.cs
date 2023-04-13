@@ -16,7 +16,7 @@ namespace GwentClone
             GlobalActions.OnInitializeAllUI -= InitializeThisUIComp;
         }
 
-        protected virtual void InitializeThisUIComp()
+        public virtual void InitializeThisUIComp()
         {
         }
     }
