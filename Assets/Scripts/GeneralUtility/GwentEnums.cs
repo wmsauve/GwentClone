@@ -11,7 +11,10 @@ namespace GwentClone
         Ranged,
         Siege,
         Any,
-        Agile_FR
+        Agile_FR,
+        Agile_FS,
+        Agile_RS,
+        Global
     }
 
     /// <summary>
@@ -51,7 +54,8 @@ namespace GwentClone
         Mardroeme,
         MoraleBoost,
         Scorch,
-        None
+        None,
+        Avenger
     }
 
     public enum EnumFactionType

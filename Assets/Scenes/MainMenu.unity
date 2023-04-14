@@ -7506,7 +7506,7 @@ MonoBehaviour:
   m_mainMenu: {fileID: 1666086851}
   m_cardMenu: {fileID: 1719873953}
   m_checkVersion: 0
-  m_fileVersionURI: https://www.dropbox.com/s/jz1jn8s5hj3yb2n/Version.txt?dl=1
+  m_fileVersionURI: https://www.dropbox.com/s/9gk1pllnygv0tzc/Version.txt?dl=1
   m_failedVersionPrefab: {fileID: 953070054442853398, guid: 7935eb0d194652d49916ce7160acb30f, type: 3}
   m_login: 0
   m_loginMenu: {fileID: 769151981}
