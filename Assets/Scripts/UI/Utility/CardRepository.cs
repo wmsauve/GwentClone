@@ -67,6 +67,19 @@ namespace GwentClone
                 return null;
             }
         }
+
+        public List<Leader> GetLeadersByFaction(EnumFactionType faction)
+        {
+            List<Leader> list = new List<Leader>();
+
+            foreach(Leader leader in m_allLeaders)
+            {
+                if (leader.factionType == faction) list.Add(leader);
+            }
+
+
+            return list;
+        }
     }
 
 }

@@ -2485,6 +2485,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 16a9b6a3296f279479c814d552ba56f5, type: 2}
   m_allLeaders:
   - {fileID: 11400000, guid: 70661f7cc46632d43a1185463cee84b2, type: 2}
+  - {fileID: 11400000, guid: d900c043c8a99e9479032ea9a706464d, type: 2}
+  - {fileID: 11400000, guid: a53d2660d87feb4488502b03ba94f5af, type: 2}
+  - {fileID: 11400000, guid: 8327e6a35dd331542ae121ca84815d8e, type: 2}
+  - {fileID: 11400000, guid: 1a217e7478925a143865353fd6021ae9, type: 2}
   - {fileID: 11400000, guid: 4eb1313f1edddd145adb0d05ba4d0c0e, type: 2}
 --- !u!1 &582889378
 GameObject:
@@ -7089,7 +7093,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1666086852
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7426,6 +7430,8 @@ MonoBehaviour:
   m_content: {fileID: 2141896743}
   m_buttonPrefab: {fileID: 8740922663508524951, guid: 6406c9a3f0ecd894faa59f4a701ae0b1, type: 3}
   m_deckChangeCheckerPrefab: {fileID: 2331546539092962370, guid: 56af7c870e25d4648961dd54e143aef6, type: 3}
+  m_deckSettingsMenuPrefab: {fileID: 4053135396596025143, guid: de277f3840afbc7498c4377a1a6762cc, type: 3}
+  m_mainCanvas: {fileID: 1806394671}
 --- !u!114 &1719873960
 MonoBehaviour:
   m_ObjectHideFlags: 0

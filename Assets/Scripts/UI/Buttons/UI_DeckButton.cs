@@ -131,6 +131,12 @@ namespace GwentClone
 
         private void SelectThisDeck()
         {
+            if(whichDeck == MainMenu_DeckManager.CurrentDeck)
+            {
+                managerReference.OpenDeckMenu(whichDeck);
+                return;
+            }
+
             if (MainMenu_DeckSaved.DeckChangedStatus == EnumDeckStatus.Changed)
             {
                 managerReference.TriggerDeckNotSavedYetWarning(this);
