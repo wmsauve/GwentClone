@@ -86,7 +86,7 @@ namespace GwentClone
             }
         }
 
-        public void OpenDeckMenu(Deck whichDeck)
+        public void OpenDeckMenu(UI_DeckButton whichDeck)
         {
             if (m_deckSettingsMenuPrefab == null || m_mainCanvas == null) return;
 

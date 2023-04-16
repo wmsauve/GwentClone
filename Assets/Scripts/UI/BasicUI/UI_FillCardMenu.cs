@@ -30,11 +30,13 @@ namespace GwentClone.UI
 
             var allCards = GameInstance.Instance.CardRepo.AllCards;
 
-            foreach (Card _card in allCards)
+            foreach (CardRepository.CardsInDeck _deck in allCards)
             {
-                CreateCardSelectButton(_card);
+                foreach (Card _card in _deck.AvailableCards)
+                {
+                    CreateCardSelectButton(_card);
+                }
             }
-
         }
 
         protected override void OnEnable()

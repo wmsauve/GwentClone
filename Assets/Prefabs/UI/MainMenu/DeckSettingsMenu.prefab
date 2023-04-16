@@ -874,6 +874,9 @@ MonoBehaviour:
   m_deckNameHeader: {fileID: 5271384845941817776}
   m_leaderNameHeader: {fileID: 1757753676759897394}
   m_leaderMenu: {fileID: 5890792540843963514}
+  m_newDeckNameInput: {fileID: 6947958125133909204}
+  m_cancelBtn: {fileID: 3841031031498414223}
+  m_saveBtn: {fileID: 8334427899911299274}
 --- !u!1 &4193335030250376191
 GameObject:
   m_ObjectHideFlags: 0
@@ -2425,7 +2428,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

@@ -6,9 +6,16 @@ namespace GwentClone
 {
     public class CardRepository : MonoBehaviour
     {
+        [System.Serializable]
+        public struct CardsInDeck
+        {
+            public EnumFactionType DeckFaction;
+            public Card[] AvailableCards;
+        }
+
         [Header("All Available Cards Related")]
-        [SerializeField] private Card[] m_allCards = null;
-        public Card[] AllCards { get { return m_allCards; } }
+        [SerializeField] private List<CardsInDeck> m_allCards = new List<CardsInDeck>();
+        public List<CardsInDeck> AllCards { get { return m_allCards; } }
         [SerializeField] private Leader[] m_allLeaders = null;
         public Leader[] AllLeaders { get { return m_allLeaders; } }
 
@@ -19,7 +26,7 @@ namespace GwentClone
         private void Awake()
         {
             if(m_allCards == null) return;
-            if (m_allCards.Length == 0)
+            if (m_allCards.Count == 0)
             {
                 Debug.LogWarning("You haven't placed any cards to play the game with.");
                 return;
@@ -33,12 +40,15 @@ namespace GwentClone
             }
 
 
-            foreach (Card _card in m_allCards)
+            foreach (CardsInDeck _deck in m_allCards)
             {
-                m_cardFetch.Add(_card.id, _card);
+                foreach(Card _card in _deck.AvailableCards)
+                {
+                    m_cardFetch.Add(_card.id, _card);
+                }
             }
 
-            foreach(Leader _leader in m_allLeaders)
+            foreach (Leader _leader in m_allLeaders)
             {
                 m_leaderFetch.Add(_leader.id, _leader);
             }

@@ -58,6 +58,20 @@ namespace GwentClone
             return true;
         }
 
+        public static bool SwitchLeaderOfCurrentDeck(Leader newLeader)
+        {
+            if (currentDeck == null)
+            {
+                GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_NODECKYET);
+                return false;
+            }
+
+            currentDeck.SetDeckLeader(newLeader);
+            var _status = RunCheckForDeckChange();
+            MainMenu_DeckSaved.DeckChangedStatus = _status;
+            return true;
+        }
+
         public static void SwitchFocusedDeck(Deck newFocused)
         {
             if (currentDeck != null)
@@ -118,6 +132,8 @@ namespace GwentClone
                 if (newCards[i].maxPerDeck != oldCards[i].maxPerDeck) return EnumDeckStatus.Changed;
                 if (newCards[i].musterTag != oldCards[i].musterTag) return EnumDeckStatus.Changed;
             }
+
+            if (currentDeck.DeckLeader != cloneDeck.DeckLeader) return EnumDeckStatus.Changed;
 
             return EnumDeckStatus.NotChanged;
         }

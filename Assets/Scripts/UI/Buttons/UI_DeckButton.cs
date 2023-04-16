@@ -10,20 +10,14 @@ namespace GwentClone
     {
         [Header("Buttons Related")]
         [SerializeField] private Button buttonComp = null;
-        [SerializeField] private Button acceptButton = null;
-        [SerializeField] private Button cancelButton = null;
-
-        [Header("Change Name Object Related")]
-        [SerializeField] private GameObject changeNameObject = null;
-        [SerializeField] private TMP_InputField changeNameField = null;
 
         [Header("Deck Name Object Related")]
         [SerializeField] private GameObject deckNameObject = null;
         [SerializeField] private TextMeshProUGUI deckNameText = null;
 
         //Selection related
-        private RightClick rightClickComp = null;
         private Deck whichDeck;
+        public Deck DeckRef { get { return whichDeck; } }
         [Header("Highlights Related")]
         [SerializeField] private Image m_backGroundImage = null;
         private Color hiddenHighlight = new Color(0f, 0f, 0f, 0f);
@@ -47,7 +41,7 @@ namespace GwentClone
         public void InitializeDeckButton(Deck newDeck, UI_DeckScrollBar manager)
         {
 
-            if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null || m_backGroundImage == null)
+            if (buttonComp == null || deckNameObject == null || deckNameText == null || m_backGroundImage == null)
             {
                 Debug.LogWarning("Your deck button does not have all of its components initialized.");
                 return;
@@ -55,7 +49,6 @@ namespace GwentClone
 
             var _name = newDeck.DeckName;
             deckNameText.text = _name;
-            changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             whichDeck = newDeck;
             deckNameText.color = GeneralPurposeFunctions.ReturnColorBasedOnFaction(whichDeck.DeckLeader.factionType);
@@ -67,52 +60,30 @@ namespace GwentClone
 
         private void OnEnable()
         {
-            if (buttonComp == null || changeNameObject == null || deckNameObject == null || changeNameField == null || deckNameText == null || acceptButton == null || cancelButton == null)
+            if (buttonComp == null || deckNameObject == null || deckNameText == null)
             {
                 Debug.LogWarning("Your deck button does not have all of its components initialized.");
                 return;
             }
-
-            rightClickComp = GetComponent<RightClick>();
-            if (rightClickComp == null)
-            {
-                Debug.LogWarning("You can't right click this button to change the name of your deck");
-                return;
-            }
-
-            rightClickComp.rightClick.AddListener(BeginNameChange);
-            acceptButton.onClick.AddListener(AcceptNameChange);
-            cancelButton.onClick.AddListener(CancelNameChange);
             buttonComp.onClick.AddListener(SelectThisDeck);
         }
 
         private void OnDisable()
         {
-            rightClickComp.rightClick.RemoveListener(BeginNameChange);
-            acceptButton.onClick.RemoveListener(AcceptNameChange);
-            cancelButton.onClick.RemoveListener(CancelNameChange);
             buttonComp.onClick.RemoveListener(SelectThisDeck);
         }
 
-        private void CancelNameChange()
+        public void AcceptNameChange(string newDeckName)
         {
-            changeNameObject.SetActive(false);
-            deckNameObject.SetActive(true);
-            buttonComp.interactable = true;
-        }
-
-        private void AcceptNameChange()
-        {
-            if (changeNameField.text.Length > 20)
+            if (newDeckName.Length > 20)
             {
                 GlobalActions.OnDisplayFeedbackInUI?.Invoke(GlobalConstantValues.MESSAGE_INPUTFIELDTOOLONG);
                 return;
             }
 
-            var _newDeckName = changeNameField.text.ToUpper().Trim();
+            var _newDeckName = newDeckName.ToUpper().Trim();
             deckNameText.text = _newDeckName;
             whichDeck.SetDeckName(_newDeckName);
-            changeNameObject.SetActive(false);
             deckNameObject.SetActive(true);
             buttonComp.interactable = true;
 
@@ -120,20 +91,11 @@ namespace GwentClone
             MainMenu_DeckSaved.DeckChangedStatus = deckStatus;
         }
 
-        private void BeginNameChange()
-        {
-            if (whichDeck.DeckUID != MainMenu_DeckManager.GetCurrentDeckGUID()) return;
-
-            changeNameObject.SetActive(true);
-            deckNameObject.SetActive(false);
-            buttonComp.interactable = false;
-        }
-
         private void SelectThisDeck()
         {
             if(whichDeck == MainMenu_DeckManager.CurrentDeck)
             {
-                managerReference.OpenDeckMenu(whichDeck);
+                managerReference.OpenDeckMenu(this);
                 return;
             }
 
