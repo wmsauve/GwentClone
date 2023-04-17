@@ -2481,7 +2481,36 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 900f8ce7f711baa408df67ecefbdc782, type: 2}
     - {fileID: 11400000, guid: ac0ad64db36943541881aa780375199c, type: 2}
   - DeckFaction: 2
-    AvailableCards: []
+    AvailableCards:
+    - {fileID: 11400000, guid: f0dffbb686405dd41af7a594256384a8, type: 2}
+    - {fileID: 11400000, guid: b4d15c26abe76ca4296d2c3ee4c0ac5b, type: 2}
+    - {fileID: 11400000, guid: 8327754877ee3214c99ebc6bed7f7a29, type: 2}
+    - {fileID: 11400000, guid: 3ff494c6a05504049ae7872af0df7570, type: 2}
+    - {fileID: 11400000, guid: b1f95c375d3ffb94d919eb0589511b54, type: 2}
+    - {fileID: 11400000, guid: ce4e10fe0b06e534193645027aebaf1a, type: 2}
+    - {fileID: 11400000, guid: 104e52a6fd66cde4dafb5c32a390f322, type: 2}
+    - {fileID: 11400000, guid: e977e1163ba6441449e94d88a06b0737, type: 2}
+    - {fileID: 11400000, guid: d2e9ab8b262dada4288b69356e97d0d2, type: 2}
+    - {fileID: 11400000, guid: 2a8c9bbee89160a4f8e7040de0e57f62, type: 2}
+    - {fileID: 11400000, guid: 743f6f867468d7045adc92ece33e31c4, type: 2}
+    - {fileID: 11400000, guid: 636f116ae87902144aaefbbfdc20a159, type: 2}
+    - {fileID: 11400000, guid: 3560da5df528de445b01ae23adda39c5, type: 2}
+    - {fileID: 11400000, guid: 6e1b1d7889fba99418b61194459a7bb9, type: 2}
+    - {fileID: 11400000, guid: 6916396c0c5832340a95b312cb3fa895, type: 2}
+    - {fileID: 11400000, guid: 426ffc1eff049bd4885f10d7e81b8efc, type: 2}
+    - {fileID: 11400000, guid: 8220bbdab294f354ba52cc2b0cbc82f2, type: 2}
+    - {fileID: 11400000, guid: a171cf3e0a0ad044091805d2a671cc48, type: 2}
+    - {fileID: 11400000, guid: 7ee15e8cc3267ba4f990d6ce4ddd1058, type: 2}
+    - {fileID: 11400000, guid: e079cd81ac85b924a95219aa72976c5c, type: 2}
+    - {fileID: 11400000, guid: bd12f96f42912ac43ab3cdd7a655da17, type: 2}
+    - {fileID: 11400000, guid: 8d91840b26968b44f9860731e7692304, type: 2}
+    - {fileID: 11400000, guid: 1412ac20d2be4304799071dfd8a4777b, type: 2}
+    - {fileID: 11400000, guid: 696fc4a6439076042a083d73b3004bcf, type: 2}
+    - {fileID: 11400000, guid: 55eb7af792670fd4eaeba9b2112afc44, type: 2}
+    - {fileID: 11400000, guid: 98a8bff410daabe42a26e33491981203, type: 2}
+    - {fileID: 11400000, guid: 5931e13d22f44ba42bcf9d0b4ca11603, type: 2}
+    - {fileID: 11400000, guid: 28781304ef34a114e81cc58add92190f, type: 2}
+    - {fileID: 11400000, guid: 2551e215f213f334683e72386254e7ae, type: 2}
   - DeckFaction: 3
     AvailableCards:
     - {fileID: 11400000, guid: 5a8c13b5624cdc542b88cb067628b067, type: 2}
