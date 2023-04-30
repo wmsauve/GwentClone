@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Toad
   m_EditorClassIdentifier: 
   id: Toad
+  cardImage: {fileID: 21300000, guid: 027d4a33750268f4c840ded26a51d767, type: 3}
   unitType: 0
   cardType: 1
   unitPlacement: 1
@@ -21,4 +22,5 @@ MonoBehaviour:
   cardPower: 7
   maxPerDeck: 3
   musterTag: 
-  cardImage: {fileID: 21300000, guid: 027d4a33750268f4c840ded26a51d767, type: 3}
+  transforms: 0
+  scorchTarget: 1
