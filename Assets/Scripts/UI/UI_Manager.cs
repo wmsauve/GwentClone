@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 
 namespace GwentClone
 {
@@ -140,6 +141,10 @@ namespace GwentClone
                 m_versionCoroutine = null;
             }
             Application.Quit();
+        }
+
+        public void StartGame()
+        {
         }
 
         private void MakeSureElementsEnabled(GameObject setActive)

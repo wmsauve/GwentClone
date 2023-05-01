@@ -30,13 +30,18 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
     protected virtual void Awake()
     {
+
+        Debug.LogWarning("Yoyoyoyoyor4r4r " + gameObject.name);
+
         if (_instance == null && m_masterInstance)
         {
             _instance = this as T;
+            Debug.LogWarning("Yoyoyoyoyo " + gameObject.name);
             DontDestroyOnLoad(gameObject);
         }
         else
         {
+            Debug.LogWarning("Yoyoyoyoyo222 " + gameObject.name);
             Destroy(this);
         }
     }

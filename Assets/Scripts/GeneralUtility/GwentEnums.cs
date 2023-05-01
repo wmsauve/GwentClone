@@ -93,3 +93,20 @@ namespace GwentClone
     }
 }
 
+namespace GwentClone.Gameplay
+{
+    public enum EnumGameplayPhases
+    {
+        CoinFlip,
+        Mulligan,
+        Regular,
+        GameOver
+    }
+
+    public enum EnumLoggerGameplay
+    {
+        ServerProgression,
+        MissingComponent,
+    }
+}
+

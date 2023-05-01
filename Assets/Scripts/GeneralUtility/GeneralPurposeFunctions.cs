@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GwentClone.Gameplay;
 
 namespace GwentClone
 {
@@ -67,6 +68,22 @@ namespace GwentClone
                     return "";
                 default:
                     return "";
+            }
+        }
+
+        public static void GamePlayLogger(EnumLoggerGameplay log, string message)
+        {
+            switch (log)
+            {
+                case EnumLoggerGameplay.ServerProgression:
+                    Debug.Log("Gameplay Progression: " + message);
+                    break;
+                case EnumLoggerGameplay.MissingComponent:
+                    Debug.LogError("Error: " + message);
+                    break;
+                default:
+                    Debug.LogWarning("Error: Figure out what went long with gameplay logging.");
+                    break;
             }
         }
     }

@@ -48,6 +48,8 @@ namespace GwentClone
 
         protected override void Awake()
         {
+            base.Awake();
+
             Debug.Log("Main Initialization: Initializing GameInstance.");
             if(GetComponent<FloatingMessage>() == null)
             {

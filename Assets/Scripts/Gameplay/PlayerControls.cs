@@ -8,6 +8,9 @@ namespace GwentClone.Gameplay
     public class PlayerControls : MonoBehaviour
     {
 
+
+
+
         private void Update()
         {
             //Used for mousing over cards in the scene. 
@@ -17,7 +20,7 @@ namespace GwentClone.Gameplay
             if (Physics.Raycast(ray, out hit))
             {
                 // Do something with the hit object
-                Debug.Log("Hit object: " + hit.transform.name);
+                //Debug.Log("Hit object: " + hit.transform.name);
             }
         }
     }

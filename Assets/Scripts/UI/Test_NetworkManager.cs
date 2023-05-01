@@ -19,6 +19,7 @@ public class Test_NetworkManager : MonoBehaviour
         else
         {
             m_serverBtn.onClick.AddListener(() => {
+                Debug.LogWarning("Started Server.");
                 NetworkManager.Singleton.StartServer();
             });
         }
@@ -30,6 +31,7 @@ public class Test_NetworkManager : MonoBehaviour
         else
         {
             m_hostBtn.onClick.AddListener(() => {
+                Debug.LogWarning("Started Host.");
                 NetworkManager.Singleton.StartHost();
             });
         }
@@ -41,6 +43,7 @@ public class Test_NetworkManager : MonoBehaviour
         else
         {
             m_clientBtn.onClick.AddListener(() => {
+                Debug.LogWarning("Started Client.");
                 NetworkManager.Singleton.StartClient();
             });
         }
