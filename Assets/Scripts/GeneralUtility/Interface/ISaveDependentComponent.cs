@@ -1,7 +1,4 @@
-namespace GwentClone
+public interface ISaveDependentComponent
 {
-    public interface ISaveDependentComponent
-    {
-        void OnResolveSaveCheck();
-    }
+    void OnResolveSaveCheck();
 }

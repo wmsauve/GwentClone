@@ -1,12 +1,7 @@
-
-namespace BackendFunctionality
-{   
-    public enum EnumAPIType
-    {
-        login,
-        signup,
-        savedeck,
-    }
-
+public enum EnumAPIType
+{
+    login,
+    signup,
+    savedeck,
+    fetchuserdeck,
 }
-

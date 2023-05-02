@@ -1,74 +1,67 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GwentClone
+public class SaveDeckCheckerButtons : MonoBehaviour
 {
-    public class SaveDeckCheckerButtons : MonoBehaviour
+    [SerializeField] private Button m_acceptButton = null;
+    [SerializeField] private Button m_cancelButton = null;
+
+    private MonoBehaviour triggeredComponent = null;
+
+    public void InitializeTheChecker(MonoBehaviour whoTriggered)
     {
-        [SerializeField] private Button m_acceptButton = null;
-        [SerializeField] private Button m_cancelButton = null;
-
-        private MonoBehaviour triggeredComponent = null;
-
-        public void InitializeTheChecker(MonoBehaviour whoTriggered)
+        if (m_acceptButton == null || m_cancelButton == null)
         {
-            if (m_acceptButton == null || m_cancelButton == null)
-            {
-                Debug.LogWarning("Check your prefab and set your buttons");
-                return;
-            }
-
-            if (whoTriggered == null)
-            {
-                Debug.LogWarning("Why did you not pass the target here?");
-                return;
-            }
-
-            if(!(whoTriggered is ISaveDependentComponent))
-            {
-                Debug.LogWarning("The monobehavior trying to use this needs to implement ISaveDependentComponent.");
-                return;
-            }
-
-            triggeredComponent = whoTriggered;
+            Debug.LogWarning("Check your prefab and set your buttons");
+            return;
         }
 
-        private void OnEnable()
+        if (whoTriggered == null)
         {
-            if (m_acceptButton == null || m_cancelButton == null) return;
-
-            m_cancelButton.onClick.AddListener(CancelButtonFunctionality);
-            m_acceptButton.onClick.AddListener(SkipSavingFunctionality);
+            Debug.LogWarning("Why did you not pass the target here?");
+            return;
         }
 
-        private void OnDisable()
+        if(!(whoTriggered is ISaveDependentComponent))
         {
-            if (m_acceptButton == null || m_cancelButton == null) return;
-            m_cancelButton.onClick.RemoveListener(CancelButtonFunctionality);
-            m_acceptButton.onClick.RemoveListener(SkipSavingFunctionality);
+            Debug.LogWarning("The monobehavior trying to use this needs to implement ISaveDependentComponent.");
+            return;
         }
 
-        private void OnDestroy()
-        {
-            if (m_acceptButton == null || m_cancelButton == null) return;
-            m_cancelButton.onClick.RemoveListener(CancelButtonFunctionality);
-            m_acceptButton.onClick.RemoveListener(SkipSavingFunctionality);
-        }
+        triggeredComponent = whoTriggered;
+    }
 
-        private void CancelButtonFunctionality()
-        {
-            Destroy(gameObject);
-        }
+    private void OnEnable()
+    {
+        if (m_acceptButton == null || m_cancelButton == null) return;
 
-        private void SkipSavingFunctionality()
-        {
-            (triggeredComponent as ISaveDependentComponent).OnResolveSaveCheck();
-            Destroy(gameObject);
-        }
+        m_cancelButton.onClick.AddListener(CancelButtonFunctionality);
+        m_acceptButton.onClick.AddListener(SkipSavingFunctionality);
+    }
 
+    private void OnDisable()
+    {
+        if (m_acceptButton == null || m_cancelButton == null) return;
+        m_cancelButton.onClick.RemoveListener(CancelButtonFunctionality);
+        m_acceptButton.onClick.RemoveListener(SkipSavingFunctionality);
+    }
+
+    private void OnDestroy()
+    {
+        if (m_acceptButton == null || m_cancelButton == null) return;
+        m_cancelButton.onClick.RemoveListener(CancelButtonFunctionality);
+        m_acceptButton.onClick.RemoveListener(SkipSavingFunctionality);
+    }
+
+    private void CancelButtonFunctionality()
+    {
+        Destroy(gameObject);
+    }
+
+    private void SkipSavingFunctionality()
+    {
+        (triggeredComponent as ISaveDependentComponent).OnResolveSaveCheck();
+        Destroy(gameObject);
     }
 
 }
-

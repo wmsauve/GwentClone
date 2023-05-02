@@ -1,27 +1,17 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-
-namespace GwentClone.Gameplay
+public class PlayerControls : MonoBehaviour
 {
-    public class PlayerControls : MonoBehaviour
+    private void Update()
     {
+        //Used for mousing over cards in the scene. 
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
 
-
-
-
-        private void Update()
+        if (Physics.Raycast(ray, out hit))
         {
-            //Used for mousing over cards in the scene. 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                // Do something with the hit object
-                //Debug.Log("Hit object: " + hit.transform.name);
-            }
+            // Do something with the hit object
+            //Debug.Log("Hit object: " + hit.transform.name);
         }
     }
 }

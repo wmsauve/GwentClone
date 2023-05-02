@@ -1,56 +1,50 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-namespace GwentClone
+public class Anim_FloatingMessage : SimpleAnimations
 {
-    public class Anim_FloatingMessage : SimpleAnimations
+
+    private RectTransform _myRect = null;
+    private TextMeshProUGUI _myText = null;
+    private float counter = 0f;
+
+    protected override void Update() 
     {
-
-        private RectTransform _myRect = null;
-        private TextMeshProUGUI _myText = null;
-        private float counter = 0f;
-
-        protected override void Update() 
+        base.Update();
+        counter += delta;
+        if(counter >= m_animationDuration)
         {
-            base.Update();
-            counter += delta;
-            if(counter >= m_animationDuration)
-            {
-                Destroy(gameObject);
-            }
-
-            var _animDir = GetAnimationDirection(m_animationDirection);
-            var _shiftAmt = delta * m_animationSpeed * _animDir;
-
-            _myRect.position = new Vector2(_myRect.position.x, _myRect.position.y + _shiftAmt);
-
-            if(m_animationEffect == EnumAnimEffect.Fade && _myText != null)
-            {
-                var alpha = 1 - (counter / (m_animationDuration + 0.0000001f));
-                _myText.color = new Color(_myText.color.r, _myText.color.g, _myText.color.b, alpha);
-            }
+            Destroy(gameObject);
         }
 
+        var _animDir = GetAnimationDirection(m_animationDirection);
+        var _shiftAmt = delta * m_animationSpeed * _animDir;
 
-        private void Awake()
+        _myRect.position = new Vector2(_myRect.position.x, _myRect.position.y + _shiftAmt);
+
+        if(m_animationEffect == EnumAnimEffect.Fade && _myText != null)
         {
-            _myRect = GetComponent<RectTransform>();
-            if (_myRect == null)
-            {
-                Debug.LogWarning("This floating message should have a RectTransform.");
-                return;
-            }
+            var alpha = 1 - (counter / (m_animationDuration + 0.0000001f));
+            _myText.color = new Color(_myText.color.r, _myText.color.g, _myText.color.b, alpha);
+        }
+    }
 
-            _myText = GetComponent<TextMeshProUGUI>();
-            if (_myRect == null)
-            {
-                Debug.LogWarning("This floating message should have a TextMeshProUGUI.");
-                return;
-            }
+
+    private void Awake()
+    {
+        _myRect = GetComponent<RectTransform>();
+        if (_myRect == null)
+        {
+            Debug.LogWarning("This floating message should have a RectTransform.");
+            return;
         }
 
+        _myText = GetComponent<TextMeshProUGUI>();
+        if (_myRect == null)
+        {
+            Debug.LogWarning("This floating message should have a TextMeshProUGUI.");
+            return;
+        }
     }
 
 }

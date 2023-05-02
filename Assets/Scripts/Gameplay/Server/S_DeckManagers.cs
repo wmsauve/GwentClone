@@ -1,20 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
+using System.Collections;
 
-namespace GwentClone.Gameplay
+public class S_DeckManagers : NetworkBehaviour
 {
-    public class S_DeckManagers : NetworkBehaviour
-    {
-        private void Start()
-        {
-            if (IsClient)
-            {
-            }
-        }
 
+    public void StorePlayersDecks(Deck firstPlayer, Deck secondPlayer)
+    {
 
     }
-}
 
+}

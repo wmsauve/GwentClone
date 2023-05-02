@@ -1,25 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace GwentClone
+public class UI_InitializeFromManager : MonoBehaviour
 {
-    public class UI_InitializeFromManager : MonoBehaviour
+    protected virtual void OnEnable()
     {
-        protected virtual void OnEnable()
-        {
-            GlobalActions.OnInitializeAllUI += InitializeThisUIComp;
-        }
-
-        protected virtual void OnDisable()
-        {
-            GlobalActions.OnInitializeAllUI -= InitializeThisUIComp;
-        }
-
-        public virtual void InitializeThisUIComp()
-        {
-        }
+        GlobalActions.OnInitializeAllUI += InitializeThisUIComp;
     }
 
+    protected virtual void OnDisable()
+    {
+        GlobalActions.OnInitializeAllUI -= InitializeThisUIComp;
+    }
+
+    public virtual void InitializeThisUIComp()
+    {
+    }
 }
+
 
