@@ -9,9 +9,7 @@ public class S_GameManager : NetworkBehaviour
     [SerializeField] private int _playersInGame = 2;
     [SerializeField] private bool _useTestDecks = false;
 
-
     private bool _firstPlayerConnected = false;
-
     private string _firstPlayer;
     private string _secondPlayer;
 
@@ -23,27 +21,56 @@ public class S_GameManager : NetworkBehaviour
             return;
         }
 
-        if(_deckManager == null)
+        if (_deckManager == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "deck manager");
             return;
         }
 
-        if(NetworkManager.Singleton == null)
+        if (NetworkManager.Singleton == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "no Network Manager");
             return;
         }
 
-        if (IsClient) UsernameToFromClientServerRpc(GameInstance.Instance.User.username);
-
         NetworkManager.Singleton.OnClientDisconnectCallback += DisconnectGame;
+        NetworkManager.Singleton.OnClientConnectedCallback += ConnectedClient;
     }
 
     private void DisconnectGame(ulong id)
     {
-        _turnManager.GameStart = false;
-        GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Discconnected: " + id);
+        if (IsServer)
+        {
+            _turnManager.GameStart = false;
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Discconnected: " + id);
+        }
+    }
+
+    private void ConnectedClient(ulong id)
+    {
+        if (_useTestDecks && IsServer)
+        {
+            if (!_firstPlayerConnected)
+            {
+                _firstPlayer = "placeholder " + id;
+                _firstPlayerConnected = true;
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _firstPlayer);
+                return;
+            }
+            _secondPlayer = "placeholder " + id;
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _secondPlayer);
+            return;
+        }
+
+        if (!_useTestDecks && IsClient)
+        {
+            if(GameInstance.Instance == null)
+            {
+                Debug.LogWarning("You are not using test decks but also not logging it.");
+                return;
+            }
+            UsernameToFromClientServerRpc(GameInstance.Instance.User.username);
+        }
     }
 
     public void EndGameResult(string username)
@@ -55,10 +82,14 @@ public class S_GameManager : NetworkBehaviour
 
     private void Update()
     {
+        if (!IsServer) return;
+
+        if (_useTestDecks) return;
+        
         if (_turnManager == null || _deckManager == null) return;
 
         //TODO: This should be triggered after both players' decks have been loaded into the server from their database.
-        if (IsServer && !_turnManager.GameStart)
+        if (!_turnManager.GameStart)
         {
             if(NetworkManager.Singleton.ConnectedClientsList.Count == _playersInGame)
             {
@@ -67,6 +98,7 @@ public class S_GameManager : NetworkBehaviour
         }
     }
 
+    //Need to test API call and getting decks.
     private IEnumerator BeginStartingGame()
     {
         var _apiManager = APIManager.Instance;
@@ -79,7 +111,7 @@ public class S_GameManager : NetworkBehaviour
         _turnManager.GameStart = true;
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void UsernameToFromClientServerRpc(string username)
     {
         if (!_firstPlayerConnected)
@@ -88,8 +120,6 @@ public class S_GameManager : NetworkBehaviour
             _firstPlayerConnected = true;
             return;
         }
-
         _secondPlayer = username;
     }
-
 }
