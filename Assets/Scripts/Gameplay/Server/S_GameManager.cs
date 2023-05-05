@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
 
 public class S_GameManager : NetworkBehaviour
 {
@@ -9,9 +10,7 @@ public class S_GameManager : NetworkBehaviour
     [SerializeField] private int _playersInGame = 2;
     [SerializeField] private bool _useTestDecks = false;
 
-    private bool _firstPlayerConnected = false;
-    private string _firstPlayer;
-    private string _secondPlayer;
+    private List<string> _usernames = new List<string>(); 
 
     private void Start()
     {        
@@ -48,18 +47,20 @@ public class S_GameManager : NetworkBehaviour
 
     private void ConnectedClient(ulong id)
     {
-        if (_useTestDecks && IsServer)
+        if (_useTestDecks && IsServer && _deckManager != null)
         {
-            if (!_firstPlayerConnected)
+            if (_turnManager.GameStart)
             {
-                _firstPlayer = "placeholder " + id;
-                _firstPlayerConnected = true;
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _firstPlayer);
+                //TODO: observer client?
                 return;
             }
-            _secondPlayer = "placeholder " + id;
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _secondPlayer);
-            return;
+
+            var _newPlayer = "placeholder " + id;
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _newPlayer);
+            _deckManager.AddNewGwentPlayer(_newPlayer, id);
+
+            //TODO: Find where the game ought to start.
+            //if(_deckManager.GwentPlayers.Count == _playersInGame) _turnManager.GameStart = true;
         }
 
         if (!_useTestDecks && IsClient)
@@ -104,22 +105,17 @@ public class S_GameManager : NetworkBehaviour
         var _apiManager = APIManager.Instance;
         var _apiCall = _apiManager.API_URL + _apiManager.API_ENDPOINT_FETCHDECK;
 
-        yield return StartCoroutine(_apiManager.PostRequest(_apiCall, _firstPlayer, EnumAPIType.fetchuserdeck));
+        //yield return StartCoroutine(_apiManager.PostRequest(_apiCall, _firstPlayer, EnumAPIType.fetchuserdeck));
 
-        yield return StartCoroutine(_apiManager.PostRequest(_apiCall, _secondPlayer, EnumAPIType.fetchuserdeck));
+        //yield return StartCoroutine(_apiManager.PostRequest(_apiCall, _secondPlayer, EnumAPIType.fetchuserdeck));
 
         _turnManager.GameStart = true;
+        yield return null;
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void UsernameToFromClientServerRpc(string username)
     {
-        if (!_firstPlayerConnected)
-        {
-            _firstPlayer = username;
-            _firstPlayerConnected = true;
-            return;
-        }
-        _secondPlayer = username;
+        _usernames.Add(username);
     }
 }

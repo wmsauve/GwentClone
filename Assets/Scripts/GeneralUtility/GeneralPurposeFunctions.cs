@@ -74,7 +74,10 @@ public class GeneralPurposeFunctions
                 Debug.Log("Gameplay Progression: " + message);
                 break;
             case EnumLoggerGameplay.MissingComponent:
-                Debug.LogError("Error: " + message);
+                Debug.LogError("Component Error: " + message);
+                break;
+            case EnumLoggerGameplay.Error:
+                Debug.LogError("Logic Error: " + message);
                 break;
             default:
                 Debug.LogWarning("Error: Figure out what went long with gameplay logging.");

@@ -100,4 +100,5 @@ public enum EnumLoggerGameplay
 {
     ServerProgression,
     MissingComponent,
+    Error,
 }
