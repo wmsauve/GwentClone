@@ -87,5 +87,10 @@ public class CardRepository : MonoBehaviour
 
         return list;
     }
+
+    public void SetAsDoNotDestroy()
+    {
+        DontDestroyOnLoad(gameObject);
+    }
 }
 

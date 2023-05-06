@@ -15,7 +15,11 @@ public class S_TurnManager : NetworkBehaviour
         set
         {
             _gameStart.Value = value;
-            if (value) _currentTimer = _coinFlipDuration;
+            if (value)
+            {
+                _currentTimer = _coinFlipDuration;
+                GlobalActions.OnGameStart?.Invoke();
+            }
             else EndGameTimer();
         }
     }

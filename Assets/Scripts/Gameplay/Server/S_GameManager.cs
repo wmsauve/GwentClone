@@ -47,20 +47,31 @@ public class S_GameManager : NetworkBehaviour
 
     private void ConnectedClient(ulong id)
     {
-        if (_useTestDecks && IsServer && _deckManager != null)
+        if (IsClient)
         {
-            if (_turnManager.GameStart)
+            _deckManager.RunCardRepoCheck();
+        }
+
+        if (_useTestDecks && _deckManager != null)
+        {
+            if (IsServer)
             {
-                //TODO: observer client?
-                return;
+                if (_turnManager.GameStart)
+                {
+                    //TODO: observer client?
+                    
+                }
+                else
+                {
+                    var _newPlayer = "placeholder " + id;
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _newPlayer);
+                    _deckManager.AddNewGwentPlayer(_newPlayer, id);
+                }
+
+                //TODO: Find where the game ought to start.
+                if(_deckManager.GwentPlayers.Count == _playersInGame) _turnManager.GameStart = true;
             }
 
-            var _newPlayer = "placeholder " + id;
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Player Connected: " + _newPlayer);
-            _deckManager.AddNewGwentPlayer(_newPlayer, id);
-
-            //TODO: Find where the game ought to start.
-            //if(_deckManager.GwentPlayers.Count == _playersInGame) _turnManager.GameStart = true;
         }
 
         if (!_useTestDecks && IsClient)

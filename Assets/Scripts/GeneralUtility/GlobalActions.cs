@@ -32,5 +32,7 @@ public static class GlobalActions
     /// </summary>
     public static Action<Card, Leader> OnHoveredUIButton;
     public static Action OnStopHoveredUIButton;
+
+    public static Action OnGameStart;
 }
     

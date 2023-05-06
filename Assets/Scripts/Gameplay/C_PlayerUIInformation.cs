@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
 
 public class C_PlayerUIInformation : NetworkBehaviour
@@ -9,22 +6,24 @@ public class C_PlayerUIInformation : NetworkBehaviour
 
     private S_DeckManagers _deckManager = null;
 
-    private GwentPlayer _myInfo = null;
+    private ulong _myID;
     
 
     // Start is called before the first frame update
     void Start()
     {
+        S_DeckManagers[] _manager = FindObjectsOfType<S_DeckManagers>();
+        if (_manager.Length > 1)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Don't put 2 of these components here.");
+            return;
+        }
+
+        _deckManager = _manager[0];
+
         if (IsServer)
         {
-            S_DeckManagers[] _manager = FindObjectsOfType<S_DeckManagers>();
-            if (_manager.Length > 1)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Don't put 2 of these components here.");
-                return;
-            }
-
-            _deckManager = _manager[0];
+            _myID = gameObject.GetComponent<NetworkObject>().OwnerClientId;
         }
 
         if (IsClient)
@@ -40,27 +39,37 @@ public class C_PlayerUIInformation : NetworkBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        if (IsServer)
-        {
-            if(_myInfo == null)
-            {
-                var id = gameObject.GetComponent<NetworkObject>().OwnerClientId;
-                GwentPlayer _info = _deckManager.GwentPlayers.Find((player) => player.ID == id);
-                if (_info != null) _myInfo = _info;
-            }
+        GlobalActions.OnGameStart += GameStartHandler;
+    }
 
-            if (_canvas == null || _myInfo == null) return;
-            AddInformationToUIClientRpc(_myInfo.Username);
+    private void OnDisable()
+    {
+        GlobalActions.OnGameStart -= GameStartHandler;
+    }
+
+    private void GameStartHandler()
+    {
+
+        foreach(GwentPlayer player in _deckManager.GwentPlayers)
+        {
+            EnumGameplayPlayerRole _role;
+            if (player.ID == _myID) _role = EnumGameplayPlayerRole.Player;
+            else _role = EnumGameplayPlayerRole.Opponent;
+
+            InitializeUIClientRpc(player.Username, player.Deck.DeckLeader.id, _role);
         }
     }
 
     [ClientRpc]
-    private void AddInformationToUIClientRpc(string player)
+    private void InitializeUIClientRpc(string username, string leaderName, EnumGameplayPlayerRole role)
     {
-        if (IsOwner) _canvas.TestThisShit(player);
+        if (IsOwner)
+        {
+            var leader = _deckManager.CardRepo.GetLeader(leaderName);
+            _canvas.InitializeUI(username, leader.cardImage, role);
+        }
 
     }
 }

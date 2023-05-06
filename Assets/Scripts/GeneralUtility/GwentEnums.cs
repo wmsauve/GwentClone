@@ -102,3 +102,9 @@ public enum EnumLoggerGameplay
     MissingComponent,
     Error,
 }
+
+public enum EnumGameplayPlayerRole
+{
+    Player,
+    Opponent,
+}

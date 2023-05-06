@@ -61,11 +61,18 @@ public class GameInstance : Singleton<GameInstance>
             Debug.LogWarning("Your GameInstance is missing the function library.");
         }
 
-        _cardRepo = GetComponent<CardRepository>();
+        var _cardRepos = FindObjectsOfType<CardRepository>();
+        if(_cardRepos.Length > 1)
+        {
+            Debug.LogWarning("You should only have one of these.");
+            return;
+        }
+        if(_cardRepos.Length == 1) _cardRepo = _cardRepos[0];
         if(_cardRepo == null)
         {
             Debug.LogWarning("Your GameInstance is missing the card repository.");
         }
+        _cardRepo.SetAsDoNotDestroy();
     }
 
     public void PassNewUser(GwentUser _newUser)
