@@ -4,6 +4,7 @@ public class SimpleAnimations : MonoBehaviour
 {
     protected bool _beginAnim = false;
     protected float delta;
+    protected float counter = 0f;
     public bool BeginAnimation { get { return _beginAnim; } set { _beginAnim = value; } }
 
     [Header("Animation Parameters")]
@@ -31,4 +32,5 @@ public class SimpleAnimations : MonoBehaviour
                 return 0;
         }
     }
+
 }

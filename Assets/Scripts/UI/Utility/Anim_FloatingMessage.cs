@@ -6,7 +6,6 @@ public class Anim_FloatingMessage : SimpleAnimations
 
     private RectTransform _myRect = null;
     private TextMeshProUGUI _myText = null;
-    private float counter = 0f;
 
     protected override void Update() 
     {

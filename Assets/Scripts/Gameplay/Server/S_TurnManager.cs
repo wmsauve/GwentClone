@@ -70,9 +70,10 @@ public class S_TurnManager : NetworkBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turn ended.");
                     break;
                 default:
-                    Debug.LogWarning("Error: Find out what happened with the turn order.");
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
                     break;
             }
+            GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
         }
     }
 

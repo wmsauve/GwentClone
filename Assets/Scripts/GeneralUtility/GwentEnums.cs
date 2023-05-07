@@ -78,7 +78,9 @@ public enum EnumDeckStatus
 public enum EnumAnimDirection
 {
     Upward,
-    Downward
+    Downward,
+    Leftward,
+    Rightward
 }
 
 [System.Serializable]
@@ -107,4 +109,15 @@ public enum EnumGameplayPlayerRole
 {
     Player,
     Opponent,
+}
+
+public enum EnumMulliganPos
+{
+    leftout,
+    left,
+    leftcenter,
+    center,
+    rightcenter,
+    right,
+    rightout,
 }

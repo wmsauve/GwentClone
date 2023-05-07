@@ -33,6 +33,11 @@ public static class GlobalActions
     public static Action<Card, Leader> OnHoveredUIButton;
     public static Action OnStopHoveredUIButton;
 
+    /*
+     * Gameplay related actions.
+     */
+
     public static Action OnGameStart;
+    public static Action<EnumGameplayPhases> OnPhaseChange;
 }
     
