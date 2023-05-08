@@ -7,7 +7,7 @@ public class UI_MulliganScroll : MonoBehaviour
     [Header("Main Comp Related")]
     [SerializeField] private GameObject m_mulliganCardPrefab = null;
     [SerializeField] private Transform m_viewTransform = null;
-    [SerializeField] private int m_intialHandSize = 10;
+    [SerializeField] private int m_intialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
     [Header("Scroll Buttons Related")]
     [SerializeField] private Button m_rightBtn = null;
@@ -17,6 +17,19 @@ public class UI_MulliganScroll : MonoBehaviour
     [SerializeField] private List<MulliganSpotParams> _spots = new List<MulliganSpotParams>();
 
     private List<Anim_MulliganSwap> _cardAnims = new List<Anim_MulliganSwap>();
+    private float _mulliganAnimDuration;
+    private float _cooldownBtnPress;
+    private bool _animRunning = false;
+
+    private int _rightMostIndex;
+    private int _leftMostIndex;
+
+    private void Update()
+    {
+        if (!_animRunning) return;
+        _cooldownBtnPress += Time.deltaTime;
+        if(_cooldownBtnPress > _mulliganAnimDuration) _animRunning = false;
+    }
 
     private void OnEnable()
     {
@@ -56,8 +69,6 @@ public class UI_MulliganScroll : MonoBehaviour
             return;
         }
         btnCompL.InitializeThisUIComp();
-
-        InitializeMulliganCards();
     }
 
     private void OnDisable()
@@ -68,14 +79,28 @@ public class UI_MulliganScroll : MonoBehaviour
 
     private void ShiftCardsRight()
     {
-        bool shiftLeftIn = false;
+        if (!RunCheckForValidShift(m_rightBtn)) return;
 
+        if (!_animRunning)
+        {
+            _animRunning = true;
+            _cooldownBtnPress = 0f;
+        }
+
+
+        bool shiftLeftIn = false;
+       
         foreach (Anim_MulliganSwap anim in _cardAnims)
         {
             switch (anim.CurrentPos)
             {
                 case EnumMulliganPos.leftout:
                     if (shiftLeftIn) continue;
+
+                    var myIndex = _cardAnims.IndexOf(anim);
+                    if (myIndex != _leftMostIndex - 1) continue;
+                    _leftMostIndex = myIndex;
+
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.left], EnumMulliganPos.left);
                     shiftLeftIn = true;
                     continue;
@@ -86,12 +111,13 @@ public class UI_MulliganScroll : MonoBehaviour
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);
                     continue;
                 case EnumMulliganPos.center:
-                    anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.rightcenter], EnumMulliganPos.rightcenter);
+                    _mulliganAnimDuration = anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.rightcenter], EnumMulliganPos.rightcenter);
                     continue;
                 case EnumMulliganPos.rightcenter:
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
                     continue;
                 case EnumMulliganPos.right:
+                    _rightMostIndex -= 1;
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.rightout], EnumMulliganPos.rightout);
                     continue;
                 case EnumMulliganPos.rightout:
@@ -105,6 +131,14 @@ public class UI_MulliganScroll : MonoBehaviour
 
     private void ShiftCardsLeft()
     {
+        if (!RunCheckForValidShift(m_leftBtn)) return;
+
+        if (!_animRunning)
+        {
+            _animRunning = true;
+            _cooldownBtnPress = 0f;
+        }
+
         bool shiftRightIn = false;
 
         foreach(Anim_MulliganSwap anim in _cardAnims)
@@ -114,13 +148,14 @@ public class UI_MulliganScroll : MonoBehaviour
                 case EnumMulliganPos.leftout:
                     continue;
                 case EnumMulliganPos.left:
+                    _leftMostIndex += 1;
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.leftout], EnumMulliganPos.leftout);
                     continue;
                 case EnumMulliganPos.leftcenter:
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.left], EnumMulliganPos.left);
                     continue;
                 case EnumMulliganPos.center:
-                    anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.leftcenter], EnumMulliganPos.leftcenter);
+                    _mulliganAnimDuration = anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.leftcenter], EnumMulliganPos.leftcenter);
                     continue;
                 case EnumMulliganPos.rightcenter:
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);
@@ -130,6 +165,11 @@ public class UI_MulliganScroll : MonoBehaviour
                     continue;
                 case EnumMulliganPos.rightout:
                     if (shiftRightIn) continue;
+
+                    var myIndex = _cardAnims.IndexOf(anim);
+                    if (myIndex != _rightMostIndex + 1) continue;
+                    _rightMostIndex = myIndex;
+
                     anim.BeginThisAnimation(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
                     shiftRightIn = true;
                     continue;
@@ -140,7 +180,7 @@ public class UI_MulliganScroll : MonoBehaviour
         }
     }
 
-    private void InitializeMulliganCards()
+    public void InitializeMulliganCards(Card[] cardInfo)
     {
         for(int i = 0; i < m_intialHandSize; i++)
         {
@@ -159,6 +199,34 @@ public class UI_MulliganScroll : MonoBehaviour
             else if (i == 2) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
             else animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.rightout], EnumMulliganPos.rightout);
         }
+
+        _leftMostIndex = 0;
+        _rightMostIndex = 2;
+    }
+
+    private bool RunCheckForValidShift(Button dir)
+    {
+        if (dir == m_rightBtn)
+        {
+            foreach(Anim_MulliganSwap anim in _cardAnims)
+            {
+                if (anim.CurrentPos == EnumMulliganPos.leftcenter) return true;
+            }
+
+            return false;
+        }
+
+        if (dir == m_leftBtn)
+        {
+            foreach (Anim_MulliganSwap anim in _cardAnims)
+            {
+                if (anim.CurrentPos == EnumMulliganPos.rightcenter) return true;
+            }
+
+            return false;
+        }
+
+        return false;
     }
 
 }

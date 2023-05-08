@@ -18,4 +18,7 @@ public class GlobalConstantValues : MonoBehaviour
     public const string MESSAGE_DUPLICATEREGULAR = "This deck is not allowed more than 2 copies of regular cards.";
     public const string MESSAGE_INVALIDLEADERSWITCH = "The new leader is not part of this deck's faction.";
 
+    //Gameplay
+    public const int GAME_INITIALHANDSIZE = 10;
+    public const int GAME_MULLIGANSAMOUNT = 2;
 }

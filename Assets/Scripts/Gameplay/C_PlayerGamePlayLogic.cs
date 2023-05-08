@@ -1,5 +1,6 @@
-using UnityEngine;
+using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
 
 public class C_PlayerGamePlayLogic : NetworkBehaviour
 {
@@ -9,8 +10,15 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     public bool TurnActive { get { return _turnActive.Value; } set { _turnActive.Value = value; } }
 
     private GwentPlayer _myInfo = null;
+    public GwentPlayer MyInfo { get { return _myInfo; } }
 
-    private int _mulligans = 2;
+    private List<Card> _cardsInHand = new List<Card>();
+    public List<Card> CardsInHand { get { return _cardsInHand; } }
+    private List<Card> _cardsInGraveyard = new List<Card>();
+    public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
+
+    private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
+    private int _mulligans = GlobalConstantValues.GAME_MULLIGANSAMOUNT;
 
     public void InitializePlayerLogic(GwentPlayer player)
     {
@@ -25,11 +33,19 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         }
     }
 
-    public void MulliganPhase()
+    public string[] CreateInitialHand()
     {
+        List<string> toClient = new List<string>();
 
+        for(int i = 0; i < _initialHandSize; i++)
+        {
+            int which = Random.Range(0, _myInfo.Deck.Cards.Count);
+            Card inHand = _myInfo.Deck.Cards[which];
+            _myInfo.Deck.RemoveCard(inHand);
+            toClient.Add(inHand.id);
+            _cardsInHand.Add(inHand);
+        }
+
+        return toClient.ToArray();
     }
-
-
-
 }

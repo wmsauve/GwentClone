@@ -11,33 +11,40 @@ public class Anim_MulliganSwap : SimpleAnimations
     private EnumMulliganPos _currentPos;
     public EnumMulliganPos CurrentPos { get { return _currentPos; } }
 
+    private float _initalScale;
+    private Vector2 _initialPos;
+
+    private void Awake()
+    {
+        if(_myTransform == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You did not put your rect transform here.");
+        }
+    }
+
     protected override void Update()
     {
         if (!_beginAnim || _myTransform == null) return;
 
         base.Update();
-        counter += delta;
+        counter += delta * m_animationSpeed;
 
-        if(counter > m_animationDuration)
+        if(counter > 1.0f)
         {
-            counter = m_animationDuration;
+            counter = 1.0f;
             _beginAnim = false;
         }
 
-        Debug.LogWarning(counter + " asd");
-
-        var _scale = Mathf.Lerp(_myTransform.localScale.x, _targetScale, counter);
-        var _pos = Vector2.Lerp(_myTransform.localPosition, new Vector2(_targetXPos, _targetYPos), counter);
+        var _scale = Mathf.Lerp(_initalScale, _targetScale, counter);
+        var _pos = Vector2.Lerp(_initialPos, new Vector2(_targetXPos, _targetYPos), counter);
 
         _myTransform.localScale = new Vector3(_scale, _scale, _myTransform.localScale.z);
         _myTransform.localPosition = _pos;
 
     }
 
-    public void BeginThisAnimation(MulliganSpotParams _params, EnumMulliganPos newPos)
+    public float BeginThisAnimation(MulliganSpotParams _params, EnumMulliganPos newPos)
     {
-        if (_beginAnim) return;
-
         counter = 0;
 
         _targetScale = _params.CardScale;
@@ -46,6 +53,11 @@ public class Anim_MulliganSwap : SimpleAnimations
 
         _beginAnim = true;
         _currentPos = newPos;
+
+        _initalScale = _myTransform.localScale.x;
+        _initialPos = _myTransform.localPosition;
+
+        return m_animationSpeed;
     }
 
     public void InitializeMullgianCard(MulliganSpotParams _params, EnumMulliganPos pos)
