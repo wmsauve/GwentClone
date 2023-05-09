@@ -17,12 +17,22 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private List<Card> _cardsInGraveyard = new List<Card>();
     public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
 
+    private ClientRpcParams _params;
+    public ClientRpcParams ClientRpcParams { get { return _params; } }
+
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
     private int _mulligans = GlobalConstantValues.GAME_MULLIGANSAMOUNT;
 
     public void InitializePlayerLogic(GwentPlayer player)
     {
         _myInfo = player;
+        _params = new ClientRpcParams
+        {
+            Send = new ClientRpcSendParams
+            {
+                TargetClientIds = new ulong[] { _myInfo.ID }
+            }
+        };
     }
 
     private void Update()

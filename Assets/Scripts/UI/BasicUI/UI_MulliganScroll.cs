@@ -180,18 +180,21 @@ public class UI_MulliganScroll : MonoBehaviour
         }
     }
 
-    public void InitializeMulliganCards(Card[] cardInfo)
+    public void InitializeMulliganCards(List<Card> cardInfo, S_GamePlayLogicManager manager)
     {
         for(int i = 0; i < m_intialHandSize; i++)
         {
             var newCard = Instantiate(m_mulliganCardPrefab, m_viewTransform);
             var animComp = newCard.GetComponent<Anim_MulliganSwap>();
-
-            if(animComp == null)
+            var buttonComp = newCard.GetComponent<UI_MulliganButton>();
+            
+            if(animComp == null || buttonComp == null)
             {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Missing Anim component on Mulligan card.");
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Missing components on Mulligan card.");
                 return;
             }
+
+            buttonComp.InitializeButton(cardInfo[i], manager);
 
             _cardAnims.Add(animComp);
             if (i == 0) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);

@@ -321,7 +321,5 @@ public class UI_LoginManager : UI_InitializeFromManager
                 MainMenu_DeckManager.SwitchFocusedDeck(_newlySetDecks[i]);
             }
         }
-
-
     }
 }

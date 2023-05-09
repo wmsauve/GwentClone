@@ -106,6 +106,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 9be2e0b6526ba2e47b003ec7300b23e7, type: 2}
     - {fileID: 11400000, guid: 900f8ce7f711baa408df67ecefbdc782, type: 2}
     - {fileID: 11400000, guid: ac0ad64db36943541881aa780375199c, type: 2}
+    - {fileID: 11400000, guid: 77adbec471160fc468af41ec607b7ddd, type: 2}
   - DeckFaction: 2
     AvailableCards:
     - {fileID: 11400000, guid: f0dffbb686405dd41af7a594256384a8, type: 2}
