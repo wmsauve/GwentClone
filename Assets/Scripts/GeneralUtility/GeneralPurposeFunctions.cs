@@ -66,7 +66,7 @@ public class GeneralPurposeFunctions
         }
     }
 
-    public static void GamePlayLogger(EnumLoggerGameplay log, string message)
+    public static void GamePlayLogger(EnumLoggerGameplay log, string message, string username = "")
     {
         switch (log)
         {
@@ -78,6 +78,9 @@ public class GeneralPurposeFunctions
                 break;
             case EnumLoggerGameplay.Error:
                 Debug.LogError("Logic Error: " + message);
+                break;
+            case EnumLoggerGameplay.InvalidInput:
+                Debug.LogError($"Invalid Input From {username}: " + message);
                 break;
             default:
                 Debug.LogWarning("Error: Figure out what went long with gameplay logging.");

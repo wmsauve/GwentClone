@@ -17,6 +17,9 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private List<Card> _cardsInGraveyard = new List<Card>();
     public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
 
+    //Store card here to prevent mulliganing cards into the exact same card that you mulliganed away.
+    private List<Card> _mulliganStorage = new List<Card>();
+
     private ClientRpcParams _params;
     public ClientRpcParams ClientRpcParams { get { return _params; } }
 
@@ -57,5 +60,30 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         }
 
         return toClient.ToArray();
+    }
+
+    public string MulliganCard(string mulliganed)
+    {
+        if (_mulligans > 0)
+        {
+            _mulligans--;
+
+            //Get new card.
+            int which = Random.Range(0, _myInfo.Deck.Cards.Count);
+            Card newHandCard = _myInfo.Deck.Cards[which];
+            _myInfo.Deck.RemoveCard(newHandCard);
+
+            Debug.LogWarning(newHandCard.id);
+
+            //Place new card into mulliganed slot.
+            int cardIndex = _cardsInHand.FindIndex((card) => card.id == mulliganed);
+            _cardsInHand.RemoveAt(cardIndex);
+            _cardsInHand.Insert(cardIndex, newHandCard);
+
+            return newHandCard.id;
+        }
+
+        return string.Empty;
+        
     }
 }

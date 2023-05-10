@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
@@ -14,7 +15,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
-    private C_PlayerGamePlayLogic[] _playersLogic = null;
+    private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
     private S_DeckManagers _deckManager = null;
 
@@ -35,15 +36,17 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private void InitializePlayerLogic()
     {
-        _playersLogic = FindObjectsOfType<C_PlayerGamePlayLogic>();
-        if(_playersLogic == null || _playersLogic.Length == 0)
+        var _getLogic = FindObjectsOfType<C_PlayerGamePlayLogic>();
+        if(_getLogic == null || _getLogic.Length == 0)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "There is no player logic in the scene.");
             return;
         }
 
+        _playersLogic = _getLogic.ToList();
+
         //pick first player.
-        _currentActive = Random.Range(0, _playersLogic.Length);
+        _currentActive = Random.Range(0, _playersLogic.Count);
         SetPlayerTurnActive();
         
         _deckManager = GetComponent<S_DeckManagers>();
@@ -53,7 +56,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        for (int i = 0; i < _playersLogic.Length; i++)
+        for (int i = 0; i < _playersLogic.Count; i++)
         {
             var id = _playersLogic[i].gameObject.GetComponent<NetworkObject>().OwnerClientId;
             foreach(GwentPlayer player in _deckManager.GwentPlayers)
@@ -93,7 +96,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private void SetPlayerTurnActive()
     {
-        for(int i = 0; i < _playersLogic.Length; i++)
+        for(int i = 0; i < _playersLogic.Count; i++)
         {
             if (i == _currentActive) _playersLogic[i].TurnActive = true;
             else _playersLogic[i].TurnActive = false;
@@ -151,10 +154,42 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _mulliganScreen.gameObject.SetActive(true);
     }
 
+    [ClientRpc]
+    public void MulliganACardClientRpc(string cardName, ClientRpcParams clientRpcParams = default)
+    {
+        var newCard =_deckManager.CardRepo.GetCard(cardName);
+        if(newCard == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Doctored client receiving card from server.");
+            return;
+        }
+
+        _mulliganScreen.UpdateMulliganedButton(newCard);
+    }
+
+
     [ServerRpc(RequireOwnership = false)]
-    public void MulliganACardServerRpc(ServerRpcParams serverRpcParams = default)
+    public void MulliganACardServerRpc(string cardName, ServerRpcParams serverRpcParams = default)
     {
         var clientId = serverRpcParams.Receive.SenderClientId;
-        Debug.LogWarning(clientId + " yooyoyoyoy.");
+        var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
+        List<Card> _cards = _play.CardsInHand;
+        int cardCheck = 0;
+
+        foreach(Card card in _cards)
+        {
+            if (card.id == cardName) break;
+            else cardCheck++;
+        }
+
+        if(cardCheck == _cards.Count)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
+            return;
+        }
+
+        string _newCard = _play.MulliganCard(cardName);
+        if (_newCard == string.Empty) return;
+        MulliganACardClientRpc(_newCard, _play.ClientRpcParams);
     }
 }

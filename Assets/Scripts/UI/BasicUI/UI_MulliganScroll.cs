@@ -17,6 +17,7 @@ public class UI_MulliganScroll : MonoBehaviour
     [SerializeField] private List<MulliganSpotParams> _spots = new List<MulliganSpotParams>();
 
     private List<Anim_MulliganSwap> _cardAnims = new List<Anim_MulliganSwap>();
+    private List<UI_MulliganButton> _buttons = new List<UI_MulliganButton>();
     private float _mulliganAnimDuration;
     private float _cooldownBtnPress;
     private bool _animRunning = false;
@@ -197,6 +198,7 @@ public class UI_MulliganScroll : MonoBehaviour
             buttonComp.InitializeButton(cardInfo[i], manager);
 
             _cardAnims.Add(animComp);
+            _buttons.Add(buttonComp);
             if (i == 0) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);
             else if (i == 1) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.rightcenter], EnumMulliganPos.rightcenter);
             else if (i == 2) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
@@ -230,6 +232,19 @@ public class UI_MulliganScroll : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void UpdateMulliganedButton(Card newCard)
+    {
+        foreach(UI_MulliganButton button in _buttons)
+        {
+            if (button.IsPressed)
+            {
+                button.IsPressed = false;
+                button.MyCard = newCard;
+                break;
+            }
+        }
     }
 
 }

@@ -103,6 +103,7 @@ public enum EnumLoggerGameplay
     ServerProgression,
     MissingComponent,
     Error,
+    InvalidInput,
 }
 
 public enum EnumGameplayPlayerRole

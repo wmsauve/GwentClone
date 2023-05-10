@@ -71,16 +71,4 @@ public class S_DeckManagers : NetworkBehaviour
         var _rand = Random.Range(0, m_testDecks.Count);
         return m_testDecks[_rand];
     }
-
-    private void Update()
-    {
-        if (IsServer)
-        {
-        }
-
-        if (IsClient)
-        {
-        }
-    }
-
 }
