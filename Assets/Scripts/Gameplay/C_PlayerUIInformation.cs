@@ -70,6 +70,5 @@ public class C_PlayerUIInformation : NetworkBehaviour
             var leader = _deckManager.CardRepo.GetLeader(leaderName);
             _canvas.InitializeUI(username, leader.cardImage, role);
         }
-
     }
 }

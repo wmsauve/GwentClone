@@ -20,6 +20,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private S_DeckManagers _deckManager = null;
 
     private int _currentActive;
+    private EnumGameplayPhases _currentPhase = EnumGameplayPhases.CoinFlip;
 
     private void OnEnable()
     {
@@ -82,11 +83,35 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         string[] cardNames = player.CreateInitialHand();
                         var _json = JsonUtility.ToJson(new CardNames(cardNames));
                         ShowMulliganScreenClientRpc(_json, player.ClientRpcParams);
-                    }   
+                    }
+
+                    _currentPhase = _phase;
                 }
+
 
                 break;
             case EnumGameplayPhases.Regular:
+
+                if (IsServer)
+                {
+                    foreach (C_PlayerGamePlayLogic player in _playersLogic)
+                    {
+                        if (_currentPhase == EnumGameplayPhases.Mulligan)
+                        {
+                            player.EndMulliganPhase();
+                            CloseMulliganScreenClientRpc(player.ClientRpcParams);
+                        }
+                        else
+                        {
+                            _currentActive++;
+                            if (_currentActive == _playersLogic.Count) _currentActive = 0;
+                            SetPlayerTurnActive();
+                        }
+                    }
+
+                    _currentPhase = _phase;
+                }
+
                 break;
             default:
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
@@ -149,13 +174,25 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             _cards.Add(newCard);
         }
 
-        _mulliganScreen.InitializeMulliganCards(_cards, this);
+        _mulliganScreen.InitializeMulliganCards(_cards, this, GlobalConstantValues.GAME_MULLIGANSAMOUNT);
 
         _mulliganScreen.gameObject.SetActive(true);
     }
 
     [ClientRpc]
-    public void MulliganACardClientRpc(string cardName, ClientRpcParams clientRpcParams = default)
+    public void CloseMulliganScreenClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        _mulliganScreen.gameObject.SetActive(false);
+    }
+
+    [ClientRpc]
+    public void WaitingForOtherPlayerScreenClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        _mulliganScreen.FinishMulligan();
+    }
+
+    [ClientRpc]
+    public void MulliganACardClientRpc(string cardName, int mulliganCount, ClientRpcParams clientRpcParams = default)
     {
         var newCard =_deckManager.CardRepo.GetCard(cardName);
         if(newCard == null)
@@ -164,7 +201,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        _mulliganScreen.UpdateMulliganedButton(newCard);
+        _mulliganScreen.UpdateMulliganedButton(newCard, mulliganCount);
     }
 
 
@@ -190,6 +227,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         string _newCard = _play.MulliganCard(cardName);
         if (_newCard == string.Empty) return;
-        MulliganACardClientRpc(_newCard, _play.ClientRpcParams);
+        MulliganACardClientRpc(_newCard, _play.Mulligans, _play.ClientRpcParams);
     }
 }

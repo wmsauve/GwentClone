@@ -1,26 +1,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class UI_MulliganScroll : MonoBehaviour
 {
     [Header("Main Comp Related")]
     [SerializeField] private GameObject m_mulliganCardPrefab = null;
+    [SerializeField] private TextMeshProUGUI m_mulliganCounter = null;
     [SerializeField] private Transform m_viewTransform = null;
     [SerializeField] private int m_intialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
     [Header("Scroll Buttons Related")]
     [SerializeField] private Button m_rightBtn = null;
     [SerializeField] private Button m_leftBtn = null;
+    [SerializeField] private Button m_mulliganBtn = null;
 
     [Header("Animation Related")]
     [SerializeField] private List<MulliganSpotParams> _spots = new List<MulliganSpotParams>();
 
     private List<Anim_MulliganSwap> _cardAnims = new List<Anim_MulliganSwap>();
     private List<UI_MulliganButton> _buttons = new List<UI_MulliganButton>();
+    private S_GamePlayLogicManager _gameManager;
     private float _mulliganAnimDuration;
     private float _cooldownBtnPress;
     private bool _animRunning = false;
+    private string _cardToMulligan;
 
     private int _rightMostIndex;
     private int _leftMostIndex;
@@ -34,9 +39,9 @@ public class UI_MulliganScroll : MonoBehaviour
 
     private void OnEnable()
     {
-        if (m_rightBtn == null || m_leftBtn == null)
+        if (m_rightBtn == null || m_leftBtn == null || m_mulliganBtn == null || m_mulliganCounter == null)
         {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Missing Buttons for Mulligan screen.");
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Missing Components for Mulligan screen.");
             return;
         }
 
@@ -54,34 +59,35 @@ public class UI_MulliganScroll : MonoBehaviour
 
         m_rightBtn.onClick.AddListener(ShiftCardsRight);
         m_leftBtn.onClick.AddListener(ShiftCardsLeft);
+        m_mulliganBtn.onClick.AddListener(MulliganCard);
 
         var btnCompR = m_rightBtn.GetComponent<UI_OnButtonHover>();
-        if(btnCompR == null)
-        {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Check why your button is missing a component.");
-            return;
-        }
-        btnCompR.InitializeThisUIComp();
-
         var btnCompL = m_leftBtn.GetComponent<UI_OnButtonHover>();
-        if (btnCompL == null)
+        var btnCompM = m_mulliganBtn.GetComponent<UI_OnButtonHover>();
+        if (btnCompR == null || btnCompL == null || btnCompM == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Check why your button is missing a component.");
             return;
         }
+
+        btnCompR.InitializeThisUIComp();
         btnCompL.InitializeThisUIComp();
+        btnCompM.InitializeThisUIComp();
+        m_mulliganBtn.gameObject.SetActive(false);
+
     }
 
     private void OnDisable()
     {
         m_rightBtn.onClick.RemoveListener(ShiftCardsRight);
         m_leftBtn.onClick.RemoveListener(ShiftCardsLeft);
+        m_mulliganBtn.onClick.RemoveListener(MulliganCard);
     }
 
     private void ShiftCardsRight()
     {
         if (!RunCheckForValidShift(m_rightBtn)) return;
-
+        HideMulliganCard();
         if (!_animRunning)
         {
             _animRunning = true;
@@ -133,7 +139,7 @@ public class UI_MulliganScroll : MonoBehaviour
     private void ShiftCardsLeft()
     {
         if (!RunCheckForValidShift(m_leftBtn)) return;
-
+        HideMulliganCard();
         if (!_animRunning)
         {
             _animRunning = true;
@@ -181,13 +187,15 @@ public class UI_MulliganScroll : MonoBehaviour
         }
     }
 
-    public void InitializeMulliganCards(List<Card> cardInfo, S_GamePlayLogicManager manager)
+    public void InitializeMulliganCards(List<Card> cardInfo, S_GamePlayLogicManager manager, int startMulligans)
     {
+        _gameManager = manager;
+
         for(int i = 0; i < m_intialHandSize; i++)
         {
             var newCard = Instantiate(m_mulliganCardPrefab, m_viewTransform);
-            var animComp = newCard.GetComponent<Anim_MulliganSwap>();
-            var buttonComp = newCard.GetComponent<UI_MulliganButton>();
+            var animComp = newCard.GetComponentInChildren<Anim_MulliganSwap>();
+            var buttonComp = newCard.GetComponentInChildren<UI_MulliganButton>();
             
             if(animComp == null || buttonComp == null)
             {
@@ -195,7 +203,7 @@ public class UI_MulliganScroll : MonoBehaviour
                 return;
             }
 
-            buttonComp.InitializeButton(cardInfo[i], manager);
+            buttonComp.InitializeButton(cardInfo[i], this);
 
             _cardAnims.Add(animComp);
             _buttons.Add(buttonComp);
@@ -207,6 +215,7 @@ public class UI_MulliganScroll : MonoBehaviour
 
         _leftMostIndex = 0;
         _rightMostIndex = 2;
+        UpdateMulligansText(startMulligans);
     }
 
     private bool RunCheckForValidShift(Button dir)
@@ -234,7 +243,7 @@ public class UI_MulliganScroll : MonoBehaviour
         return false;
     }
 
-    public void UpdateMulliganedButton(Card newCard)
+    public void UpdateMulliganedButton(Card newCard, int mulliganCount)
     {
         foreach(UI_MulliganButton button in _buttons)
         {
@@ -245,6 +254,48 @@ public class UI_MulliganScroll : MonoBehaviour
                 break;
             }
         }
+
+        UpdateMulligansText(mulliganCount);
+    }
+
+    private void UpdateMulligansText(int mulliganCount)
+    {
+        m_mulliganCounter.text = "Mulligans: " + mulliganCount;
+    }
+
+    public void HideMulliganCard()
+    {
+        _cardToMulligan = string.Empty;
+        m_mulliganBtn.gameObject.SetActive(false);
+        foreach (UI_MulliganButton button in _buttons)
+        {
+            if (button.IsPressed) button.IsPressed = false;
+        }
+    }
+
+    private void MulliganCard()
+    {
+        _gameManager.MulliganACardServerRpc(_cardToMulligan);
+    }
+
+    public void SendCardToMulligan(string cardName, UI_MulliganButton pressed)
+    {
+        foreach (UI_MulliganButton button in _buttons)
+        {
+            if (button.IsPressed)
+            {
+                button.IsPressed = false;
+                break;
+            }
+        }
+        pressed.IsPressed = true;
+        m_mulliganBtn.gameObject.SetActive(true);
+        _cardToMulligan = cardName;
+    }
+
+    public void FinishMulligan()
+    {
+
     }
 
 }

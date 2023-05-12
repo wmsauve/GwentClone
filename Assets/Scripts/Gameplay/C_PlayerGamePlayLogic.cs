@@ -8,6 +8,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     private NetworkVariable<bool> _turnActive = new NetworkVariable<bool>(false);
     public bool TurnActive { get { return _turnActive.Value; } set { _turnActive.Value = value; } }
+    private NetworkVariable<int> _mulligans = new NetworkVariable<int>(GlobalConstantValues.GAME_MULLIGANSAMOUNT);
+    public int Mulligans { get { return _mulligans.Value; } }
 
     private GwentPlayer _myInfo = null;
     public GwentPlayer MyInfo { get { return _myInfo; } }
@@ -24,7 +26,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     public ClientRpcParams ClientRpcParams { get { return _params; } }
 
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
-    private int _mulligans = GlobalConstantValues.GAME_MULLIGANSAMOUNT;
 
     public void InitializePlayerLogic(GwentPlayer player)
     {
@@ -42,7 +43,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     {
         if (IsClient && IsOwner)
         {
-
         }
     }
 
@@ -64,9 +64,9 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     public string MulliganCard(string mulliganed)
     {
-        if (_mulligans > 0)
+        if (_mulligans.Value > 0)
         {
-            _mulligans--;
+            _mulligans.Value--;
 
             //Get new card.
             int which = Random.Range(0, _myInfo.Deck.Cards.Count);
@@ -77,6 +77,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
             //Place new card into mulliganed slot.
             int cardIndex = _cardsInHand.FindIndex((card) => card.id == mulliganed);
+            Card oldCard = _cardsInHand[cardIndex];
+            _mulliganStorage.Add(oldCard);
             _cardsInHand.RemoveAt(cardIndex);
             _cardsInHand.Insert(cardIndex, newHandCard);
 
@@ -85,5 +87,12 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
         return string.Empty;
         
+    }
+
+    public void EndMulliganPhase()
+    {
+        if (_mulliganStorage.Count < 1) return;
+
+        _myInfo.Deck.Cards.AddRange(_mulliganStorage);
     }
 }
