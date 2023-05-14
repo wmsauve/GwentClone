@@ -57,23 +57,18 @@ public class S_TurnManager : NetworkBehaviour
             switch (_currentPhase.Value)
             {
                 case EnumGameplayPhases.CoinFlip:
-                    _currentPhase.Value = EnumGameplayPhases.Mulligan;
-                    _currentTimer = _mulliganPhase;
-                    _turnCount.Value = 0f;
-                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Coinflip phase ended.");
+                    EndCoinFlip();
                     break;
                 case EnumGameplayPhases.Mulligan:
                     EndMulliganPhase();
                     break;
                 case EnumGameplayPhases.Regular:
-                    _turnCount.Value = 0f;
-                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turn ended.");
+                    EndRegularTurn();
                     break;
                 default:
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
                     break;
             }
-            GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
         }
     }
 
@@ -83,6 +78,24 @@ public class S_TurnManager : NetworkBehaviour
         _currentTimer = _turnDuration;
         _turnCount.Value = 0f;
         GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Mulligan phase ended.");
+        GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
+    }
+
+    public void EndRegularTurn()
+    {
+        _turnCount.Value = 0f;
+        _turns++;
+        GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turn ended.");
+        GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
+    }
+
+    private void EndCoinFlip()
+    {
+        _currentPhase.Value = EnumGameplayPhases.Mulligan;
+        _currentTimer = _mulliganPhase;
+        _turnCount.Value = 0f;
+        GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Coinflip phase ended.");
+        GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
 
     private void EndGameTimer()

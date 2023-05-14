@@ -7,6 +7,7 @@ public class UI_MulliganScroll : MonoBehaviour
 {
     [Header("Main Comp Related")]
     [SerializeField] private GameObject m_mulliganCardPrefab = null;
+    [SerializeField] private GameObject m_waitingMessage = null;
     [SerializeField] private TextMeshProUGUI m_mulliganCounter = null;
     [SerializeField] private Transform m_viewTransform = null;
     [SerializeField] private int m_intialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
@@ -35,6 +36,18 @@ public class UI_MulliganScroll : MonoBehaviour
         if (!_animRunning) return;
         _cooldownBtnPress += Time.deltaTime;
         if(_cooldownBtnPress > _mulliganAnimDuration) _animRunning = false;
+    }
+
+    private void Awake()
+    {
+        if (m_waitingMessage == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "No waiting message for ending mulligan.");
+            return;
+        }
+
+        if (m_waitingMessage.activeSelf) m_waitingMessage.SetActive(false);
+        gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -74,7 +87,6 @@ public class UI_MulliganScroll : MonoBehaviour
         btnCompL.InitializeThisUIComp();
         btnCompM.InitializeThisUIComp();
         m_mulliganBtn.gameObject.SetActive(false);
-
     }
 
     private void OnDisable()
@@ -255,6 +267,12 @@ public class UI_MulliganScroll : MonoBehaviour
             }
         }
 
+        if(mulliganCount == 0)
+        {
+            m_waitingMessage.SetActive(true);
+            gameObject.SetActive(false);
+            return;
+        }
         UpdateMulligansText(mulliganCount);
     }
 
@@ -292,10 +310,4 @@ public class UI_MulliganScroll : MonoBehaviour
         m_mulliganBtn.gameObject.SetActive(true);
         _cardToMulligan = cardName;
     }
-
-    public void FinishMulligan()
-    {
-
-    }
-
 }

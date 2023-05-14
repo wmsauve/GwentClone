@@ -18,6 +18,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
     private S_DeckManagers _deckManager = null;
+    private S_TurnManager _turnManager = null;
 
     private int _currentActive;
     private EnumGameplayPhases _currentPhase = EnumGameplayPhases.CoinFlip;
@@ -51,12 +52,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         SetPlayerTurnActive();
         
         _deckManager = GetComponent<S_DeckManagers>();
-        if (_deckManager == null)
+        _turnManager = GetComponent<S_TurnManager>();
+        if (_deckManager == null || _turnManager == null)
         {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck manager should be on the same gameobject.");
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
             return;
         }
-
+        
         for (int i = 0; i < _playersLogic.Count; i++)
         {
             var id = _playersLogic[i].gameObject.GetComponent<NetworkObject>().OwnerClientId;
@@ -186,12 +188,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void WaitingForOtherPlayerScreenClientRpc(ClientRpcParams clientRpcParams = default)
-    {
-        _mulliganScreen.FinishMulligan();
-    }
-
-    [ClientRpc]
     public void MulliganACardClientRpc(string cardName, int mulliganCount, ClientRpcParams clientRpcParams = default)
     {
         var newCard =_deckManager.CardRepo.GetCard(cardName);
@@ -228,5 +224,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         string _newCard = _play.MulliganCard(cardName);
         if (_newCard == string.Empty) return;
         MulliganACardClientRpc(_newCard, _play.Mulligans, _play.ClientRpcParams);
+
+        //run mulligan end check
+        foreach(C_PlayerGamePlayLogic player in _playersLogic)
+        {
+            if (player.Mulligans > 0) return;
+        }
+
+        _turnManager.EndMulliganPhase();
     }
+
+
 }
