@@ -5,8 +5,12 @@ using System.Collections.Generic;
 
 public class S_GameManager : NetworkBehaviour
 {
+    [Header("GameObjects Related")]
     [SerializeField] private S_TurnManager _turnManager = null;
     [SerializeField] private S_DeckManagers _deckManager = null;
+    [SerializeField] private GameObject m_canvas = null;
+
+    [Header("Settings Related")]
     [SerializeField] private int _playersInGame = 2;
     [SerializeField] private bool _useTestDecks = false;
 
@@ -32,8 +36,16 @@ public class S_GameManager : NetworkBehaviour
             return;
         }
 
+        if(m_canvas == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "no Canvas reference for Initializing.");
+            return;
+        }
+
         NetworkManager.Singleton.OnClientDisconnectCallback += DisconnectGame;
         NetworkManager.Singleton.OnClientConnectedCallback += ConnectedClient;
+
+        GeneralPurposeFunctions.EnableAllChildrenObjects(m_canvas);
     }
 
     private void DisconnectGame(ulong id)

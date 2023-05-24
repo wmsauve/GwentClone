@@ -7,7 +7,8 @@ public class C_PlayerUIInformation : NetworkBehaviour
     private S_DeckManagers _deckManager = null;
 
     private ulong _myID;
-    
+
+    private EnumGameplayPhases _cacheCurrentPhase;
 
     // Start is called before the first frame update
     void Start()
@@ -42,11 +43,14 @@ public class C_PlayerUIInformation : NetworkBehaviour
     private void OnEnable()
     {
         GlobalActions.OnGameStart += GameStartHandler;
+        GlobalActions.OnPhaseChange += DetectPhaseClientRpc;
+
     }
 
     private void OnDisable()
     {
         GlobalActions.OnGameStart -= GameStartHandler;
+        GlobalActions.OnPhaseChange -= DetectPhaseClientRpc;
     }
 
     private void GameStartHandler()
@@ -60,6 +64,31 @@ public class C_PlayerUIInformation : NetworkBehaviour
 
             InitializeUIClientRpc(player.Username, player.Deck.DeckLeader.id, _role);
         }
+    }
+
+    [ClientRpc]
+    private void DetectPhaseClientRpc(EnumGameplayPhases phase)
+    {
+        if (IsOwner)
+        {
+            switch (phase)
+            {
+                case EnumGameplayPhases.Regular:
+                    if (_cacheCurrentPhase == EnumGameplayPhases.Mulligan)
+                    {
+                        SetUpGameplay();
+
+                    }
+                    break;
+            }
+        }
+
+        _cacheCurrentPhase = phase;
+    }
+
+    private void SetUpGameplay()
+    {
+        _canvas.ToggleMulliganScreenOff();
     }
 
     [ClientRpc]

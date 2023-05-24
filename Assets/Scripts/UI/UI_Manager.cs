@@ -96,7 +96,7 @@ public class UI_Manager : MonoBehaviour
         }
 
         Debug.Log("Main Initialization: Set all active to ensure Initialization scripts are run");
-        MakeSureElementsEnabled(m_canvas);
+        GeneralPurposeFunctions.EnableAllChildrenObjects(m_canvas);
 
         Debug.Log("Main Initialization: Initialize all UI elements");
         GlobalActions.OnInitializeAllUI?.Invoke();
@@ -142,25 +142,4 @@ public class UI_Manager : MonoBehaviour
     public void StartGame()
     {
     }
-
-    private void MakeSureElementsEnabled(GameObject setActive)
-    {
-        if (!setActive.activeSelf)
-        {
-            setActive.SetActive(true);
-        }
-
-        if(setActive.transform.childCount == 0)
-        {
-            return;
-        }
-
-        for(int i = 0; i < setActive.transform.childCount; i++)
-        {
-            MakeSureElementsEnabled(setActive.transform.GetChild(i).gameObject);
-        }
-
-
-    }
-
 }

@@ -39,7 +39,7 @@ public class Anim_FloatingMessage : SimpleAnimations
         }
 
         _myText = GetComponent<TextMeshProUGUI>();
-        if (_myRect == null)
+        if (_myText == null)
         {
             Debug.LogWarning("This floating message should have a TextMeshProUGUI.");
             return;

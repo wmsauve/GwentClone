@@ -15,9 +15,6 @@ public class GameplayUICanvas : MonoBehaviour
     [Header("Main UI Related")]
     [SerializeField] private GameObject _mulliganHolder = null;
 
-    private EnumGameplayPhases _cacheCurrentPhase;
-
-
     private void Awake()
     {
         if(_mulliganHolder == null)
@@ -25,16 +22,6 @@ public class GameplayUICanvas : MonoBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Main Canvas is missing component reference.");
             return;
         }
-    }
-
-    private void OnEnable()
-    {
-        GlobalActions.OnPhaseChange += DetectPhase;
-    }
-
-    private void OnDisable()
-    {
-        GlobalActions.OnPhaseChange -= DetectPhase;
     }
 
     public void InitializeUI(string username, Sprite leaderSprite, EnumGameplayPlayerRole role)
@@ -55,20 +42,8 @@ public class GameplayUICanvas : MonoBehaviour
         }
     }
 
-    private void DetectPhase(EnumGameplayPhases phase)
+    public void ToggleMulliganScreenOff()
     {
-        switch (phase) 
-        {
-            case EnumGameplayPhases.Regular:
-                if(_cacheCurrentPhase == EnumGameplayPhases.Mulligan)
-                {
-                    _mulliganHolder.SetActive(false);
-                }
-                break;
-
-        }
-        _cacheCurrentPhase = phase;
-
+        if (_mulliganHolder.activeSelf) _mulliganHolder.SetActive(false);
     }
-
 }

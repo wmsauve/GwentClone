@@ -87,4 +87,24 @@ public class GeneralPurposeFunctions
                 break;
         }
     }
+
+    public static void EnableAllChildrenObjects(GameObject setActive)
+    {
+        if (!setActive.activeSelf)
+        {
+            setActive.SetActive(true);
+        }
+
+        if (setActive.transform.childCount == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < setActive.transform.childCount; i++)
+        {
+            EnableAllChildrenObjects(setActive.transform.GetChild(i).gameObject);
+        }
+
+
+    }
 }

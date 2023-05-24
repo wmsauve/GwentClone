@@ -38,7 +38,7 @@ public class UI_MulliganScroll : MonoBehaviour
         if(_cooldownBtnPress > _mulliganAnimDuration) _animRunning = false;
     }
 
-    private void Awake()
+    private void Start()
     {
         if (m_waitingMessage == null)
         {
