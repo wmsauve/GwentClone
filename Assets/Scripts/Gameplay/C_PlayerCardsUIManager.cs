@@ -4,36 +4,51 @@ using UnityEngine;
 
 public class C_PlayerCardsUIManager : MonoBehaviour
 {
-    public GameObject cardPrefab; // Prefab of the card object
-    public float cardPadding = 0.2f; // Padding between the cards
-    public float availableWidth = 5.0f; // Width of the available space for the hand
+    [Header("Prefab Related")]
+    public GameObject cardPrefab;
+
+    [Header("Settings Related")]
+    [SerializeField] private float availableWidth = 1000f;
+    [SerializeField] private float m_cardWidth = 100f;
+
+    [Header("Test Related")]
     public int testHandSize = 3;
 
     private void Start()
     {
-        int totalCards = testHandSize; // Determine the total number of cards in the hand
+        int totalCards = testHandSize;
+        float startingPosition = CalculateStartingPosition(totalCards);
+        float _shiftLeft = 1.0f;
 
-        float cardWidth = CalculateCardWidth(totalCards); // Calculate the width of each card
-        float startingPosition = CalculateStartingPosition(totalCards, cardWidth); // Calculate the starting position of the first card
+        if(totalCards * m_cardWidth > availableWidth)
+        {
+            _shiftLeft = (availableWidth / m_cardWidth) / totalCards;
+            Debug.LogWarning(_shiftLeft);
+        }
 
         for (int i = 0; i < totalCards; i++)
         {
-            GameObject card = Instantiate(cardPrefab, transform); // Instantiate a new card object
-            float cardPosition = startingPosition + (i * (cardWidth + cardPadding)); // Calculate the position of the current card
-            card.transform.localPosition = new Vector3(cardPosition, 0.0f, 0.0f); // Set the position of the card
+            GameObject card = Instantiate(cardPrefab, transform);
+            UI_GameplayCard _cardComp = card.GetComponentInChildren<UI_GameplayCard>();
+            if(_cardComp == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need a card component on your prefab.");
+                break;
+            }
+            _cardComp.InitializeCardComponent(i, _shiftLeft);
+            float cardPosition = startingPosition + i * (m_cardWidth *_shiftLeft);
+            Vector3 cardLocalPosition = new Vector3(cardPosition, cardPrefab.GetComponent<RectTransform>().rect.height / 2.0f, 0.0f);
+            card.transform.localPosition = cardLocalPosition;
         }
     }
 
-    private float CalculateCardWidth(int totalCards)
+    private float CalculateStartingPosition(int totalCards)
     {
-        float totalPadding = (totalCards - 1) * cardPadding; // Calculate the total padding between the cards
-        return (availableWidth - totalPadding) / totalCards; // Calculate the width of each card
-    }
+        if(totalCards * m_cardWidth > availableWidth) return -(availableWidth / 2) + (m_cardWidth / 2);
+        
 
-    private float CalculateStartingPosition(int totalCards, float cardWidth)
-    {
-        float totalWidth = totalCards * cardWidth + (totalCards - 1) * cardPadding; // Calculate the total width of all the cards
-        return -(totalWidth / 2) + (cardWidth / 2); // Calculate the starting position of the first card
+        float totalWidth = totalCards * m_cardWidth + (totalCards - 1);
+        return -(totalWidth / 2) + (m_cardWidth / 2);
     }
 
     private void OnTransformChildrenChanged()
