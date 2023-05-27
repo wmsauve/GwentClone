@@ -17,6 +17,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
+    private C_PlayerCardsUIManager _cardsInHandScreen = null;
     private S_DeckManagers _deckManager = null;
     private S_TurnManager _turnManager = null;
 
@@ -101,7 +102,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         if (_currentPhase == EnumGameplayPhases.Mulligan)
                         {
                             player.EndMulliganPhase();
-                            CloseMulliganScreenClientRpc(player.ClientRpcParams);
+                            string[] cardNames = player.ReturnCardIds();
+                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            StartFirstRegularTurnClientRpc(_json, player.ClientRpcParams);
                         }
                         else
                         {
@@ -127,6 +130,23 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             if (i == _currentActive) _playersLogic[i].TurnActive = true;
             else _playersLogic[i].TurnActive = false;
+        }
+    }
+
+    private void CreateListOfCardsFromString(ref List<Card> _cards, string names)
+    {
+        CardNames _cardNames = JsonUtility.FromJson<CardNames>(names);
+        foreach (string name in _cardNames._cards)
+        {
+            Card newCard = _deckManager.CardRepo.GetCard(name);
+            if (newCard == null)
+            {
+                Debug.LogWarning(name);
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Invalid card name from server to client.");
+                return;
+            }
+
+            _cards.Add(newCard);
         }
     }
 
@@ -162,29 +182,33 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         List<Card> _cards = new List<Card>();
-        CardNames _cardNames = JsonUtility.FromJson<CardNames>(cardNames);
-        foreach (string name in _cardNames._cards)
-        {
-            Card newCard = _deckManager.CardRepo.GetCard(name);
-            if(newCard == null)
-            {
-                Debug.LogWarning(name);
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Invalid card name from server to client.");
-                return;
-            }
-
-            _cards.Add(newCard);
-        }
-
+        CreateListOfCardsFromString(ref _cards, cardNames);
         _mulliganScreen.InitializeMulliganCards(_cards, this, GlobalConstantValues.GAME_MULLIGANSAMOUNT);
-
         _mulliganScreen.gameObject.SetActive(true);
     }
 
     [ClientRpc]
-    public void CloseMulliganScreenClientRpc(ClientRpcParams clientRpcParams = default)
+    public void StartFirstRegularTurnClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
         _mulliganScreen.gameObject.SetActive(false);
+
+        var _cardInHand = Resources.FindObjectsOfTypeAll<C_PlayerCardsUIManager>();
+        if (_cardInHand == null || _cardInHand.Length > 1)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should only have one card in hand object.");
+            return;
+        }
+        if (_cardInHand.Length == 0)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You don't have the screen added for Card in hand phase.");
+            return;
+        }
+
+        List<Card> _cards = new List<Card>();
+        CreateListOfCardsFromString(ref _cards, cardNames);
+        _cardsInHandScreen = _cardInHand[0];
+        _cardsInHandScreen.InitializeHand(_cards);
+        _cardsInHandScreen.gameObject.SetActive(true);
     }
 
     [ClientRpc]

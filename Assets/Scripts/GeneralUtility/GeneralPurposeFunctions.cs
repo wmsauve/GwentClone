@@ -104,7 +104,6 @@ public class GeneralPurposeFunctions
         {
             EnableAllChildrenObjects(setActive.transform.GetChild(i).gameObject);
         }
-
-
     }
+
 }

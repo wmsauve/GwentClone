@@ -62,6 +62,13 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         return toClient.ToArray();
     }
 
+    public string[] ReturnCardIds()
+    {
+        List<string> toClient = new List<string>();
+        for (int i = 0; i < _initialHandSize; i++) toClient.Add(_cardsInHand[i].id);
+        return toClient.ToArray();
+    }
+
     public string MulliganCard(string mulliganed)
     {
         if (_mulligans.Value > 0)

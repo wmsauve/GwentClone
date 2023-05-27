@@ -253,3 +253,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_canvasComp: {fileID: 8973297935489244130}
+  m_cardSprite: {fileID: 5510520624706402964}

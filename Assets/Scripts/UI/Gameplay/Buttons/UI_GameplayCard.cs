@@ -1,9 +1,10 @@
 using UnityEngine;
-using UnityEditor.UI;
+using UnityEngine.UI;
 
 public class UI_GameplayCard : MonoBehaviour
 {
     [SerializeField] private Canvas m_canvasComp;
+    [SerializeField] private Image m_cardSprite;
 
     private int m_cacheFirstSortOrder = 0;
     private int m_mySortOrder = 0;
@@ -18,6 +19,15 @@ public class UI_GameplayCard : MonoBehaviour
                 m_canvasComp.sortingOrder = value;
             }
         }
+    }
+
+    private Card m_myData = null;
+    public Card CardData { get { return m_myData; } 
+        set 
+        { 
+            m_myData = value;
+            m_cardSprite.sprite = m_myData.cardImage;
+        } 
     }
 
     public void InitializeCardComponent(int _newOrder, float _raycastWidth)
@@ -51,6 +61,12 @@ public class UI_GameplayCard : MonoBehaviour
         if(m_canvasComp == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need canvas comp on your gameplay card buttons.");
+            return;
+        }
+
+        if(m_cardSprite == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need an Image comp on your gameplay card buttons.");
             return;
         }
     }
