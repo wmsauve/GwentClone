@@ -77,17 +77,13 @@ public enum EnumDeckStatus
 [System.Serializable]
 public enum EnumAnimDirection
 {
+    Nothing,
     Upward,
     Downward,
     Leftward,
-    Rightward
-}
-
-[System.Serializable]
-public enum EnumAnimEffect
-{
-    Fade,
-    Nothing
+    Rightward,
+    GrowOut,
+    GrowIn,
 }
 
 public enum EnumGameplayPhases
@@ -121,4 +117,10 @@ public enum EnumMulliganPos
     rightcenter,
     right,
     rightout,
+}
+
+public enum EnumPlayCardReason
+{
+    ClickCard,
+    ClickZone,
 }

@@ -39,5 +39,7 @@ public static class GlobalActions
 
     public static Action OnGameStart;
     public static Action<EnumGameplayPhases> OnPhaseChange;
+    public static Action<UI_GameplayCard, PlayerControls> OnClickCard;
+    public static Action OnClickZone;
 }
     

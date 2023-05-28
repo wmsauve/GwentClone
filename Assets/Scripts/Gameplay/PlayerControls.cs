@@ -6,19 +6,57 @@ using UnityEngine.UI;
 public class PlayerControls : MonoBehaviour
 {
     private UI_GameplayCard m_currentCard;
-
+    private C_GameZone m_currentZone;
     private int _cardForward = 1000;
+
+    private EnumPlayCardReason _selectStyle = EnumPlayCardReason.ClickZone;
+    public EnumPlayCardReason SelectStyle 
+    { 
+        get { return _selectStyle; } 
+        set { _selectStyle = value; } 
+    }
     private void Update()
     {
-        ////Used for mousing over cards in the scene. 
-        //Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //RaycastHit hit;
+        if (Input.GetMouseButtonDown(0))
+        {
+            if(m_currentCard != null && _selectStyle == EnumPlayCardReason.ClickCard)
+            {
+                GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
+            }
 
-        //if (Physics.Raycast(ray, out hit))
-        //{
-        //    // Do something with the hit object
-        //    //Debug.Log("Hit object: " + hit.transform.name);
-        //}
+            else if (_selectStyle == EnumPlayCardReason.ClickZone)
+            {
+
+            }
+
+        }
+        
+
+
+        if(_selectStyle == EnumPlayCardReason.ClickZone)
+        {
+            //Used for mousing over cards in the scene. 
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                C_GameZone _zone = hit.transform.gameObject.GetComponent<C_GameZone>();
+                if (_zone == m_currentZone) return;
+                if (_zone != null)
+                {
+                    if (m_currentZone != null) m_currentZone.HideOutline();
+
+                    m_currentZone = _zone;
+
+                    m_currentZone.ShowOutline();
+                }
+                
+                
+            }
+
+            return;
+        }
 
         PointerEventData eventData = new PointerEventData(EventSystem.current);
         eventData.position = Input.mousePosition;
@@ -52,7 +90,7 @@ public class PlayerControls : MonoBehaviour
     {
         var _card = _obj.GetComponent<UI_GameplayCard>();
         if (_card == null) return false;
-        _card.SortOrder = _cardForward;
+        _card.CardOrder = _cardForward;
         m_currentCard = _card;
         return true;
     }

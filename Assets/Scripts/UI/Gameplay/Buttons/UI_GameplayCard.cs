@@ -1,14 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_GameplayCard : MonoBehaviour
+public class UI_GameplayCard : UI_MainButtonGame
 {
     [SerializeField] private Canvas m_canvasComp;
     [SerializeField] private Image m_cardSprite;
+    [SerializeField] private Anim_TransformUI m_anim;
+
+    public Anim_TransformUI Anim { get { return m_anim; } }
 
     private int m_cacheFirstSortOrder = 0;
     private int m_mySortOrder = 0;
-    public int SortOrder 
+    public override int CardOrder
     { 
         get { return m_mySortOrder; }
         set
@@ -21,8 +24,9 @@ public class UI_GameplayCard : MonoBehaviour
         }
     }
 
-    private Card m_myData = null;
-    public Card CardData { get { return m_myData; } 
+    public override Card CardData 
+    { 
+        get { return m_myData; } 
         set 
         { 
             m_myData = value;
@@ -33,7 +37,7 @@ public class UI_GameplayCard : MonoBehaviour
     public void InitializeCardComponent(int _newOrder, float _raycastWidth)
     {
         m_cacheFirstSortOrder = _newOrder;
-        SortOrder = _newOrder;
+        CardOrder = _newOrder;
 
         var _rectComp = GetComponent<RectTransform>();
         if(_rectComp == null)
@@ -73,6 +77,6 @@ public class UI_GameplayCard : MonoBehaviour
 
     public void ResetSortOrder()
     {
-        SortOrder = m_cacheFirstSortOrder;
+        CardOrder = m_cacheFirstSortOrder;
     }
 }

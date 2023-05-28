@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UI_MulliganButton : MonoBehaviour
+public class UI_MulliganButton : UI_MainButtonGame
 {
     [SerializeField] private Image m_cardSprite = null;
     [SerializeField] private Button m_cardBtn = null;
@@ -10,18 +10,21 @@ public class UI_MulliganButton : MonoBehaviour
     private Color _onColor = Color.yellow;
     private Color _offColor = new Color(0f, 0f, 0f, 0f);
 
-    private Card _myInfo = null;
-    public Card MyCard { get { return _myInfo; } 
+    public override Card CardData 
+    { 
+        get { return m_myData; } 
         set 
-        { 
-            _myInfo = value;
+        {
+            m_myData = value;
             if (m_cardSprite == null) return;
-            m_cardSprite.sprite = _myInfo.cardImage;
+            m_cardSprite.sprite = m_myData.cardImage;
         } 
     }
 
     private bool _pressed = false;
-    public bool IsPressed { get { return _pressed; } 
+    public bool IsPressed 
+    { 
+        get { return _pressed; } 
         set 
         { 
             _pressed = value;
@@ -32,7 +35,7 @@ public class UI_MulliganButton : MonoBehaviour
 
 
     private UI_MulliganScroll _mulliganManager = null;
-    public void InitializeButton(Card info, UI_MulliganScroll manager)
+    public void InitializeButton(Card info, int order, UI_MulliganScroll manager)
     {
         if(m_cardSprite == null || m_cardBtn == null || m_highlight == null)
         {
@@ -40,8 +43,9 @@ public class UI_MulliganButton : MonoBehaviour
             return;
         }
 
-        _myInfo = info;
-        m_cardSprite.sprite = _myInfo.cardImage;
+        m_myData = info;
+        m_myOrder = order;
+        m_cardSprite.sprite = m_myData.cardImage;
 
         _mulliganManager = manager;
     }
@@ -68,6 +72,6 @@ public class UI_MulliganButton : MonoBehaviour
             return;
         }
 
-        _mulliganManager.SendCardToMulligan(_myInfo.id, this);
+        _mulliganManager.SendCardToMulligan(m_myData.id, this);
     }
 }

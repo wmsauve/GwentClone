@@ -150,6 +150,19 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
+    private bool ValidateCardFromServer(string cardName, int cardSlot, List<Card> _cards)
+    {
+        int whichCard = 0;
+        foreach (Card card in _cards)
+        {
+            Debug.LogWarning(cardSlot);
+            Debug.LogWarning(whichCard);
+            if (card.id == cardName && cardSlot == whichCard) return true;
+            whichCard++;
+        }
+        return false;
+    }
+
     [ClientRpc]
     private void ShowMulliganScreenClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
@@ -207,7 +220,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         List<Card> _cards = new List<Card>();
         CreateListOfCardsFromString(ref _cards, cardNames);
         _cardsInHandScreen = _cardInHand[0];
-        _cardsInHandScreen.InitializeHand(_cards);
+        _cardsInHandScreen.InitializeHand(_cards, this);
         _cardsInHandScreen.gameObject.SetActive(true);
     }
 
@@ -226,20 +239,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
 
     [ServerRpc(RequireOwnership = false)]
-    public void MulliganACardServerRpc(string cardName, ServerRpcParams serverRpcParams = default)
+    public void MulliganACardServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
     {
         var clientId = serverRpcParams.Receive.SenderClientId;
         var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
-        List<Card> _cards = _play.CardsInHand;
-        int cardCheck = 0;
 
-        foreach(Card card in _cards)
-        {
-            if (card.id == cardName) break;
-            else cardCheck++;
-        }
-
-        if(cardCheck == _cards.Count)
+        if(!ValidateCardFromServer(cardName, cardSlot, _play.CardsInHand))
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
             return;
@@ -258,5 +263,18 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _turnManager.EndMulliganPhase();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
+    {
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
 
+        if (!ValidateCardFromServer(cardName, cardSlot, _play.CardsInHand))
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
+            return;
+        }
+
+        Debug.LogWarning(cardName + " this card getting played.");
+    }
 }

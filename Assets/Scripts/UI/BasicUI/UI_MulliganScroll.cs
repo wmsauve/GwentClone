@@ -18,15 +18,18 @@ public class UI_MulliganScroll : MonoBehaviour
     [SerializeField] private Button m_mulliganBtn = null;
 
     [Header("Animation Related")]
-    [SerializeField] private List<MulliganSpotParams> _spots = new List<MulliganSpotParams>();
+    [SerializeField] private List<AnimationMoveSpotParams> _spots = new List<AnimationMoveSpotParams>();
 
-    private List<Anim_MulliganSwap> _cardAnims = new List<Anim_MulliganSwap>();
+    private List<Anim_TransformUI> _cardAnims = new List<Anim_TransformUI>();
     private List<UI_MulliganButton> _buttons = new List<UI_MulliganButton>();
     private S_GamePlayLogicManager _gameManager;
     private float _mulliganAnimDuration;
     private float _cooldownBtnPress;
     private bool _animRunning = false;
+
+    //Send to server related
     private string _cardToMulligan;
+    private int _cardSlot;
 
     private int _rightMostIndex;
     private int _leftMostIndex;
@@ -109,7 +112,7 @@ public class UI_MulliganScroll : MonoBehaviour
 
         bool shiftLeftIn = false;
        
-        foreach (Anim_MulliganSwap anim in _cardAnims)
+        foreach (Anim_TransformUI anim in _cardAnims)
         {
             switch (anim.CurrentPos)
             {
@@ -160,7 +163,7 @@ public class UI_MulliganScroll : MonoBehaviour
 
         bool shiftRightIn = false;
 
-        foreach(Anim_MulliganSwap anim in _cardAnims)
+        foreach(Anim_TransformUI anim in _cardAnims)
         {
             switch (anim.CurrentPos)
             {
@@ -206,7 +209,7 @@ public class UI_MulliganScroll : MonoBehaviour
         for(int i = 0; i < m_intialHandSize; i++)
         {
             var newCard = Instantiate(m_mulliganCardPrefab, m_viewTransform);
-            var animComp = newCard.GetComponentInChildren<Anim_MulliganSwap>();
+            var animComp = newCard.GetComponentInChildren<Anim_TransformUI>();
             var buttonComp = newCard.GetComponentInChildren<UI_MulliganButton>();
             
             if(animComp == null || buttonComp == null)
@@ -215,7 +218,7 @@ public class UI_MulliganScroll : MonoBehaviour
                 return;
             }
 
-            buttonComp.InitializeButton(cardInfo[i], this);
+            buttonComp.InitializeButton(cardInfo[i], i, this);
 
             _cardAnims.Add(animComp);
             _buttons.Add(buttonComp);
@@ -234,7 +237,7 @@ public class UI_MulliganScroll : MonoBehaviour
     {
         if (dir == m_rightBtn)
         {
-            foreach(Anim_MulliganSwap anim in _cardAnims)
+            foreach(Anim_TransformUI anim in _cardAnims)
             {
                 if (anim.CurrentPos == EnumMulliganPos.leftcenter) return true;
             }
@@ -244,7 +247,7 @@ public class UI_MulliganScroll : MonoBehaviour
 
         if (dir == m_leftBtn)
         {
-            foreach (Anim_MulliganSwap anim in _cardAnims)
+            foreach (Anim_TransformUI anim in _cardAnims)
             {
                 if (anim.CurrentPos == EnumMulliganPos.rightcenter) return true;
             }
@@ -262,7 +265,7 @@ public class UI_MulliganScroll : MonoBehaviour
             if (button.IsPressed)
             {
                 button.IsPressed = false;
-                button.MyCard = newCard;
+                button.CardData = newCard;
                 break;
             }
         }
@@ -284,6 +287,7 @@ public class UI_MulliganScroll : MonoBehaviour
     public void HideMulliganCard()
     {
         _cardToMulligan = string.Empty;
+        _cardSlot = -1;
         m_mulliganBtn.gameObject.SetActive(false);
         foreach (UI_MulliganButton button in _buttons)
         {
@@ -293,7 +297,7 @@ public class UI_MulliganScroll : MonoBehaviour
 
     private void MulliganCard()
     {
-        _gameManager.MulliganACardServerRpc(_cardToMulligan);
+        _gameManager.MulliganACardServerRpc(_cardToMulligan, _cardSlot);
     }
 
     public void SendCardToMulligan(string cardName, UI_MulliganButton pressed)
@@ -309,5 +313,6 @@ public class UI_MulliganScroll : MonoBehaviour
         pressed.IsPressed = true;
         m_mulliganBtn.gameObject.SetActive(true);
         _cardToMulligan = cardName;
+        _cardSlot = pressed.CardOrder;
     }
 }

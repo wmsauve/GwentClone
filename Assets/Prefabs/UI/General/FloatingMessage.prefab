@@ -150,5 +150,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_animationSpeed: 50
   m_animationDuration: 1
-  m_animationDirection: 0
-  m_animationEffect: 0
+  m_animationDirection: 1
+  m_animationEffect: 1
