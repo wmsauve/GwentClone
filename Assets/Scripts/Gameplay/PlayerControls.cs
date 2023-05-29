@@ -24,9 +24,9 @@ public class PlayerControls : MonoBehaviour
                 GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
             }
 
-            else if (_selectStyle == EnumPlayCardReason.ClickZone)
+            else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
             {
-
+                GlobalActions.OnClickZone?.Invoke(m_currentZone, this);
             }
 
         }
@@ -45,11 +45,21 @@ public class PlayerControls : MonoBehaviour
                 if (_zone == m_currentZone) return;
                 if (_zone != null)
                 {
+                    if (!_zone.PlayerZone) return;
+
                     if (m_currentZone != null) m_currentZone.HideOutline();
 
                     m_currentZone = _zone;
 
                     m_currentZone.ShowOutline();
+                }
+                else
+                {
+                    if(m_currentZone != null)
+                    {
+                        m_currentZone.HideOutline();
+                        m_currentZone = null;
+                    }
                 }
                 
                 

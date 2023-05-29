@@ -42,6 +42,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_hoverBtn.InitializeThisUIComp();
         m_playBtn.onClick.AddListener(PlayCardPassToServer);
         GlobalActions.OnClickCard += OnReceiveClickedCard;
+        GlobalActions.OnClickZone += OnReceiveClickedZone;
 
         m_playCard.gameObject.SetActive(false);
     }
@@ -50,6 +51,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
     {
         m_playBtn.onClick.RemoveListener(PlayCardPassToServer);
         GlobalActions.OnClickCard -= OnReceiveClickedCard;
+        GlobalActions.OnClickZone -= OnReceiveClickedZone;
     }
 
     private void Start()
@@ -161,6 +163,11 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         {
             _playerControls.SelectStyle = EnumPlayCardReason.ClickZone;
         }
+    }
+
+    private void OnReceiveClickedZone(C_GameZone _zone, PlayerControls _playerControls)
+    {
+
     }
 
 }

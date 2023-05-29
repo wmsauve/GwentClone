@@ -7,6 +7,9 @@ public class C_GameZone : MonoBehaviour
 
     [Header("Gameplay Related")]
     [SerializeField] private EnumUnitPlacement m_zone = EnumUnitPlacement.Frontline;
+    [SerializeField] private bool m_playerZone = false;
+
+    public bool PlayerZone { get { return m_playerZone; } }
 
     private Outline m_myOutline;
 
