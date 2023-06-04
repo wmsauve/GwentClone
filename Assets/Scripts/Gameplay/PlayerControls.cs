@@ -9,12 +9,13 @@ public class PlayerControls : MonoBehaviour
     private C_GameZone m_currentZone;
     private int _cardForward = 1000;
 
-    private EnumPlayCardReason _selectStyle = EnumPlayCardReason.ClickZone;
+    private EnumPlayCardReason _selectStyle = EnumPlayCardReason.ClickCard;
     public EnumPlayCardReason SelectStyle 
     { 
         get { return _selectStyle; } 
         set { _selectStyle = value; } 
     }
+
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -30,8 +31,6 @@ public class PlayerControls : MonoBehaviour
             }
 
         }
-        
-
 
         if(_selectStyle == EnumPlayCardReason.ClickZone)
         {
@@ -61,27 +60,29 @@ public class PlayerControls : MonoBehaviour
                         m_currentZone = null;
                     }
                 }
-                
-                
             }
 
             return;
         }
 
-        PointerEventData eventData = new PointerEventData(EventSystem.current);
-        eventData.position = Input.mousePosition;
-        List<RaycastResult> results = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(eventData, results);
-
-        if(results.Count == 0)
+        if(_selectStyle == EnumPlayCardReason.ClickCard)
         {
-            if(m_currentCard != null)
+            PointerEventData eventData = new PointerEventData(EventSystem.current);
+            eventData.position = Input.mousePosition;
+            List<RaycastResult> results = new List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+
+            if (results.Count == 0)
             {
-                m_currentCard.ResetSortOrder();
-                m_currentCard = null;
+                if (m_currentCard != null)
+                {
+                    m_currentCard.ResetSortOrder();
+                    m_currentCard = null;
+                }
             }
+            else DifferentCardHovered(results[0].gameObject);
         }
-        else DifferentCardHovered(results[0].gameObject);
+
     }
 
     private void DifferentCardHovered(GameObject _newCard)
@@ -103,5 +104,11 @@ public class PlayerControls : MonoBehaviour
         _card.CardOrder = _cardForward;
         m_currentCard = _card;
         return true;
+    }
+
+    public void CancelButtonPressed()
+    {
+        _selectStyle = EnumPlayCardReason.ClickCard;
+
     }
 }

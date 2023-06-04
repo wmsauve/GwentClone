@@ -11,6 +11,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
 
     [Header("Play Card Related")]
     [SerializeField] private GameObject m_playCard = null;
+    [SerializeField] private GameObject m_cancelCard = null;
     [SerializeField] private AnimationMoveSpotParams m_params = null;
 
     [Header("Settings Related")]
@@ -23,33 +24,49 @@ public class C_PlayerCardsUIManager : MonoBehaviour
 
     private S_GamePlayLogicManager _gameManager = null;
     private UI_GameplayCard m_currentCard = null;
+    private C_GameZone m_currentZone = null;
     private List<GameObject> m_cards = new List<GameObject>();
     private List<UI_GameplayCard> m_cardInfo = new List<UI_GameplayCard>();
 
     private Button m_playBtn;
+    private Button m_cancelBtn;
+    private PlayerControls m_playerControls;
+    private EnumUnitPlacement _nonAgilePlacement;
+    private bool isAgile = false;
 
     private void OnEnable()
     {
-        m_playBtn = m_playCard.GetComponentInChildren<Button>();
-        var m_hoverBtn = m_playCard.GetComponentInChildren<UI_OnButtonHover>();
+        if(m_playCard == null || m_cancelCard == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You didn't place card references for selecting cards.");
+            return;
+        }
 
-        if(m_playCard == null || m_playBtn == null || m_hoverBtn == null || m_params == null)
+        m_playBtn = m_playCard.GetComponentInChildren<Button>();
+        m_cancelBtn = m_cancelCard.GetComponentInChildren<Button>();
+        var m_hoverBtn = m_playCard.GetComponentInChildren<UI_OnButtonHover>();
+        var m_hoverBtn2 = m_cancelCard.GetComponentInChildren<UI_OnButtonHover>();
+
+        if(m_playBtn == null || m_cancelBtn == null || m_hoverBtn == null || m_hoverBtn2 == null || m_params == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You can't play cards.");
             return;
         }
 
         m_hoverBtn.InitializeThisUIComp();
-        m_playBtn.onClick.AddListener(PlayCardPassToServer);
+        m_hoverBtn2.InitializeThisUIComp();
+        m_playBtn.onClick.AddListener(() => PlayCardPassToServer(isAgile));
         GlobalActions.OnClickCard += OnReceiveClickedCard;
         GlobalActions.OnClickZone += OnReceiveClickedZone;
 
         m_playCard.gameObject.SetActive(false);
+        m_cancelCard.gameObject.SetActive(false);
     }
 
     private void OnDisable()
     {
-        m_playBtn.onClick.RemoveListener(PlayCardPassToServer);
+        m_playBtn.onClick.RemoveListener(() => PlayCardPassToServer(isAgile));
+        m_cancelBtn.onClick.RemoveListener(CancelCardSelection);
         GlobalActions.OnClickCard -= OnReceiveClickedCard;
         GlobalActions.OnClickZone -= OnReceiveClickedZone;
     }
@@ -137,16 +154,41 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    private void PlayCardPassToServer()
+    private void PlayCardPassToServer(bool _agileCard = false)
     {
         int _cardSlot = m_currentCard.CardOrder;
         string _cardName = m_currentCard.CardData.id;
-        _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot);
+        EnumUnitPlacement _cardPlace = _nonAgilePlacement;
+        if (_agileCard) _cardPlace = m_currentZone.Zone;
+        _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _cardPlace);
+    }
+    
+    private void CancelCardSelection()
+    {
+        if (m_playerControls == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You should have player controls reference here.");
+            return;
+        }
+
+        m_playerControls.CancelButtonPressed();
+        m_playCard.gameObject.SetActive(false);
+        m_cancelCard.gameObject.SetActive(false);
+
+        if (m_currentCard != null)
+        {
+            m_currentCard.Anim.ResetThisObject();
+        }
+
+        m_currentCard = null;
+        m_currentZone = null;
+        isAgile = false;
     }
 
     private void OnReceiveClickedCard(UI_GameplayCard clickedCard, PlayerControls _playerControls)
     {
-        if(m_currentCard != null) m_currentCard.Anim.ResetThisObject();
+        if (m_playerControls == null) m_playerControls = _playerControls;
+        if (m_currentCard != null) m_currentCard.Anim.ResetThisObject();
 
         m_currentCard = clickedCard;
         Card _cardInfo = m_currentCard.CardData;
@@ -158,16 +200,24 @@ public class C_PlayerCardsUIManager : MonoBehaviour
          || _cardInfo.unitPlacement == EnumUnitPlacement.Global)
         {
             m_playCard.gameObject.SetActive(true);
+            m_cancelCard.gameObject.SetActive(true);
+            _nonAgilePlacement = _cardInfo.unitPlacement;
         }
         else  
         {
             _playerControls.SelectStyle = EnumPlayCardReason.ClickZone;
+            isAgile = true;
         }
     }
 
     private void OnReceiveClickedZone(C_GameZone _zone, PlayerControls _playerControls)
     {
-
+        if (m_playerControls == null) m_playerControls = _playerControls;
+        m_currentZone = _zone;
+        _zone.HideOutline();
+        m_playCard.gameObject.SetActive(true);
+        m_cancelCard.gameObject.SetActive(true);
+        _playerControls.SelectStyle = EnumPlayCardReason.ClickCard;
     }
 
 }

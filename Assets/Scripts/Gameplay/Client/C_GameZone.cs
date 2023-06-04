@@ -10,6 +10,7 @@ public class C_GameZone : MonoBehaviour
     [SerializeField] private bool m_playerZone = false;
 
     public bool PlayerZone { get { return m_playerZone; } }
+    public EnumUnitPlacement Zone { get { return m_zone; } }
 
     private Outline m_myOutline;
 
@@ -43,5 +44,20 @@ public class C_GameZone : MonoBehaviour
         m_myOutline.OutlineWidth = _outlineOff;
     }
 
+
+    public void AddCardToZone()
+    {
+
+    }
+
+    public void RemoveCardFromZone()
+    {
+
+    }
+
+    private void RePositionCardsInZone()
+    {
+
+    }
 
 }

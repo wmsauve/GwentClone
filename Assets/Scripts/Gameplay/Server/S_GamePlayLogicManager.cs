@@ -18,6 +18,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
     private C_PlayerCardsUIManager _cardsInHandScreen = null;
+    private C_ZonesManager _zoneManager = null;
     private S_DeckManagers _deckManager = null;
     private S_TurnManager _turnManager = null;
 
@@ -54,6 +55,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         
         _deckManager = GetComponent<S_DeckManagers>();
         _turnManager = GetComponent<S_TurnManager>();
+        
         if (_deckManager == null || _turnManager == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
@@ -70,6 +72,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     _playersLogic[i].InitializePlayerLogic(player);
                     continue;
                 }
+            }
+        }
+
+        if (IsClient)
+        {
+            _zoneManager = GetComponent<C_ZonesManager>();
+            if (_zoneManager == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
+                return;
             }
         }
     }
@@ -237,6 +249,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _mulliganScreen.UpdateMulliganedButton(newCard, mulliganCount);
     }
 
+    [ClientRpc]
+    public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace)
+    {
+        var _cardData = _deckManager.CardRepo.GetCard(cardName);
+
+        if (IsOwner) _zoneManager.AddCardToZone(_cardData, cardPlace, true);
+        else _zoneManager.AddCardToZone(_cardData, cardPlace, false);
+    }
+
 
     [ServerRpc(RequireOwnership = false)]
     public void MulliganACardServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
@@ -264,10 +285,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
+    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
     {
         var clientId = serverRpcParams.Receive.SenderClientId;
         var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
+
+        if (!_play.TurnActive)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Wrong player sending inputs to server.", _play.MyInfo.Username);
+            return;
+        }
 
         if (!ValidateCardFromServer(cardName, cardSlot, _play.CardsInHand))
         {
@@ -276,5 +303,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Debug.LogWarning(cardName + " this card getting played.");
+        PlacePlayedCardClientRpc(cardName, cardPlace);
     }
 }
