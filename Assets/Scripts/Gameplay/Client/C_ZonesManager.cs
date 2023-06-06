@@ -12,6 +12,8 @@ public class C_ZonesManager : MonoBehaviour
 
     [SerializeField] private GameObject _placedCardPrefab;
 
+    private C_PlayerGamePlayLogic _myLogic;
+
     private void Start()
     {
 
@@ -29,19 +31,37 @@ public class C_ZonesManager : MonoBehaviour
     }
 
 
-    public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement, bool isYourCard)
+    public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement)
     {
-        var _whichZones = isYourCard ? m_playerZones : m_opponentZones;
+        if(_myLogic == null)
+        {
+            var logics = FindObjectsOfType<C_PlayerGamePlayLogic>();
+            if (logics.Length == 0) GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Should have player logic");
+            for(int i = 0; i < logics.Length; i++)
+            {
+                if (logics[i].ReturnOwnerStatus())
+                {
+                    _myLogic = logics[i];
+                    break;
+                }
+            }
+        }
+
+        
+
+        var _whichZones = _myLogic.TurnActive ? m_playerZones : m_opponentZones;
 
         var _zone = _whichZones.Find((x) => _cardPlacement == x.Zone);
         if (_zone != null)
         {
-            var newCard = Instantiate(_placedCardPrefab, _zone.transform);
+            var newCard = Instantiate(_placedCardPrefab, _zone.CardPlace);
             var _cardComp = newCard.GetComponent<C_PlayedCard>();
             if (_cardComp != null)
             {
                 _cardComp.InitializePlayedCard(_cardData);
             }
         }
+
+        Debug.LogWarning("Are we getting here?");
     }
 }

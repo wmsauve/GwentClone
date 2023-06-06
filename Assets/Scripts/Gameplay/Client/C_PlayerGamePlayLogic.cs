@@ -102,4 +102,21 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
         _myInfo.Deck.Cards.AddRange(_mulliganStorage);
     }
+
+    public bool ReturnOwnerStatus()
+    {
+        var netObj = gameObject.GetComponent<NetworkObject>();
+        if (netObj == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "This should be on a network object.");
+            return false;
+        }
+
+        if (netObj.IsOwner)
+        {
+            return true;
+        }
+
+        return false;        
+    }
 }

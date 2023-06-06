@@ -56,7 +56,6 @@ public class UI_GameplayCard : UI_MainButtonGame
         }
         var _leftPos = -(_parentRect.rect.width) / 2f + _rectComp.rect.width / 2f;
 
-        Debug.LogWarning(_rectComp.sizeDelta);
         _rectComp.localPosition = new Vector3(_leftPos, _rectComp.localPosition.y);
     }
 

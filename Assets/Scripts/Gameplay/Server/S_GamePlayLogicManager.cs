@@ -74,16 +74,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 }
             }
         }
-
-        if (IsClient)
-        {
-            _zoneManager = GetComponent<C_ZonesManager>();
-            if (_zoneManager == null)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
-                return;
-            }
-        }
     }
 
     private void NewPhase(EnumGameplayPhases _phase)
@@ -167,13 +157,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         int whichCard = 0;
         foreach (Card card in _cards)
         {
-            Debug.LogWarning(cardSlot);
-            Debug.LogWarning(whichCard);
             if (card.id == cardName && cardSlot == whichCard) return true;
             whichCard++;
         }
         return false;
     }
+
+    #region Client RPC
 
     [ClientRpc]
     private void ShowMulliganScreenClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
@@ -252,13 +242,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace)
     {
+        if(_zoneManager == null)
+        {
+            _zoneManager = GetComponent<C_ZonesManager>();
+            if (_zoneManager == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
+                return;
+            }
+        }
+
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
-
-        if (IsOwner) _zoneManager.AddCardToZone(_cardData, cardPlace, true);
-        else _zoneManager.AddCardToZone(_cardData, cardPlace, false);
+        _zoneManager.AddCardToZone(_cardData, cardPlace);
     }
+    #endregion Client RPC
 
-
+    #region Server RPC
     [ServerRpc(RequireOwnership = false)]
     public void MulliganACardServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
     {
@@ -302,7 +301,10 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        Debug.LogWarning(cardName + " this card getting played.");
+
         PlacePlayedCardClientRpc(cardName, cardPlace);
+ 
+
     }
+    #endregion Server RPC
 }

@@ -12,6 +12,9 @@ public class C_GameZone : MonoBehaviour
     public bool PlayerZone { get { return m_playerZone; } }
     public EnumUnitPlacement Zone { get { return m_zone; } }
 
+    private Transform _cardPlace;
+    public Transform CardPlace { get { return _cardPlace; } }
+
     private Outline m_myOutline;
 
 
@@ -33,6 +36,9 @@ public class C_GameZone : MonoBehaviour
             return;
         }
         m_myOutline.OutlineWidth = _outlineOff;
+
+        //In the prefab, this appears on the visual aspect of the zone. Cards should be a child of the root.
+        _cardPlace = transform.parent;
     }
 
     public void ShowOutline()
