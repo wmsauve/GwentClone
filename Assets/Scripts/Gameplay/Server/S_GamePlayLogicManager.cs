@@ -18,6 +18,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
     private C_PlayerCardsUIManager _cardsInHandScreen = null;
+    private GameplayUICanvas _canvasUI = null;
     private C_ZonesManager _zoneManager = null;
     private S_DeckManagers _deckManager = null;
     private S_TurnManager _turnManager = null;
@@ -99,6 +100,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
                 if (IsServer)
                 {
+                    if(_currentPhase == EnumGameplayPhases.Regular)
+                    {
+                        _currentActive++;
+                        if (_currentActive == _playersLogic.Count) _currentActive = 0;
+                        SetPlayerTurnActive();
+                    }
+
                     foreach (C_PlayerGamePlayLogic player in _playersLogic)
                     {
                         if (_currentPhase == EnumGameplayPhases.Mulligan)
@@ -106,13 +114,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                             player.EndMulliganPhase();
                             string[] cardNames = player.ReturnCardIds();
                             var _json = JsonUtility.ToJson(new CardNames(cardNames));
-                            StartFirstRegularTurnClientRpc(_json, player.ClientRpcParams);
+                            StartFirstRegularTurnClientRpc(_json, player.TurnActive, player.ClientRpcParams);
                         }
                         else
                         {
-                            _currentActive++;
-                            if (_currentActive == _playersLogic.Count) _currentActive = 0;
-                            SetPlayerTurnActive();
+                            PassTurnSwapClientRpc(player.TurnActive, player.ClientRpcParams);
                         }
                     }
 
@@ -128,6 +134,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private void SetPlayerTurnActive()
     {
+        Debug.LogWarning(_currentActive + " current active my ugy.");
         for(int i = 0; i < _playersLogic.Count; i++)
         {
             if (i == _currentActive) _playersLogic[i].TurnActive = true;
@@ -203,19 +210,20 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void StartFirstRegularTurnClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    public void StartFirstRegularTurnClientRpc(string cardNames, bool isActive, ClientRpcParams clientRpcParams = default)
     {
         _mulliganScreen.gameObject.SetActive(false);
 
         var _cardInHand = Resources.FindObjectsOfTypeAll<C_PlayerCardsUIManager>();
-        if (_cardInHand == null || _cardInHand.Length > 1)
+        var _canvasUIs = Resources.FindObjectsOfTypeAll<GameplayUICanvas>();
+        if (_cardInHand == null || _cardInHand.Length > 1 || _canvasUIs == null || _canvasUIs.Length > 1)
         {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should only have one card in hand object.");
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should only have one of these client UI components.");
             return;
         }
-        if (_cardInHand.Length == 0)
+        if (_cardInHand.Length == 0 || _canvasUIs.Length == 0)
         {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You don't have the screen added for Card in hand phase.");
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You don't have the screen added for Card in hand or main UI component phase.");
             return;
         }
 
@@ -224,6 +232,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _cardsInHandScreen = _cardInHand[0];
         _cardsInHandScreen.InitializeHand(_cards, this);
         _cardsInHandScreen.gameObject.SetActive(true);
+
+        _canvasUI = _canvasUIs[0];
+        _canvasUI.SetActivePlayer(isActive);
     }
 
     [ClientRpc]
@@ -254,6 +265,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
         _zoneManager.AddCardToZone(_cardData, cardPlace);
+    }
+
+    [ClientRpc]
+    public void PassTurnSwapClientRpc(bool isActive, ClientRpcParams clientRpcParams = default)
+    {
+        if (_canvasUI == null) return;
+        _canvasUI.SetActivePlayer(isActive);
     }
     #endregion Client RPC
 

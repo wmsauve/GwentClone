@@ -47,8 +47,6 @@ public class C_ZonesManager : MonoBehaviour
             }
         }
 
-        
-
         var _whichZones = _myLogic.TurnActive ? m_playerZones : m_opponentZones;
 
         var _zone = _whichZones.Find((x) => _cardPlacement == x.Zone);
@@ -61,7 +59,5 @@ public class C_ZonesManager : MonoBehaviour
                 _cardComp.InitializePlayedCard(_cardData);
             }
         }
-
-        Debug.LogWarning("Are we getting here?");
     }
 }
