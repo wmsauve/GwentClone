@@ -37,7 +37,6 @@ public class UI_GameplayCard : UI_MainButtonGame
     public void InitializeCardComponent(int _newOrder, float _raycastWidth)
     {
         m_cacheFirstSortOrder = _newOrder;
-        CardOrder = _newOrder;
 
         var _rectComp = GetComponent<RectTransform>();
         if(_rectComp == null)
@@ -77,5 +76,11 @@ public class UI_GameplayCard : UI_MainButtonGame
     public void ResetSortOrder()
     {
         CardOrder = m_cacheFirstSortOrder;
+    }
+
+    public void SetNewlyAdjustedPositions(int newPos)
+    {
+        m_cacheFirstSortOrder = newPos;
+        CardOrder = newPos;
     }
 }

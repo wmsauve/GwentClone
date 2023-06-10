@@ -19,6 +19,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private List<Card> _cardsInGraveyard = new List<Card>();
     public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
 
+    public S_GameZones _cardsInPlay = new S_GameZones();
+
     //Store card here to prevent mulliganing cards into the exact same card that you mulliganed away.
     private List<Card> _mulliganStorage = new List<Card>();
 
@@ -62,13 +64,34 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         return toClient.ToArray();
     }
 
-    public string[] ReturnCardIds()
+    #region Deal With Cards Related
+
+    public void SuccessfullyPlayCards(int cardSlot, EnumUnitPlacement cardPlace)
     {
-        List<string> toClient = new List<string>();
-        for (int i = 0; i < _initialHandSize; i++) toClient.Add(_cardsInHand[i].id);
-        return toClient.ToArray();
+        Card playedCard = _cardsInHand[cardSlot];
+        _cardsInHand.RemoveAt(cardSlot);
+
+        switch (cardPlace)
+        {
+            case EnumUnitPlacement.Frontline:
+                _cardsInPlay.CardsInFront.Add(playedCard);
+                break;
+            case EnumUnitPlacement.Ranged:
+                _cardsInPlay.CardsInRanged.Add(playedCard);
+                break;
+            case EnumUnitPlacement.Siege:
+                _cardsInPlay.CardsInSiege.Add(playedCard);
+                break;
+        }
+
+        Debug.LogWarning(_cardsInPlay.CardsInFront.Count + " in front.");
+        Debug.LogWarning(_cardsInPlay.CardsInRanged.Count + " in ranged.");
+        Debug.LogWarning(_cardsInPlay.CardsInSiege.Count + " in siege.");
     }
 
+    #endregion Deal With Cards Related
+
+    #region Mulligan Related
     public string MulliganCard(string mulliganed)
     {
         if (_mulligans.Value > 0)
@@ -93,7 +116,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         }
 
         return string.Empty;
-        
+
     }
 
     public void EndMulliganPhase()
@@ -101,6 +124,16 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         if (_mulliganStorage.Count < 1) return;
 
         _myInfo.Deck.Cards.AddRange(_mulliganStorage);
+    }
+
+    #endregion Mulligan Related
+
+    #region Utility Related
+    public string[] ReturnCardIds()
+    {
+        List<string> toClient = new List<string>();
+        for (int i = 0; i < _initialHandSize; i++) toClient.Add(_cardsInHand[i].id);
+        return toClient.ToArray();
     }
 
     public bool ReturnOwnerStatus()
@@ -117,6 +150,9 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             return true;
         }
 
-        return false;        
+        return false;
     }
+
+    #endregion Utility Related
+
 }

@@ -132,12 +132,6 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         return -(totalWidth / 2) + (m_cardWidth / 2);
     }
 
-    private void OnTransformChildrenChanged()
-    {
-        ReadjustCardPositionsInHand();
-    }
-
-
     private void ReadjustCardPositionsInHand()
     {
         int totalCards = m_cards.Count;
@@ -151,6 +145,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
             float cardPosition = startingPosition + i * (m_cardWidth * _shiftLeft);
             Vector3 cardLocalPosition = new Vector3(cardPosition, cardPrefab.GetComponent<RectTransform>().rect.height / 2.0f, 0.0f);
             m_cards[i].transform.localPosition = cardLocalPosition;
+            m_cardInfo[i].SetNewlyAdjustedPositions(i);
         }
     }
 
@@ -183,6 +178,15 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_currentCard = null;
         m_currentZone = null;
         isAgile = false;
+    }
+
+    public void RemoveCardFromHand(int slot)
+    {
+        m_cards.RemoveAt(slot);
+        m_cardInfo.RemoveAt(slot);
+        GameObject playedCard = m_cardHolder.GetChild(slot).gameObject;
+        Destroy(playedCard);
+        ReadjustCardPositionsInHand();
     }
 
     private void OnReceiveClickedCard(UI_GameplayCard clickedCard, PlayerControls _playerControls)

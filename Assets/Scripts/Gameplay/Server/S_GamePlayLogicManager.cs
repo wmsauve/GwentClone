@@ -134,7 +134,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private void SetPlayerTurnActive()
     {
-        Debug.LogWarning(_currentActive + " current active my ugy.");
         for(int i = 0; i < _playersLogic.Count; i++)
         {
             if (i == _currentActive) _playersLogic[i].TurnActive = true;
@@ -164,8 +163,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         int whichCard = 0;
         foreach (Card card in _cards)
         {
+            Debug.LogWarning(card.id + " card check");
+            Debug.LogWarning(cardName + " played");
+            Debug.LogWarning(cardSlot + " where I pressed");
+            Debug.LogWarning(whichCard + " where I'm checking.");
+
             if (card.id == cardName && cardSlot == whichCard) return true;
             whichCard++;
+
+
+
         }
         return false;
     }
@@ -268,6 +275,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void FixUIAfterPlayedCardClientRpc(int cardSlot, ClientRpcParams clientRpcParams = default)
+    {
+        _cardsInHandScreen.RemoveCardFromHand(cardSlot);
+    }
+
+    [ClientRpc]
     public void PassTurnSwapClientRpc(bool isActive, ClientRpcParams clientRpcParams = default)
     {
         if (_canvasUI == null) return;
@@ -321,7 +334,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
 
         PlacePlayedCardClientRpc(cardName, cardPlace);
- 
+        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
+
+        _play.SuccessfullyPlayCards(cardSlot, cardPlace);
 
     }
     #endregion Server RPC
