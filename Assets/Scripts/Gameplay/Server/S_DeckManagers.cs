@@ -23,32 +23,29 @@ public class S_DeckManagers : NetworkBehaviour
 
     public void RunCardRepoCheck()
     {
-        if (IsClient)
+        if (_cardRepo != null) return;
+
+        if (m_cardRepoPrefab == null)
         {
-            if (_cardRepo != null) return;
-
-            if (m_cardRepoPrefab == null)
-            {
-                Debug.LogWarning("If you are trying to test, you won't spawn a card repo.");
-                return;
-            }
-
-            var _cardRepos = FindObjectsOfType<CardRepository>();
-            if (_cardRepos.Length == 0)
-            {
-                var _repoObj = Instantiate(m_cardRepoPrefab);
-                _cardRepo = _repoObj.GetComponent<CardRepository>();
-                return;
-            }
-
-            if(_cardRepos.Length > 1)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You don't need 2 card repos.");
-                return;
-            }
-
-            _cardRepo = _cardRepos[0];
+            Debug.LogWarning("If you are trying to test, you won't spawn a card repo.");
+            return;
         }
+
+        var _cardRepos = FindObjectsOfType<CardRepository>();
+        if (_cardRepos.Length == 0)
+        {
+            var _repoObj = Instantiate(m_cardRepoPrefab);
+            _cardRepo = _repoObj.GetComponent<CardRepository>();
+            return;
+        }
+
+        if(_cardRepos.Length > 1)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You don't need 2 card repos.");
+            return;
+        }
+
+        _cardRepo = _cardRepos[0];
     }
 
     public void AddNewGwentPlayer(string username, ulong id)

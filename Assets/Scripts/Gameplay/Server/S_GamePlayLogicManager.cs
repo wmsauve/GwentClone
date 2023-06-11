@@ -15,6 +15,92 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
+    public struct PlayerScores
+    {
+        private ulong _id;
+        public ulong ID { get { return _id; } }
+
+        private int _frontScore;
+        public int FrontScores { get { return _frontScore; } }
+        private int _rangedScore;
+        public int RangedScore { get { return _rangedScore; } }
+        private int _siegeScore;
+        public int SiegeScore { get { return _siegeScore; } }
+
+        public PlayerScores(ulong id)
+        {
+            _id = id;
+            _frontScore = 0;
+            _rangedScore = 0;
+            _siegeScore = 0;
+        }
+
+        public void IncrementScore(EnumUnitPlacement _cardPlace, int _power)
+        {
+            switch (_cardPlace)
+            {
+                case EnumUnitPlacement.Frontline: _frontScore += _power; break;
+                case EnumUnitPlacement.Ranged: _rangedScore += _power; break;
+                case EnumUnitPlacement.Siege: _siegeScore += _power; break;
+                default:
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Chose placement not conducive to setting scores.");
+                    break;
+            }
+        }
+    }
+
+    public struct MatchScores
+    {
+        public PlayerScores[] _players;
+        
+        public MatchScores(ulong[] _ids)
+        {
+            _players = new PlayerScores[_ids.Length];
+            for(int i = 0; i < _ids.Length; i++)
+            {
+                _players[i] = new PlayerScores(_ids[i]);
+            }
+        }
+
+        [System.Serializable]
+        public struct ScoresToClient
+        {
+            public ulong _id;
+            public int _front;
+            public int _ranged;
+            public int _siege;
+        }
+
+        public void IncrementScore(EnumUnitPlacement _cardPlace, int _cardPower, ulong _playerId)
+        {
+            var _int = GeneralPurposeFunctions.FindIndexByPropertyValue(_players, player => player.ID == _playerId);
+            if (_int == -1)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You searched for player ID that doesn't exist.");
+                return;
+            }
+
+            _players[_int].IncrementScore(_cardPlace, _cardPower);
+        }
+
+        public ScoresToClient[] CurrentScoreStatus()
+        {
+            int _length = _players.Length;
+            ScoresToClient[] _toClient = new ScoresToClient[_length];
+            for(int i = 0; i < _length; i++)
+            {
+                ScoresToClient _score = new ScoresToClient();
+                _score._id = _players[i].ID;
+                _score._front = _players[i].FrontScores;
+                _score._ranged = _players[i].RangedScore;
+                _score._siege = _players[i].SiegeScore;
+                _toClient[i] = _score;
+            }
+
+            return _toClient;
+        }
+    }
+
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
     private UI_MulliganScroll _mulliganScreen = null;
     private C_PlayerCardsUIManager _cardsInHandScreen = null;
@@ -25,6 +111,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private int _currentActive;
     private EnumGameplayPhases _currentPhase = EnumGameplayPhases.CoinFlip;
+    private MatchScores _currentMatchScores;
 
     private void OnEnable()
     {
@@ -75,6 +162,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 }
             }
         }
+
+        CreateMatchScores();
     }
 
     private void NewPhase(EnumGameplayPhases _phase)
@@ -163,18 +252,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         int whichCard = 0;
         foreach (Card card in _cards)
         {
-            Debug.LogWarning(card.id + " card check");
-            Debug.LogWarning(cardName + " played");
-            Debug.LogWarning(cardSlot + " where I pressed");
-            Debug.LogWarning(whichCard + " where I'm checking.");
-
             if (card.id == cardName && cardSlot == whichCard) return true;
             whichCard++;
-
-
-
         }
         return false;
+    }
+
+    private void CreateMatchScores()
+    {
+        int _playerCount = _playersLogic.Count;
+        ulong[] _listOfIds = new ulong[_playerCount];
+        for(int i = 0; i < _playerCount; i++)
+        {
+            _listOfIds[i] = _playersLogic[i].MyInfo.ID;
+        }
+
+        _currentMatchScores = new MatchScores(_listOfIds);
     }
 
     #region Client RPC
@@ -281,6 +374,14 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void HandleScoresOnUIClientRpc(string _scores)
+    {
+        MatchScores.ScoresToClient[] _newScores = JsonUtility.FromJson<MatchScores.ScoresToClient[]>(_scores);
+        //Add score to client UI
+        _canvasUI.SetNewScores(_newScores);
+    }
+
+    [ClientRpc]
     public void PassTurnSwapClientRpc(bool isActive, ClientRpcParams clientRpcParams = default)
     {
         if (_canvasUI == null) return;
@@ -332,12 +433,17 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
+        Card _card = _deckManager.CardRepo.GetCard(cardName);
+        _currentMatchScores.IncrementScore(cardPlace, _card.cardPower, clientId);
+        var _json = JsonUtility.ToJson(_currentMatchScores.CurrentScoreStatus());
+        Debug.LogWarning(_json);
+        HandleScoresOnUIClientRpc(_json);
 
         PlacePlayedCardClientRpc(cardName, cardPlace);
         FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
-
         _play.SuccessfullyPlayCards(cardSlot, cardPlace);
 
+        _turnManager.EndRegularTurn();
     }
     #endregion Server RPC
 }

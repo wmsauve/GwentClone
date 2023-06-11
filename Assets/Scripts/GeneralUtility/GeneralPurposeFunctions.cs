@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 public class GeneralPurposeFunctions
 {
@@ -104,6 +105,19 @@ public class GeneralPurposeFunctions
         {
             EnableAllChildrenObjects(setActive.transform.GetChild(i).gameObject);
         }
+    }
+
+    public static int FindIndexByPropertyValue<T>(T[] array, Func<T, bool> predicate)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            if (predicate(array[i]))
+            {
+                return i; // Found a match, return the index
+            }
+        }
+
+        return -1; // No match found
     }
 
 }

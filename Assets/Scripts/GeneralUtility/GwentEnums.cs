@@ -91,6 +91,7 @@ public enum EnumGameplayPhases
     CoinFlip,
     Mulligan,
     Regular,
+    MatchOver,
     GameOver
 }
 

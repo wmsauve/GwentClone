@@ -76,4 +76,16 @@ public class GameplayUICanvas : MonoBehaviour
             _userTurnHighlight.color = _highlightOff;
         }
     }
+
+    public void SetNewScores(S_GamePlayLogicManager.MatchScores.ScoresToClient[] _newScores)
+    {
+        Debug.LogWarning(_newScores[0]._id + " first player in array");
+        Debug.LogWarning(_newScores[0]._front);
+        Debug.LogWarning(_newScores[0]._ranged);
+        Debug.LogWarning(_newScores[0]._siege);
+        Debug.LogWarning(_newScores[1]._id + " second player in array.");
+        Debug.LogWarning(_newScores[1]._front);
+        Debug.LogWarning(_newScores[1]._ranged);
+        Debug.LogWarning(_newScores[1]._siege);
+    }
 }

@@ -83,10 +83,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
                 _cardsInPlay.CardsInSiege.Add(playedCard);
                 break;
         }
-
-        Debug.LogWarning(_cardsInPlay.CardsInFront.Count + " in front.");
-        Debug.LogWarning(_cardsInPlay.CardsInRanged.Count + " in ranged.");
-        Debug.LogWarning(_cardsInPlay.CardsInSiege.Count + " in siege.");
     }
 
     #endregion Deal With Cards Related
