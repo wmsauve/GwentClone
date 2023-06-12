@@ -120,4 +120,38 @@ public class GeneralPurposeFunctions
         return -1; // No match found
     }
 
+
+    [Serializable]
+    public struct ArrayWrapper<T>
+    {
+        public T[] array;
+    }
+    public static string ConvertArrayToJson<T>(T[] arr)
+    {
+        ArrayWrapper<T> wrapper = new ArrayWrapper<T>
+        {
+            array = arr
+        };
+
+        return JsonUtility.ToJson(wrapper);
+    }
+
+
+    public static C_PlayerGamePlayLogic GetPlayerLogicReference()
+    {
+
+        var logics = UnityEngine.Object.FindObjectsOfType<C_PlayerGamePlayLogic>();
+        if (logics.Length == 0) GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Should have player logic");
+        for (int i = 0; i < logics.Length; i++)
+        {
+            if (logics[i].ReturnOwnerStatus())
+            {
+                return logics[i];
+            }
+        }
+
+        GamePlayLogger(EnumLoggerGameplay.Error, "Can't find player logic for some reason.");
+        return null;
+        
+    }
 }

@@ -33,19 +33,8 @@ public class C_ZonesManager : MonoBehaviour
 
     public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement)
     {
-        if(_myLogic == null)
-        {
-            var logics = FindObjectsOfType<C_PlayerGamePlayLogic>();
-            if (logics.Length == 0) GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Should have player logic");
-            for(int i = 0; i < logics.Length; i++)
-            {
-                if (logics[i].ReturnOwnerStatus())
-                {
-                    _myLogic = logics[i];
-                    break;
-                }
-            }
-        }
+
+        if(_myLogic == null) _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
 
         var _whichZones = _myLogic.TurnActive ? m_playerZones : m_opponentZones;
 

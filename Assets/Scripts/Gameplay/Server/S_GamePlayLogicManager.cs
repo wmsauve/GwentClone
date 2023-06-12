@@ -83,7 +83,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             _players[_int].IncrementScore(_cardPlace, _cardPower);
         }
 
-        public ScoresToClient[] CurrentScoreStatus()
+        public string PassScoresToClient()
         {
             int _length = _players.Length;
             ScoresToClient[] _toClient = new ScoresToClient[_length];
@@ -97,7 +97,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 _toClient[i] = _score;
             }
 
-            return _toClient;
+            return GeneralPurposeFunctions.ConvertArrayToJson(_toClient);
         }
     }
 
@@ -376,9 +376,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void HandleScoresOnUIClientRpc(string _scores)
     {
-        MatchScores.ScoresToClient[] _newScores = JsonUtility.FromJson<MatchScores.ScoresToClient[]>(_scores);
+        GeneralPurposeFunctions.ArrayWrapper<MatchScores.ScoresToClient> _newScores = JsonUtility.FromJson<GeneralPurposeFunctions.ArrayWrapper<MatchScores.ScoresToClient>>(_scores);
         //Add score to client UI
-        _canvasUI.SetNewScores(_newScores);
+        _canvasUI.SetNewScores(_newScores.array);
     }
 
     [ClientRpc]
@@ -435,9 +435,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
         _currentMatchScores.IncrementScore(cardPlace, _card.cardPower, clientId);
-        var _json = JsonUtility.ToJson(_currentMatchScores.CurrentScoreStatus());
-        Debug.LogWarning(_json);
+        var _json = _currentMatchScores.PassScoresToClient();
         HandleScoresOnUIClientRpc(_json);
+        
 
         PlacePlayedCardClientRpc(cardName, cardPlace);
         FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);

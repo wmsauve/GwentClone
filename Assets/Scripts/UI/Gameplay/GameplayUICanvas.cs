@@ -8,11 +8,13 @@ public class GameplayUICanvas : MonoBehaviour
     [SerializeField] private RawImage _userLeader = null;
     [SerializeField] private TextMeshProUGUI _userUsername = null;
     [SerializeField] private Image _userTurnHighlight = null;
+    [SerializeField] private TextMeshProUGUI _userTotalPower = null;
 
     [Header("Enemy UI Related")]
     [SerializeField] private RawImage _enemyLeader = null;
     [SerializeField] private TextMeshProUGUI _enemyUsername = null;
     [SerializeField] private Image _enemyTurnHighlight = null;
+    [SerializeField] private TextMeshProUGUI _enemyTotalPower = null;
 
     [Header("Main UI Related")]
     [SerializeField] private GameObject _mulliganHolder = null;
@@ -21,6 +23,8 @@ public class GameplayUICanvas : MonoBehaviour
     private Color _highlightOff = new Color(0f, 0f, 0f, 0f);
     private Color _highlightOn = new Color(1f, 1f, 1f, 1f);
     #endregion Parameters
+
+    private C_PlayerGamePlayLogic _myLogic;
 
     private void Awake()
     {
@@ -36,8 +40,17 @@ public class GameplayUICanvas : MonoBehaviour
             return;
         }
 
+        if(_userTotalPower == null || _enemyTotalPower == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You don't have total score references.");
+            return;
+        }
+
         _userTurnHighlight.color = _highlightOff;
         _enemyTurnHighlight.color = _highlightOff;
+
+        _userTotalPower.text = 0.ToString();
+        _enemyTotalPower.text = 0.ToString();
     }
 
     public void InitializeUI(string username, Sprite leaderSprite, EnumGameplayPlayerRole role)
@@ -79,6 +92,19 @@ public class GameplayUICanvas : MonoBehaviour
 
     public void SetNewScores(S_GamePlayLogicManager.MatchScores.ScoresToClient[] _newScores)
     {
+        if (_myLogic == null) _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
+
+        ulong _myId = _myLogic.ReturnID();
+
+        for(int i = 0; i < _newScores.Length; i++)
+        {
+            var _scores = _newScores[i];
+            int sum = _scores._front + _scores._ranged + _scores._siege;
+            if (_scores._id == _myId) _userTotalPower.text = sum.ToString();
+            else _enemyTotalPower.text = sum.ToString();
+        }
+        
+
         Debug.LogWarning(_newScores[0]._id + " first player in array");
         Debug.LogWarning(_newScores[0]._front);
         Debug.LogWarning(_newScores[0]._ranged);

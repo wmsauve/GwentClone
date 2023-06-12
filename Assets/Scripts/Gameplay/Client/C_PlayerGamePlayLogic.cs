@@ -149,6 +149,18 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         return false;
     }
 
+    public ulong ReturnID()
+    {
+        var netObj = gameObject.GetComponent<NetworkObject>();
+        if (netObj == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "This should be on a network object.");
+            return 0;
+        }
+
+        return netObj.OwnerClientId;
+    }
+
     #endregion Utility Related
 
 }
