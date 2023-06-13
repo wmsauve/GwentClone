@@ -183,7 +183,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     _currentPhase = _phase;
                 }
 
-
                 break;
             case EnumGameplayPhases.Regular:
 
@@ -213,6 +212,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
                     _currentPhase = _phase;
                 }
+
+                break;
+            case EnumGameplayPhases.MatchOver:
 
                 break;
             default:
@@ -443,7 +445,23 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
         _play.SuccessfullyPlayCards(cardSlot, cardPlace);
 
-        _turnManager.EndRegularTurn();
+        _turnManager.EndRegularTurn(false);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void PassYourTurnServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
+
+        if (!_play.TurnActive)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Wrong player sending inputs to server.", _play.MyInfo.Username);
+            return;
+        }
+
+        _turnManager.EndRegularTurn(true);
+
     }
     #endregion Server RPC
 }

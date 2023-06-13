@@ -103,15 +103,5 @@ public class GameplayUICanvas : MonoBehaviour
             if (_scores._id == _myId) _userTotalPower.text = sum.ToString();
             else _enemyTotalPower.text = sum.ToString();
         }
-        
-
-        Debug.LogWarning(_newScores[0]._id + " first player in array");
-        Debug.LogWarning(_newScores[0]._front);
-        Debug.LogWarning(_newScores[0]._ranged);
-        Debug.LogWarning(_newScores[0]._siege);
-        Debug.LogWarning(_newScores[1]._id + " second player in array.");
-        Debug.LogWarning(_newScores[1]._front);
-        Debug.LogWarning(_newScores[1]._ranged);
-        Debug.LogWarning(_newScores[1]._siege);
     }
 }

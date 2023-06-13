@@ -27,6 +27,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private ClientRpcParams _params;
     public ClientRpcParams ClientRpcParams { get { return _params; } }
 
+    private int _lives = GlobalConstantValues.GAME_INITIALLIVES;
+
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
     public void InitializePlayerLogic(GwentPlayer player)

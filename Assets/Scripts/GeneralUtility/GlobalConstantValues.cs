@@ -21,4 +21,5 @@ public class GlobalConstantValues : MonoBehaviour
     //Gameplay
     public const int GAME_INITIALHANDSIZE = 10;
     public const int GAME_MULLIGANSAMOUNT = 2;
+    public const int GAME_INITIALLIVES = 2;
 }

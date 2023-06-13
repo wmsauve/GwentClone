@@ -5,6 +5,8 @@ using TMPro;
 public class S_TurnManager : NetworkBehaviour
 {
     private int _turns = 0;
+    private int _matchCounter = 0;
+    private bool _turnPassed = false;
         
     private NetworkVariable<float> _turnCount = new NetworkVariable<float>(0f);
     private NetworkVariable<EnumGameplayPhases> _currentPhase = new NetworkVariable<EnumGameplayPhases>(EnumGameplayPhases.CoinFlip);
@@ -63,7 +65,7 @@ public class S_TurnManager : NetworkBehaviour
                     EndMulliganPhase();
                     break;
                 case EnumGameplayPhases.Regular:
-                    EndRegularTurn();
+                    EndRegularTurn(true);
                     break;
                 default:
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
@@ -78,14 +80,27 @@ public class S_TurnManager : NetworkBehaviour
         _currentTimer = _turnDuration;
         _turnCount.Value = 0f;
         GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Mulligan phase ended.");
+        _matchCounter++;
         GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
 
-    public void EndRegularTurn()
+    public void EndRegularTurn(bool turnPassed)
     {
         _turnCount.Value = 0f;
+       
+        if (_turnPassed)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Match {_matchCounter} ended.");
+            _matchCounter++;
+            _currentPhase.Value = EnumGameplayPhases.MatchOver;
+        }
+        else
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Turn {_turns} ended.");
+            _turnPassed = turnPassed;
+        }
+
         _turns++;
-        GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turn ended.");
         GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
 
