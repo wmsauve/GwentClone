@@ -67,6 +67,12 @@ public class GeneralPurposeFunctions
         }
     }
 
+    /// <summary>
+    /// Username can be used to denoted who is sending invalid inputs.
+    /// </summary>
+    /// <param name="log"></param>
+    /// <param name="message"></param>
+    /// <param name="username"></param>
     public static void GamePlayLogger(EnumLoggerGameplay log, string message, string username = "")
     {
         switch (log)

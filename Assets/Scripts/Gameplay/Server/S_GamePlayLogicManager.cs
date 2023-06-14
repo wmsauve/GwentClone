@@ -5,6 +5,8 @@ using System.Linq;
 
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
+
+
     private struct CardNames
     {
         public string[] _cards;
@@ -46,6 +48,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Chose placement not conducive to setting scores.");
                     break;
             }
+        }
+
+        public int TotalScore()
+        {
+            return _frontScore + _rangedScore + _siegeScore;
         }
     }
 
@@ -98,6 +105,34 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             }
 
             return GeneralPurposeFunctions.ConvertArrayToJson(_toClient);
+        }
+
+        public ulong GetWinnningPlayerID()
+        {
+            ulong currentWinner = 0;
+            int currentHighest = 0;
+            bool drawnGame = false;
+            for(int i = 0; i < _players.Length; i++)
+            {
+                int scoreCheck = _players[i].TotalScore();
+                if (scoreCheck == currentHighest)
+                {
+                    drawnGame = true;
+                    continue;
+                }
+
+                if(scoreCheck > currentHighest)
+                {
+                    currentHighest = scoreCheck;
+                    currentWinner = _players[i].ID;
+                    if (drawnGame) drawnGame = false;
+                }
+            }
+
+            if (drawnGame) return GlobalConstantValues.GAME_DRAWNGAME;
+
+            return currentWinner;
+
         }
     }
 
@@ -215,6 +250,54 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
                 break;
             case EnumGameplayPhases.MatchOver:
+                if (IsServer)
+                {
+                    ulong _winner = _currentMatchScores.GetWinnningPlayerID();
+                    Debug.LogWarning(_winner + " winner?");
+                    if(_winner == GlobalConstantValues.GAME_DRAWNGAME)
+                    {
+                        foreach (C_PlayerGamePlayLogic player in _playersLogic)
+                        {
+                            player.DecrementLives();
+                        }
+                    }
+                    else
+                    {
+                        foreach (C_PlayerGamePlayLogic player in _playersLogic)
+                        {
+                            string name = player.MyInfo.Username;
+
+                            if (player.MyInfo.ID != _winner) player.DecrementLives();
+                            else
+                            {
+                                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Winning player: {name}");
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < _playersLogic.Count; i++)
+                    {
+                        var myLives = GlobalConstantValues.GAME_INITIALLIVES;
+                        var opponentLives = GlobalConstantValues.GAME_INITIALLIVES;
+                        var id = _playersLogic[i].gameObject.GetComponent<NetworkObject>().OwnerClientId;
+                        foreach (C_PlayerGamePlayLogic player in _playersLogic)
+                        {
+                            if(player.MyInfo.ID == id)
+                            {
+                                myLives = player.Lives;
+                            }
+                            else
+                            {
+                                opponentLives = player.Lives;
+                            }
+
+                        }
+
+                        SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
+                    }
+
+                    _currentPhase = _phase;
+                }
 
                 break;
             default:
@@ -388,6 +471,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     {
         if (_canvasUI == null) return;
         _canvasUI.SetActivePlayer(isActive);
+    }
+
+    [ClientRpc]
+    public void SetHealthCrystalsClientRpc(int _playerLives, int _opponentLives, ClientRpcParams clientRpcParams = default)
+    {
+        if (_canvasUI == null) return;
+        _canvasUI.SetCrystals(_playerLives, _opponentLives);
     }
     #endregion Client RPC
 

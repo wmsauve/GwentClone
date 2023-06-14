@@ -9,12 +9,16 @@ public class GameplayUICanvas : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _userUsername = null;
     [SerializeField] private Image _userTurnHighlight = null;
     [SerializeField] private TextMeshProUGUI _userTotalPower = null;
+    [Tooltip("When losing health, you will lose from later index to 0th index. User crystals.")]
+    [SerializeField] private Image[] _userGems = null;
 
     [Header("Enemy UI Related")]
     [SerializeField] private RawImage _enemyLeader = null;
     [SerializeField] private TextMeshProUGUI _enemyUsername = null;
     [SerializeField] private Image _enemyTurnHighlight = null;
     [SerializeField] private TextMeshProUGUI _enemyTotalPower = null;
+    [Tooltip("When losing health, you will lose from later index to 0th index. Enemy crystals.")]
+    [SerializeField] private Image[] _enemyGems = null;
 
     [Header("Main UI Related")]
     [SerializeField] private GameObject _mulliganHolder = null;
@@ -46,6 +50,12 @@ public class GameplayUICanvas : MonoBehaviour
             return;
         }
 
+        if(_userGems == null || _enemyGems == null || _enemyGems.Length == 0 || _userGems.Length == 0)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You don't have gem components added.");
+            return;
+        }
+
         _userTurnHighlight.color = _highlightOff;
         _enemyTurnHighlight.color = _highlightOff;
 
@@ -68,6 +78,21 @@ public class GameplayUICanvas : MonoBehaviour
             default:
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Incorrect role for updating UI.");
                 break;
+        }
+    }
+    
+    public void SetCrystals(int playerLives, int opponentLives)
+    {
+        DecrementCrystalUI(playerLives, _userGems);
+        DecrementCrystalUI(opponentLives, _enemyGems);
+    }
+
+    private void DecrementCrystalUI(int lives, Image[] images)
+    {
+        for (int i = 0; i < images.Length; i++)
+        {
+            if (i < lives) images[i].gameObject.SetActive(true);
+            else images[i].gameObject.SetActive(false);
         }
     }
 

@@ -30,6 +30,7 @@ public class S_TurnManager : NetworkBehaviour
     public float _coinFlipDuration = 5f;
     public float _mulliganPhase = 45f;
     public float _turnDuration = 30f;
+    public float _afterMatchDurations = 10f;
     private float _currentTimer;
 
     [Header("UI Related")]

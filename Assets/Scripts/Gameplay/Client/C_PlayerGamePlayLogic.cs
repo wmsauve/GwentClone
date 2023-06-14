@@ -28,6 +28,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     public ClientRpcParams ClientRpcParams { get { return _params; } }
 
     private int _lives = GlobalConstantValues.GAME_INITIALLIVES;
+    public int Lives { get { return _lives; } }
 
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
@@ -65,6 +66,13 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
         return toClient.ToArray();
     }
+
+    #region Game Related
+    public void DecrementLives()
+    {
+        _lives--;
+    }
+    #endregion Game Related
 
     #region Deal With Cards Related
 
