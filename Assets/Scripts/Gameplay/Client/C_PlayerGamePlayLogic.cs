@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class C_PlayerGamePlayLogic : NetworkBehaviour
 {
-    private S_GamePlayLogicManager _logicManager = null;
-
     private NetworkVariable<bool> _turnActive = new NetworkVariable<bool>(false);
     public bool TurnActive { get { return _turnActive.Value; } set { _turnActive.Value = value; } }
     private NetworkVariable<int> _mulligans = new NetworkVariable<int>(GlobalConstantValues.GAME_MULLIGANSAMOUNT);
@@ -66,6 +64,34 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
         return toClient.ToArray();
     }
+
+    #region Graveyard Related
+    public void PlaceSingleCardInGraveyard()
+    {
+
+    }
+
+    public void EndOfTurnGraveyardCards()
+    {
+        foreach(Card card in _cardsInPlay.CardsInFront)
+        {
+            _cardsInGraveyard.Add(card);
+        }
+        _cardsInPlay.CardsInFront.Clear();
+
+        foreach (Card card in _cardsInPlay.CardsInRanged)
+        {
+            _cardsInGraveyard.Add(card);
+        }
+        _cardsInPlay.CardsInRanged.Clear();
+
+        foreach (Card card in _cardsInPlay.CardsInSiege)
+        {
+            _cardsInGraveyard.Add(card);
+        }
+        _cardsInPlay.CardsInSiege.Clear();
+    }
+    #endregion Graveyard Related
 
     #region Game Related
     public void DecrementLives()

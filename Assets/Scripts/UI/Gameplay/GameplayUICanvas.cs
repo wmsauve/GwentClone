@@ -85,6 +85,7 @@ public class GameplayUICanvas : MonoBehaviour
     {
         DecrementCrystalUI(playerLives, _userGems);
         DecrementCrystalUI(opponentLives, _enemyGems);
+        ResetScoreBoard();
     }
 
     private void DecrementCrystalUI(int lives, Image[] images)
@@ -128,5 +129,11 @@ public class GameplayUICanvas : MonoBehaviour
             if (_scores._id == _myId) _userTotalPower.text = sum.ToString();
             else _enemyTotalPower.text = sum.ToString();
         }
+    }
+
+    public void ResetScoreBoard()
+    {
+        _userTotalPower.text = 0.ToString();
+        _enemyTotalPower.text = 0.ToString();
     }
 }

@@ -160,4 +160,22 @@ public class GeneralPurposeFunctions
         return null;
         
     }
+
+    /// <summary>
+    /// gameObject is where you are looking for the component.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="gameObject"></param>
+    /// <returns></returns>
+    public static T GetComponentFromGameObject<T>(GameObject gameObject) where T : Component
+    {
+        T component = gameObject.GetComponent<T>();
+        if (component == null)
+        {
+            string typeName = typeof(T).Name;
+            string errorMessage = $"Failed to find {typeName} component on the GameObject.";
+            GamePlayLogger(EnumLoggerGameplay.MissingComponent, errorMessage);
+        }
+        return component;
+    }
 }

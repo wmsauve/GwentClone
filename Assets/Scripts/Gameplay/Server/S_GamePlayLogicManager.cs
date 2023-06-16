@@ -5,8 +5,6 @@ using System.Linq;
 
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
-
-
     private struct CardNames
     {
         public string[] _cards;
@@ -253,7 +251,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 if (IsServer)
                 {
                     ulong _winner = _currentMatchScores.GetWinnningPlayerID();
-                    Debug.LogWarning(_winner + " winner?");
+
                     if(_winner == GlobalConstantValues.GAME_DRAWNGAME)
                     {
                         foreach (C_PlayerGamePlayLogic player in _playersLogic)
@@ -291,11 +289,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                                 opponentLives = player.Lives;
                             }
 
+                            player.EndOfTurnGraveyardCards();
+                            string[] cardNames = player.ReturnCardIds();
+                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            UpdateGraveyardClientRpc(_json, player.ClientRpcParams);
                         }
 
                         SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
                     }
 
+                    EndOfMatchHandlingClientRpc();
                     _currentPhase = _phase;
                 }
 
@@ -358,14 +361,17 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     #region Client RPC
 
     [ClientRpc]
+    private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    {
+
+    }
+
+    [ClientRpc]
     private void ShowMulliganScreenClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
-        _deckManager = GetComponent<S_DeckManagers>();
-        if (_deckManager == null)
-        {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck manager should be on the same gameobject.");
-            return;
-        }
+        _deckManager = GeneralPurposeFunctions.GetComponentFromGameObject<S_DeckManagers>(gameObject);
+        if (_deckManager == null) return;
+        
         Debug.LogWarning(cardNames);
 
         var _mulligan = Resources.FindObjectsOfTypeAll<UI_MulliganScroll>();
@@ -438,19 +444,21 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace)
     {
-        if(_zoneManager == null)
-        {
-            _zoneManager = GetComponent<C_ZonesManager>();
-            if (_zoneManager == null)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
-                return;
-            }
-        }
+        if(_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
+        if (_zoneManager == null) return;
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
         _zoneManager.AddCardToZone(_cardData, cardPlace);
     }
+
+    [ClientRpc]
+    public void EndOfMatchHandlingClientRpc()
+    {
+        if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
+        if (_zoneManager == null) return;
+
+        _zoneManager.CleanZones();
+    } 
 
     [ClientRpc]
     public void FixUIAfterPlayedCardClientRpc(int cardSlot, ClientRpcParams clientRpcParams = default)

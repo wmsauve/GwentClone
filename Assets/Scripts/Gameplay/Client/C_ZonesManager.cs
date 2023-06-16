@@ -49,4 +49,27 @@ public class C_ZonesManager : MonoBehaviour
             }
         }
     }
+
+    public void CleanZones()
+    {
+        //GetChild(1) - Outline is GetChild(0)
+
+        for(int i = 0; i < m_playerZones.Count; i++)
+        {
+            var _cardPlace = m_playerZones[i].CardPlace;
+            for(int j = 1; j < _cardPlace.childCount; j++)
+            {
+                Destroy(_cardPlace.GetChild(j).gameObject); 
+            }
+        }
+
+        for (int i = 0; i < m_opponentZones.Count; i++)
+        {
+            var _cardPlace = m_opponentZones[i].CardPlace;
+            for (int j = 1; j < _cardPlace.childCount; j++)
+            {
+                Destroy(_cardPlace.GetChild(j).gameObject);
+            }
+        }
+    }
 }
