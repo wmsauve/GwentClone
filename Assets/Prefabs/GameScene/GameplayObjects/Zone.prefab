@@ -143,6 +143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 671d2e071ec0f7a4db0163ca8239eb2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_outlineWidth: 5
+  _outlineCondition: 1
   m_zone: 2
   m_playerZone: 1
 --- !u!114 &5335616676324267386

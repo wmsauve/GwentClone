@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: Decoy
   m_EditorClassIdentifier: 
   id: Decoy
+  cardImage: {fileID: 21300000, guid: a15224e0a672f4741b23d950a7b86af2, type: 3}
   unitType: 0
   cardType: 0
-  unitPlacement: 3
+  unitPlacement: 8
   factionType: 0
   cardEffects: 00000000
-  isHero: 0
   cardPower: 0
   maxPerDeck: 2
-  cardImage: {fileID: 21300000, guid: a15224e0a672f4741b23d950a7b86af2, type: 3}
+  musterTag: 
+  scorchTarget: 0

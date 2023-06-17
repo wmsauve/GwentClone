@@ -56,11 +56,12 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_hoverBtn.InitializeThisUIComp();
         m_hoverBtn2.InitializeThisUIComp();
         m_playBtn.onClick.AddListener(() => PlayCardPassToServer(isAgile));
+        m_cancelBtn.onClick.AddListener(CancelCardSelection);
         GlobalActions.OnClickCard += OnReceiveClickedCard;
         GlobalActions.OnClickZone += OnReceiveClickedZone;
 
-        m_playCard.gameObject.SetActive(false);
-        m_cancelCard.gameObject.SetActive(false);
+        m_playCard.SetActive(false);
+        m_cancelCard.SetActive(false);
     }
 
     private void OnDisable()
@@ -167,8 +168,8 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
 
         m_playerControls.CancelButtonPressed();
-        m_playCard.gameObject.SetActive(false);
-        m_cancelCard.gameObject.SetActive(false);
+        m_playCard.SetActive(false);
+        m_cancelCard.SetActive(false);
 
         if (m_currentCard != null)
         {
@@ -203,14 +204,20 @@ public class C_PlayerCardsUIManager : MonoBehaviour
          || _cardInfo.unitPlacement == EnumUnitPlacement.Siege
          || _cardInfo.unitPlacement == EnumUnitPlacement.Global)
         {
-            m_playCard.gameObject.SetActive(true);
-            m_cancelCard.gameObject.SetActive(true);
+            m_playCard.SetActive(true);
+            m_cancelCard.SetActive(true);
             _nonAgilePlacement = _cardInfo.unitPlacement;
         }
-        else  
+        else if(_cardInfo.unitPlacement == EnumUnitPlacement.Any)
         {
             _playerControls.SelectStyle = EnumPlayCardReason.ClickZone;
+            m_cancelCard.SetActive(true);
             isAgile = true;
+        }
+        else if(_cardInfo.unitPlacement == EnumUnitPlacement.SingleTarget)
+        {
+            _playerControls.SelectStyle = EnumPlayCardReason.SingleTarget;
+            m_cancelCard.SetActive(true);
         }
     }
 
@@ -219,8 +226,8 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         if (m_playerControls == null) m_playerControls = _playerControls;
         m_currentZone = _zone;
         _zone.HideOutline();
-        m_playCard.gameObject.SetActive(true);
-        m_cancelCard.gameObject.SetActive(true);
+        m_playCard.SetActive(true);
+        m_cancelCard.SetActive(true);
         _playerControls.SelectStyle = EnumPlayCardReason.ClickCard;
     }
 

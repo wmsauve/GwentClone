@@ -10,7 +10,8 @@ public enum EnumUnitPlacement
     Agile_FR,
     Agile_FS,
     Agile_RS,
-    Global
+    Global,
+    SingleTarget
 }
 
 /// <summary>
@@ -124,4 +125,13 @@ public enum EnumPlayCardReason
 {
     ClickCard,
     ClickZone,
+    ClickEnemyZone,
+    SingleTarget,
+    SingleTargetEnemy,
+}
+
+public enum EnumCardListType
+{
+    Hand,
+    Graveyard,
 }

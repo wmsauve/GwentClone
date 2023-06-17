@@ -1,22 +1,15 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class C_PlayedCard : MonoBehaviour
+public class C_PlayedCard : G_OutlinedGameObject
 {
-    // Start is called before the first frame update
-    void Start()
+
+    public override void Start()
     {
-        
+        base.Start();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void InitializePlayedCard(Card _card)
+    public void InitializePlayedCard(Card _card, EnumPlayCardReason _condition)
     {
         var _myMaterial = GetComponent<MeshRenderer>();
         if (_myMaterial == null) return;
@@ -24,5 +17,17 @@ public class C_PlayedCard : MonoBehaviour
         Texture2D _sprite = _card.cardImage.texture;
 
         _myMaterial.material.SetTexture("_MainTex", _sprite);
+
+        _outlineCondition = _condition;
+    }
+
+    public override void OnPointerEnter(PointerEventData eventData)
+    {
+
+    }
+
+    public override void OnPointerExit(PointerEventData eventData)
+    {
+        base.OnPointerExit(eventData);
     }
 }

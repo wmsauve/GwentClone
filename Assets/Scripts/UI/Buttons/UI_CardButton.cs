@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UI_CardButton : UI_ToolTipButton
+public class UI_CardButton : UI_HoverOverButton
 {
     private Image m_image = null;
     private Card m_myData = null;

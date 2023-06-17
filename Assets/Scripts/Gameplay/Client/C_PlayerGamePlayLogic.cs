@@ -161,10 +161,18 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     #endregion Mulligan Related
 
     #region Utility Related
-    public string[] ReturnCardIds()
+    public string[] ReturnCardIds(EnumCardListType which)
     {
+        List<Card> _list = new List<Card>();
+        switch (which)
+        {
+            case EnumCardListType.Hand: _list = _cardsInHand; break;
+            case EnumCardListType.Graveyard: _list = _cardsInGraveyard; break;
+            default: break;
+        }
+
         List<string> toClient = new List<string>();
-        for (int i = 0; i < _initialHandSize; i++) toClient.Add(_cardsInHand[i].id);
+        for (int i = 0; i < _list.Count; i++) toClient.Add(_list[i].id);
         return toClient.ToArray();
     }
 

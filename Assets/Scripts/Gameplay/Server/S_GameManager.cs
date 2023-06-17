@@ -16,7 +16,7 @@ public class S_GameManager : NetworkBehaviour
 
     private List<string> _usernames = new List<string>(); 
 
-    private void Start()
+    private void Awake()
     {        
         if(_turnManager == null)
         {

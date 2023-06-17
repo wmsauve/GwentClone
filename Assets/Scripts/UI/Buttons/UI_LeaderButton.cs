@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class UI_LeaderButton : UI_ToolTipButton
+public class UI_LeaderButton : UI_HoverOverButton
 {
     [SerializeField] private Image m_borderHighlight = null;
     [SerializeField] private Button m_buttonComp = null;

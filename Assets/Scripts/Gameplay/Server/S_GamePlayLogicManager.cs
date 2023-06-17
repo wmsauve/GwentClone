@@ -233,7 +233,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         if (_currentPhase == EnumGameplayPhases.Mulligan)
                         {
                             player.EndMulliganPhase();
-                            string[] cardNames = player.ReturnCardIds();
+                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Hand);
                             var _json = JsonUtility.ToJson(new CardNames(cardNames));
                             StartFirstRegularTurnClientRpc(_json, player.TurnActive, player.ClientRpcParams);
                         }
@@ -290,7 +290,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                             }
 
                             player.EndOfTurnGraveyardCards();
-                            string[] cardNames = player.ReturnCardIds();
+                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Graveyard);
                             var _json = JsonUtility.ToJson(new CardNames(cardNames));
                             UpdateGraveyardClientRpc(_json, player.ClientRpcParams);
                         }

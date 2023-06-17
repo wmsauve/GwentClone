@@ -7,13 +7,18 @@ public class PlayerControls : MonoBehaviour
 {
     private UI_GameplayCard m_currentCard;
     private C_GameZone m_currentZone;
+    private C_PlayedCard m_currentTarget;
     private int _cardForward = 1000;
 
     private EnumPlayCardReason _selectStyle = EnumPlayCardReason.ClickCard;
     public EnumPlayCardReason SelectStyle 
     { 
         get { return _selectStyle; } 
-        set { _selectStyle = value; } 
+        set 
+        { 
+            _selectStyle = value;
+            GlobalActions.OnClickModeChange?.Invoke(_selectStyle);
+        } 
     }
 
     private void Update()
@@ -45,11 +50,8 @@ public class PlayerControls : MonoBehaviour
                 if (_zone != null)
                 {
                     if (!_zone.PlayerZone) return;
-
                     if (m_currentZone != null) m_currentZone.HideOutline();
-
                     m_currentZone = _zone;
-
                     m_currentZone.ShowOutline();
                 }
                 else
@@ -63,6 +65,32 @@ public class PlayerControls : MonoBehaviour
             }
 
             return;
+        }
+
+        if(_selectStyle == EnumPlayCardReason.SingleTarget)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                C_PlayedCard _card = hit.transform.gameObject.GetComponent<C_PlayedCard>();
+                if (_card == m_currentTarget) return;
+                if (_card != null)
+                {
+                    if (m_currentTarget != null) m_currentZone.HideOutline();
+                    m_currentTarget = _card;
+                    m_currentTarget.ShowOutline();
+                }
+                else
+                {
+                    if (m_currentTarget != null)
+                    {
+                        m_currentTarget.HideOutline();
+                        m_currentTarget = null;
+                    }
+                }
+            }
         }
 
         if(_selectStyle == EnumPlayCardReason.ClickCard)
