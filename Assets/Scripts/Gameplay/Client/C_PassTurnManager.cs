@@ -9,7 +9,7 @@ public class C_PassTurnManager : MonoBehaviour
 
     private S_GamePlayLogicManager _manager = null;
 
-    private void Awake()
+    private void Start()
     {
         var init = m_passTurnButton.gameObject.GetComponent<UI_OnButtonHover>();
         if (m_passTurnButton == null || init == null)
@@ -17,8 +17,6 @@ public class C_PassTurnManager : MonoBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Need PassTurn Button.");
             return;
         }
-
-        init.InitializeThisUIComp();
     }
 
     private void OnEnable()

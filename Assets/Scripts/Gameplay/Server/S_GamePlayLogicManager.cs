@@ -135,7 +135,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     private List<C_PlayerGamePlayLogic> _playersLogic = new List<C_PlayerGamePlayLogic>();
-    private UI_MulliganScroll _mulliganScreen = null;
+    private UI_MulliganCards _mulliganScreen = null;
     private C_PlayerCardsUIManager _cardsInHandScreen = null;
     private GameplayUICanvas _canvasUI = null;
     private C_ZonesManager _zoneManager = null;
@@ -374,7 +374,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         
         Debug.LogWarning(cardNames);
 
-        var _mulligan = Resources.FindObjectsOfTypeAll<UI_MulliganScroll>();
+        var _mulligan = Resources.FindObjectsOfTypeAll<UI_MulliganCards>();
         if (_mulligan == null || _mulligan.Length > 1)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should only have one mulligan object.");
@@ -538,7 +538,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         var _json = _currentMatchScores.PassScoresToClient();
         HandleScoresOnUIClientRpc(_json);
         
-
         PlacePlayedCardClientRpc(cardName, cardPlace);
         FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
         _play.SuccessfullyPlayCards(cardSlot, cardPlace);

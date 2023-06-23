@@ -53,15 +53,12 @@ public class C_PlayerCardsUIManager : MonoBehaviour
             return;
         }
 
-        m_hoverBtn.InitializeThisUIComp();
-        m_hoverBtn2.InitializeThisUIComp();
         m_playBtn.onClick.AddListener(() => PlayCardPassToServer(isAgile));
         m_cancelBtn.onClick.AddListener(CancelCardSelection);
         GlobalActions.OnClickCard += OnReceiveClickedCard;
         GlobalActions.OnClickZone += OnReceiveClickedZone;
 
-        m_playCard.SetActive(false);
-        m_cancelCard.SetActive(false);
+        SetAllButtonsHidden();
     }
 
     private void OnDisable()
@@ -168,8 +165,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
 
         m_playerControls.CancelButtonPressed();
-        m_playCard.SetActive(false);
-        m_cancelCard.SetActive(false);
+        SetAllButtonsHidden();
 
         if (m_currentCard != null)
         {
@@ -188,6 +184,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         GameObject playedCard = m_cardHolder.GetChild(slot).gameObject;
         Destroy(playedCard);
         ReadjustCardPositionsInHand();
+        SetAllButtonsHidden();
     }
 
     private void OnReceiveClickedCard(UI_GameplayCard clickedCard, PlayerControls _playerControls)
@@ -204,8 +201,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
          || _cardInfo.unitPlacement == EnumUnitPlacement.Siege
          || _cardInfo.unitPlacement == EnumUnitPlacement.Global)
         {
-            m_playCard.SetActive(true);
-            m_cancelCard.SetActive(true);
+            SetAllButtonsVisible();
             _nonAgilePlacement = _cardInfo.unitPlacement;
         }
         else if(_cardInfo.unitPlacement == EnumUnitPlacement.Any)
@@ -226,9 +222,19 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         if (m_playerControls == null) m_playerControls = _playerControls;
         m_currentZone = _zone;
         _zone.HideOutline();
+        SetAllButtonsVisible();
+        _playerControls.SelectStyle = EnumPlayCardReason.ClickCard;
+    }
+
+    private void SetAllButtonsVisible()
+    {
         m_playCard.SetActive(true);
         m_cancelCard.SetActive(true);
-        _playerControls.SelectStyle = EnumPlayCardReason.ClickCard;
+    }
+    private void SetAllButtonsHidden()
+    {
+        m_playCard.SetActive(false);
+        m_cancelCard.SetActive(false);
     }
 
 }

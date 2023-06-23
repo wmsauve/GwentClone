@@ -46,6 +46,7 @@ public class S_GameManager : NetworkBehaviour
         NetworkManager.Singleton.OnClientConnectedCallback += ConnectedClient;
 
         GeneralPurposeFunctions.EnableAllChildrenObjects(m_canvas);
+        GlobalActions.OnInitializeAllUI?.Invoke();
     }
 
     private void DisconnectGame(ulong id)

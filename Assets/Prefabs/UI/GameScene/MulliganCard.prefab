@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6178659489844376325}
   - component: {fileID: 7026732914443197733}
   - component: {fileID: 6178659489844376379}
-  - component: {fileID: 2335395860174818982}
+  - component: {fileID: 1363713266168815927}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -138,9 +138,9 @@ MonoBehaviour:
   m_animationSpeed: 5
   m_animationDuration: 1
   m_animationDirection: 0
-  m_animationEffect: 0
   _myTransform: {fileID: 7630408289669718829}
---- !u!114 &2335395860174818982
+  m_useWorldTransformPos: 0
+--- !u!114 &1363713266168815927
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6178659489844376327}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bb63dceb588358a4b9f904acb7829869, type: 3}
+  m_Script: {fileID: 11500000, guid: b8df0af2f9eab34408e1fb809b957529, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_cardSprite: {fileID: 6178659489844376325}
