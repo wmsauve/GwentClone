@@ -52,6 +52,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             return _frontScore + _rangedScore + _siegeScore;
         }
+
+        public void ResetScores()
+        {
+            _frontScore = 0;
+            _rangedScore = 0;
+            _siegeScore = 0;
+        }
     }
 
     public struct MatchScores
@@ -104,6 +111,14 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
             return GeneralPurposeFunctions.ConvertArrayToJson(_toClient);
         }
+        
+        public void ResetScoresToZero()
+        {
+            for(int i = 0; i < _players.Length; i++)
+            {
+                _players[i].ResetScores();
+            }
+        }
 
         public ulong GetWinnningPlayerID()
         {
@@ -139,6 +154,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private C_PlayerCardsUIManager _cardsInHandScreen = null;
     private GameplayUICanvas _canvasUI = null;
     private C_ZonesManager _zoneManager = null;
+    private C_GraveyardManager _graveYardManager = null;
     private S_DeckManagers _deckManager = null;
     private S_TurnManager _turnManager = null;
 
@@ -228,6 +244,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         SetPlayerTurnActive();
                     }
 
+                    if(_currentPhase == EnumGameplayPhases.MatchOver)
+                    {
+                        _currentActive++;
+                        if (_currentActive == _playersLogic.Count) _currentActive = 0;
+                        SetPlayerTurnActive();
+
+                        _currentMatchScores.ResetScoresToZero();
+                    }
+
                     foreach (C_PlayerGamePlayLogic player in _playersLogic)
                     {
                         if (_currentPhase == EnumGameplayPhases.Mulligan)
@@ -288,13 +313,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                             {
                                 opponentLives = player.Lives;
                             }
-
-                            player.EndOfTurnGraveyardCards();
-                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Graveyard);
-                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
-                            UpdateGraveyardClientRpc(_json, player.ClientRpcParams);
                         }
-
+                        _playersLogic[i].EndOfTurnGraveyardCards();
+                        string[] cardNames = _playersLogic[i].ReturnCardIds(EnumCardListType.Graveyard);
+                        var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                        UpdateGraveyardClientRpc(_json, _playersLogic[i].ClientRpcParams);
                         SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
                     }
 
@@ -363,7 +386,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
+        _graveYardManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_GraveyardManager>(gameObject);
+        if (_graveYardManager == null) return;
 
+        List<Card> _cards = new List<Card>();
+        CreateListOfCardsFromString(ref _cards, cardNames);
+        _graveYardManager.PassCardsToGraveyard(_cards);
     }
 
     [ClientRpc]

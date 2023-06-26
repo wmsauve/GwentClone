@@ -86,10 +86,10 @@ public class UI_MulliganCards : UI_CardViewScroll
 
             _cardAnims.Add(animComp);
             _buttons.Add(buttonComp);
-            if (i == 0) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);
-            else if (i == 1) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.rightcenter], EnumMulliganPos.rightcenter);
-            else if (i == 2) animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
-            else animComp.InitializeMullgianCard(_spots[(int)EnumMulliganPos.rightout], EnumMulliganPos.rightout);
+            if (i == 0) animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.center], EnumMulliganPos.center);
+            else if (i == 1) animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.rightcenter], EnumMulliganPos.rightcenter);
+            else if (i == 2) animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
+            else animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.rightout], EnumMulliganPos.rightout);
         }
 
         UpdateMulligansText(startMulligans);

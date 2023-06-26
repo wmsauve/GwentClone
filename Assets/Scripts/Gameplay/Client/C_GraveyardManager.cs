@@ -1,18 +1,24 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class C_GraveyardManager : MonoBehaviour
 {
     [SerializeField] private Button m_toggleGYButton = null;
+    [SerializeField] private UI_GraveyardCards m_graveYardUI = null;
+
+    private GameObject m_graveYardContainer = null;
 
     private void Start()
     {
         var init = m_toggleGYButton.gameObject.GetComponent<UI_OnButtonHover>();
-        if (m_toggleGYButton == null || init == null)
+        if (m_toggleGYButton == null || init == null || m_graveYardUI == null)
         {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Need PassTurn Button.");
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Missing Graveyard Components in Manager.");
             return;
         }
+
+        m_graveYardContainer = m_graveYardUI.gameObject;
     }
 
     private void OnEnable()
@@ -27,6 +33,18 @@ public class C_GraveyardManager : MonoBehaviour
 
     private void ToggleGraveyardUI()
     {
+        if (m_graveYardContainer == null) return;
+        m_graveYardContainer.SetActive(true);
+    }
 
+    public void PlayingCardThatRequiresGraveyard()
+    {
+        if (m_graveYardContainer == null) return;
+        m_graveYardContainer.SetActive(true);
+    }
+
+    public void PassCardsToGraveyard(List<Card> _cards)
+    {
+        m_graveYardUI.AddCardsToGraveyard(_cards);
     }
 }

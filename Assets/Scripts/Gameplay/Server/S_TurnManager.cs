@@ -68,6 +68,9 @@ public class S_TurnManager : NetworkBehaviour
                 case EnumGameplayPhases.Regular:
                     EndRegularTurn(true);
                     break;
+                case EnumGameplayPhases.MatchOver:
+                    EndBetweenMatchesPeriod();
+                    break;
                 default:
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
                     break;
@@ -94,8 +97,9 @@ public class S_TurnManager : NetworkBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Match {_matchCounter} ended.");
             _matchCounter++;
             _currentPhase.Value = EnumGameplayPhases.MatchOver;
+            _currentTimer = _afterMatchDurations;
         }
-        else
+        else if (turnPassed && !_turnPassed)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Turn {_turns} ended.");
             _turnPassed = turnPassed;
@@ -111,6 +115,16 @@ public class S_TurnManager : NetworkBehaviour
         _currentTimer = _mulliganPhase;
         _turnCount.Value = 0f;
         GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Coinflip phase ended.");
+        GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
+    }
+
+    private void EndBetweenMatchesPeriod()
+    {
+        _currentTimer = _turnDuration;
+        _turnPassed = false;
+        _currentPhase.Value = EnumGameplayPhases.Regular;
+        _turnCount.Value = 0f;
+        GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Begin the next match: {_matchCounter}");
         GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
 

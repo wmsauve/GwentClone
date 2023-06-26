@@ -63,7 +63,7 @@ public class Anim_TransformUI : SimpleAnimations
         return m_animationSpeed;
     }
 
-    public void InitializeMullgianCard(AnimationMoveSpotParams _params, EnumMulliganPos pos)
+    public void InitializeCardForAnim(AnimationMoveSpotParams _params, EnumMulliganPos pos)
     {
         if (_myTransform == null)
         {
