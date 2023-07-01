@@ -17,13 +17,14 @@ public class Anim_FloatingMessage : SimpleAnimations
         }
 
         var _animDir = GetAnimationDirection(m_animationDirection);
-        var _shiftAmt = delta * _animDir;
+        var _shiftAmt = counter * _animDir * m_animationSpeed;
 
         _myRect.position = new Vector2(_myRect.position.x, _myRect.position.y + _shiftAmt);
 
         if(_myText != null)
         {
             var alpha = 1 - (counter / (m_animationDuration + 0.0000001f));
+            Debug.LogWarning(alpha);
             _myText.color = new Color(_myText.color.r, _myText.color.g, _myText.color.b, alpha);
         }
     }

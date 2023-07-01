@@ -276,12 +276,14 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 if (IsServer)
                 {
                     ulong _winner = _currentMatchScores.GetWinnningPlayerID();
+                    C_PlayerGamePlayLogic _loser = null;
 
                     if(_winner == GlobalConstantValues.GAME_DRAWNGAME)
                     {
                         foreach (C_PlayerGamePlayLogic player in _playersLogic)
                         {
                             player.DecrementLives();
+                            if (player.Lives == 0) _loser = player;
                         }
                     }
                     else
@@ -290,7 +292,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         {
                             string name = player.MyInfo.Username;
 
-                            if (player.MyInfo.ID != _winner) player.DecrementLives();
+                            if (player.MyInfo.ID != _winner)
+                            {
+                                player.DecrementLives();
+                                if (player.Lives == 0) _loser = player;
+                            }
                             else
                             {
                                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Winning player: {name}");
@@ -321,9 +327,18 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
                     }
 
+                    if (_loser != null)
+                    {
+                        _turnManager.GameStart = false;
+                    }
+
                     EndOfMatchHandlingClientRpc();
                     _currentPhase = _phase;
                 }
+
+                break;
+            case EnumGameplayPhases.GameOver:
+                ShowEndOfGameScreenClientRpc();
 
                 break;
             default:
@@ -382,6 +397,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     #region Client RPC
+    [ClientRpc]
+    private void ShowEndOfGameScreenClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+
+    }
 
     [ClientRpc]
     private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)

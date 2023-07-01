@@ -20,6 +20,7 @@ public class S_TurnManager : NetworkBehaviour
             if (value)
             {
                 _currentTimer = _coinFlipDuration;
+                SpawnFloatingMessageClientRpc();
                 GlobalActions.OnGameStart?.Invoke();
             }
             else EndGameTimer();
@@ -38,17 +39,17 @@ public class S_TurnManager : NetworkBehaviour
 
     private void Update()
     {
+        if (IsClient)
+        {
+            if (_timerObj == null) return;
+            _timerObj.text = Mathf.Floor(_turnCount.Value).ToString();
+        }
+
         if (!_gameStart.Value) return;
 
         if (IsServer)
         {
             IncrementTurnCount();
-        }
-
-        if (IsClient)
-        {
-            if (_timerObj == null) return;
-            _timerObj.text = Mathf.Floor(_turnCount.Value).ToString();
         }
     }
 
@@ -70,6 +71,8 @@ public class S_TurnManager : NetworkBehaviour
                     break;
                 case EnumGameplayPhases.MatchOver:
                     EndBetweenMatchesPeriod();
+                    break;
+                case EnumGameplayPhases.GameOver:
                     break;
                 default:
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
@@ -133,5 +136,14 @@ public class S_TurnManager : NetworkBehaviour
         _timerObj.text = "0";
         _currentPhase.Value = EnumGameplayPhases.GameOver;
         GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turns Ended. Game Over.");
+        GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
+
+    #region FloatingMessage
+    [ClientRpc]
+    private void SpawnFloatingMessageClientRpc()
+    {
+        GlobalActions.OnDisplayFeedbackInUI?.Invoke("Dooty doot goes first yo.");
+    }
+    #endregion FloatingMessage
 }

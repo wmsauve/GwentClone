@@ -1,4 +1,5 @@
 using TMPro;
+using UnityEngine;
 
 public class FloatingMessage : UI_InstantiateToMainCanvas
 {
@@ -20,7 +21,6 @@ public class FloatingMessage : UI_InstantiateToMainCanvas
         var newMessage = Instantiate(m_instantiatePrefab, _mainCanvas.transform);
         var textComp = newMessage.GetComponent<TextMeshProUGUI>();
         if (textComp == null) return;
-
 
         textComp.text = message;
         var animComp = newMessage.GetComponent<Anim_FloatingMessage>();

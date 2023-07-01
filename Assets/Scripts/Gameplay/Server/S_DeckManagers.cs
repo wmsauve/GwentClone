@@ -31,21 +31,7 @@ public class S_DeckManagers : NetworkBehaviour
             return;
         }
 
-        var _cardRepos = FindObjectsOfType<CardRepository>();
-        if (_cardRepos.Length == 0)
-        {
-            var _repoObj = Instantiate(m_cardRepoPrefab);
-            _cardRepo = _repoObj.GetComponent<CardRepository>();
-            return;
-        }
-
-        if(_cardRepos.Length > 1)
-        {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You don't need 2 card repos.");
-            return;
-        }
-
-        _cardRepo = _cardRepos[0];
+        _cardRepo = GeneralPurposeFunctions.GetComponentFromScene<CardRepository>(m_cardRepoPrefab);
     }
 
     public void AddNewGwentPlayer(string username, ulong id)

@@ -178,4 +178,23 @@ public class GeneralPurposeFunctions
         }
         return component;
     }
+
+    public static T GetComponentFromScene<T>(GameObject prefab) where T : Component
+    {
+        T[] objects = GameObject.FindObjectsOfType<T>();
+
+        if (objects.Length == 0)
+        {
+            GameObject obj = GameObject.Instantiate(prefab);
+            return obj.GetComponent<T>();
+        }
+
+        if (objects.Length > 1)
+        {
+            GamePlayLogger(EnumLoggerGameplay.Error, "You don't need multiple instances of " + typeof(T).Name);
+            return null;
+        }
+
+        return objects[0];
+    }
 }
