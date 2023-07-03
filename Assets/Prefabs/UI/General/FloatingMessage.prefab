@@ -148,6 +148,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1f1389a5c50a449a9ff85ed7e6b048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_animationSpeed: 15
-  m_animationDuration: 1.25
+  m_animationSpeed: 9.75
+  m_animationDuration: 2.25
   m_animationDirection: 1

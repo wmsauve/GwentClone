@@ -6,6 +6,7 @@ public class S_TurnManager : NetworkBehaviour
 {
     private int _turns = 0;
     private int _matchCounter = 0;
+    public int MatchCounter { get { return _matchCounter; } }
     private bool _turnPassed = false;
         
     private NetworkVariable<float> _turnCount = new NetworkVariable<float>(0f);
@@ -20,7 +21,6 @@ public class S_TurnManager : NetworkBehaviour
             if (value)
             {
                 _currentTimer = _coinFlipDuration;
-                SpawnFloatingMessageClientRpc();
                 GlobalActions.OnGameStart?.Invoke();
             }
             else EndGameTimer();
@@ -138,12 +138,4 @@ public class S_TurnManager : NetworkBehaviour
         GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, "Turns Ended. Game Over.");
         GlobalActions.OnPhaseChange?.Invoke(_currentPhase.Value);
     }
-
-    #region FloatingMessage
-    [ClientRpc]
-    private void SpawnFloatingMessageClientRpc()
-    {
-        GlobalActions.OnDisplayFeedbackInUI?.Invoke("Dooty doot goes first yo.");
-    }
-    #endregion FloatingMessage
 }

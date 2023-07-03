@@ -161,6 +161,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private int _currentActive;
     private EnumGameplayPhases _currentPhase = EnumGameplayPhases.CoinFlip;
     private MatchScores _currentMatchScores;
+    private C_PlayerGamePlayLogic _winningPlayer = null;
 
     private void OnEnable()
     {
@@ -184,12 +185,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        _playersLogic = _getLogic.ToList();
-
-        //pick first player.
-        _currentActive = Random.Range(0, _playersLogic.Count);
-        SetPlayerTurnActive();
-        
         _deckManager = GetComponent<S_DeckManagers>();
         _turnManager = GetComponent<S_TurnManager>();
         
@@ -198,7 +193,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
             return;
         }
-        
+
+        //Initialize player logic.
+        _playersLogic = _getLogic.ToList();
         for (int i = 0; i < _playersLogic.Count; i++)
         {
             var id = _playersLogic[i].gameObject.GetComponent<NetworkObject>().OwnerClientId;
@@ -212,6 +209,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             }
         }
 
+        //pick first player.
+        _currentActive = Random.Range(0, _playersLogic.Count);
+        SetPlayerTurnActive();
+
+        //
         CreateMatchScores();
     }
 
@@ -299,6 +301,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                             }
                             else
                             {
+                                _winningPlayer = player;
                                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.ServerProgression, $"Winning player: {name}");
                             }
                         }
@@ -331,7 +334,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     {
                         _turnManager.GameStart = false;
                     }
-
+                    else StateMessageInUIClientRpc($"Match {_turnManager.MatchCounter - 1} Ended."); //incremented already.
                     EndOfMatchHandlingClientRpc();
                     _currentPhase = _phase;
                 }
@@ -339,7 +342,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 break;
             case EnumGameplayPhases.GameOver:
                 ShowEndOfGameScreenClientRpc();
-
+                if(_winningPlayer != null) StateMessageInUIClientRpc($"{_winningPlayer.MyInfo.Username} has won.");
                 break;
             default:
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Error with ending phases.");
@@ -351,7 +354,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     {
         for(int i = 0; i < _playersLogic.Count; i++)
         {
-            if (i == _currentActive) _playersLogic[i].TurnActive = true;
+            if (i == _currentActive)
+            {
+                _playersLogic[i].TurnActive = true;
+                StateMessageInUIClientRpc($"It is {_playersLogic[i].MyInfo.Username}'s turn.");
+            }
             else _playersLogic[i].TurnActive = false;
         }
     }
@@ -534,6 +541,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     {
         if (_canvasUI == null) return;
         _canvasUI.SetCrystals(_playerLives, _opponentLives);
+    }
+
+    [ClientRpc]
+    private void StateMessageInUIClientRpc(string _message)
+    {
+        GlobalActions.OnDisplayFeedbackInUI?.Invoke(_message);
     }
     #endregion Client RPC
 
