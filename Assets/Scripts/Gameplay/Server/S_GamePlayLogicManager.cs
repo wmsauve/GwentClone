@@ -157,6 +157,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private C_GraveyardManager _graveYardManager = null;
     private S_DeckManagers _deckManager = null;
     private S_TurnManager _turnManager = null;
+    private S_SpellsManager _spellsManager = null;
 
     private int _currentActive;
     private EnumGameplayPhases _currentPhase = EnumGameplayPhases.CoinFlip;
@@ -187,8 +188,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         _deckManager = GetComponent<S_DeckManagers>();
         _turnManager = GetComponent<S_TurnManager>();
-        
-        if (_deckManager == null || _turnManager == null)
+        _spellsManager = GetComponent<S_SpellsManager>();
+
+        if (_deckManager == null || _turnManager == null || _spellsManager == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your GameLogic manager and Deck/Turn manager should be on the same gameobject.");
             return;
@@ -595,13 +597,30 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
-        _currentMatchScores.IncrementScore(cardPlace, _card.cardPower, clientId);
-        var _json = _currentMatchScores.PassScoresToClient();
-        HandleScoresOnUIClientRpc(_json);
-        
-        PlacePlayedCardClientRpc(cardName, cardPlace);
-        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
-        _play.SuccessfullyPlayCards(cardSlot, cardPlace);
+        bool isUnit = true;
+        //Handle Card
+        if(_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
+        {
+            //Handle Spy
+            PlacePlayedCardClientRpc(cardName, cardPlace);
+            FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
+        }
+        // spells
+        else
+        {
+            isUnit = false;
+            _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
+        }
+
+        _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
+
+        //Score
+        if (_card.cardPower > 0)
+        {
+            _currentMatchScores.IncrementScore(cardPlace, _card.cardPower, clientId);
+            var _json = _currentMatchScores.PassScoresToClient();
+            HandleScoresOnUIClientRpc(_json);
+        }
 
         _turnManager.EndRegularTurn(false);
     }

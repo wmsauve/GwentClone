@@ -17,7 +17,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private List<Card> _cardsInGraveyard = new List<Card>();
     public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
 
-    public S_GameZones _cardsInPlay = new S_GameZones();
+    private S_GameZones _cardsInPlay = new S_GameZones();
+    public S_GameZones CardsInPlay { get { return _cardsInPlay; } }
 
     //Store card here to prevent mulliganing cards into the exact same card that you mulliganed away.
     private List<Card> _mulliganStorage = new List<Card>();
@@ -102,10 +103,12 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     #region Deal With Cards Related
 
-    public void SuccessfullyPlayCards(int cardSlot, EnumUnitPlacement cardPlace)
+    public void SuccessfullyPlayCards(int cardSlot, EnumUnitPlacement cardPlace, bool isUnit)
     {
         Card playedCard = _cardsInHand[cardSlot];
         _cardsInHand.RemoveAt(cardSlot);
+
+        if (!isUnit) return;
 
         switch (cardPlace)
         {
