@@ -39,6 +39,19 @@ public class UI_GraveyardCards : UI_CardViewScroll
 
     public void AddCardsToGraveyard(List<Card> cardInfo)
     {
+        if(m_viewTransform.childCount > 0)
+        {
+            int childCount = m_viewTransform.childCount;
+            for (int i = childCount - 1; i >= 0; i--)
+            {
+                GameObject child = m_viewTransform.GetChild(i).gameObject;
+                Destroy(child);
+            }
+
+            _cardAnims.Clear();
+            _buttons.Clear();
+        }
+
         for (int i = 0; i < cardInfo.Count; i++)
         {
             var newCard = Instantiate(m_cardPrefab, m_viewTransform);

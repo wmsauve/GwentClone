@@ -67,9 +67,32 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     }
 
     #region Graveyard Related
-    public void PlaceSingleCardInGraveyard()
+    public void PlaceCardInGraveyardScorch()
     {
+        List<Card> _cardsToDestroy = _cardsInPlay.HighestPowerCard;
 
+        foreach(Card _card in _cardsToDestroy)
+        {
+            List<Card> _zone = null;
+            if (_card.unitPlacement == EnumUnitPlacement.Frontline) _zone = _cardsInPlay.CardsInFront;
+            else if (_card.unitPlacement == EnumUnitPlacement.Ranged) _zone = _cardsInPlay.CardsInRanged;
+            else if (_card.unitPlacement == EnumUnitPlacement.Siege) _zone = _cardsInPlay.CardsInSiege;
+
+            if(_zone == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should have a zone for destroying scorched minions.");
+                continue;
+            }
+
+            bool success = _zone.Remove(_card);
+            if (!success)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, $"Technically this should successfully remove the card: {_card.id}");
+                continue;
+            }
+
+            _cardsInGraveyard.Add(_card);
+        }
     }
 
     public void EndOfTurnGraveyardCards()

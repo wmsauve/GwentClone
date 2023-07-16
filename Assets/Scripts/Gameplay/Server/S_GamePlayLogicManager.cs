@@ -189,6 +189,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _deckManager = GetComponent<S_DeckManagers>();
         _turnManager = GetComponent<S_TurnManager>();
         _spellsManager = GetComponent<S_SpellsManager>();
+        _spellsManager._gameManager = this;
 
         if (_deckManager == null || _turnManager == null || _spellsManager == null)
         {
@@ -413,6 +414,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void DestroyCardsFromEffectClientRpc(int _powerToDestroy)
+    {
+        //Todo: This needs to check for unit placement in the future.
+        _zoneManager.DestroyCardsOfPowerDueToScorch(_powerToDestroy);
+    }
+
+    [ClientRpc]
     private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
         _graveYardManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_GraveyardManager>(gameObject);
@@ -501,7 +509,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace)
     {
-        if(_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
+        if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
         if (_zoneManager == null) return;
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
@@ -603,15 +611,21 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             //Handle Spy
             PlacePlayedCardClientRpc(cardName, cardPlace);
-            FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
         }
         // spells
         else
         {
             isUnit = false;
             _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
-        }
 
+            foreach(C_PlayerGamePlayLogic _player in _playersLogic)
+            {
+                string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
+                var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
+            }
+        }
+        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
         _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
 
         //Score
