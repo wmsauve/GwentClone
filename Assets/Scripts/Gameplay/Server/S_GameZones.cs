@@ -33,10 +33,7 @@ public class S_GameZones
                 _placeholder.Add(card);
             }
 
-            else if(card.cardPower == _highestValue)
-            {
-                _placeholder.Add(card);
-            }
+            else if(card.cardPower == _highestValue) _placeholder.Add(card);
         }
 
         foreach (Card card in _cardsInRanged)
@@ -48,10 +45,7 @@ public class S_GameZones
                 _placeholder.Add(card);
             }
 
-            else if (card.cardPower == _highestValue)
-            {
-                _placeholder.Add(card);
-            }
+            else if (card.cardPower == _highestValue) _placeholder.Add(card);
         }
 
         foreach (Card card in _cardsInSiege)
@@ -63,19 +57,13 @@ public class S_GameZones
                 _placeholder.Add(card);
             }
 
-            else if (card.cardPower == _highestValue)
-            {
-                _placeholder.Add(card);
-            }
+            else if (card.cardPower == _highestValue) _placeholder.Add(card);
         }
 
-        if(_placeholder != null)
-        {
-            _highestPowerCards = _placeholder;
-        }
+        if(_placeholder != null) _highestPowerCards = _placeholder;
     }
 
-    public void DestroyCardsOfPowerInPlay()
+    public bool DestroyCardsOfPowerInPlay()
     {
         foreach(Card card in _highestPowerCards)
         {
@@ -87,11 +75,18 @@ public class S_GameZones
             if(zone == null)
             {
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Didn't get zone to remove card.");
-                return;
+                return false;
             }
 
-             var success = zone.Remove(card);
-            if (!success) GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "The removed card should be here.");
+            var success = zone.Remove(card);
+            if (!success)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "The removed card should be here.");
+                return false;
+            }
         }
+
+        CheckForNewHighestCard();
+        return true;
     }
 }

@@ -24,7 +24,6 @@ public class Anim_FloatingMessage : SimpleAnimations
         if(_myText != null)
         {
             var alpha = 1 - (counter / (m_animationDuration + 0.0000001f));
-            Debug.LogWarning(alpha);
             _myText.color = new Color(_myText.color.r, _myText.color.g, _myText.color.b, alpha);
         }
     }

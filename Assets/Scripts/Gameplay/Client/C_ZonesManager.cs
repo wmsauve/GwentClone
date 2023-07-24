@@ -73,6 +73,36 @@ public class C_ZonesManager : MonoBehaviour
 
     public void DestroyCardsOfPowerDueToScorch(int _powerToDestroy)
     {
+        //For now just check global. For scorch effects on cards, need to know opponent or enemy.
 
+        for (int i = 0; i < m_playerZones.Count; i++)
+        {
+            var _cardPlace = m_playerZones[i].CardPlace;
+            for (int j = _cardPlace.childCount - 1; j > 0; j--)
+            {
+                var _cardComp = _cardPlace.GetChild(j).gameObject.GetComponent<C_PlayedCard>();
+                if(_cardComp == null)
+                {
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
+                    return;
+                }
+                if (_cardComp.MyCard.cardPower == _powerToDestroy) Destroy(_cardPlace.GetChild(j).gameObject);
+            }
+        }
+
+        for (int i = 0; i < m_opponentZones.Count; i++)
+        {
+            var _cardPlace = m_opponentZones[i].CardPlace;
+            for (int j = _cardPlace.childCount - 1; j > 0; j--)
+            {
+                var _cardComp = _cardPlace.GetChild(j).gameObject.GetComponent<C_PlayedCard>();
+                if (_cardComp == null)
+                {
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
+                    return;
+                }
+                if (_cardComp.MyCard.cardPower == _powerToDestroy) Destroy(_cardPlace.GetChild(j).gameObject);
+            }
+        }
     }
 }

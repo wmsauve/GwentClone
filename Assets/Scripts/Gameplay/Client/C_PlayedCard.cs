@@ -4,6 +4,9 @@ using UnityEngine.EventSystems;
 public class C_PlayedCard : G_OutlinedGameObject
 {
 
+    private Card m_myCard;
+    public Card MyCard { get { return m_myCard; } }
+
     public override void Start()
     {
         base.Start();
@@ -11,6 +14,8 @@ public class C_PlayedCard : G_OutlinedGameObject
 
     public void InitializePlayedCard(Card _card, EnumPlayCardReason _condition)
     {
+        m_myCard = _card;
+
         var _myMaterial = GetComponent<MeshRenderer>();
         if (_myMaterial == null) return;
 
