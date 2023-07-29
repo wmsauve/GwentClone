@@ -89,7 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f6f2a9f7b82dd849bdb0b7be0d7c90f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_animationSpeed: 2
+  m_animationSpeed: 5
   m_animationDuration: 1
   m_animationDirection: 0
   _myTransform: {fileID: 1397187997962548978}

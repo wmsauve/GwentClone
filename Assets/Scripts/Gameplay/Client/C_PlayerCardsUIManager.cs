@@ -156,7 +156,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _cardPlace);
     }
     
-    private void CancelCardSelection()
+    public void CancelCardSelection()
     {
         if (m_playerControls == null)
         {
@@ -191,6 +191,9 @@ public class C_PlayerCardsUIManager : MonoBehaviour
     {
         if (m_playerControls == null) m_playerControls = _playerControls;
         if (m_currentCard != null) m_currentCard.Anim.ResetThisObject();
+
+        var _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
+        if (!_myLogic.TurnActive) return;
 
         m_currentCard = clickedCard;
         Card _cardInfo = m_currentCard.CardData;

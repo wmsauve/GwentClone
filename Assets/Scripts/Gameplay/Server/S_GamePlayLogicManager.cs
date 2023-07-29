@@ -523,6 +523,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         if (_zoneManager == null) return;
 
         _zoneManager.CleanZones();
+        _cardsInHandScreen.CancelCardSelection();
     } 
 
     [ClientRpc]
@@ -542,8 +543,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void PassTurnSwapClientRpc(bool isActive, ClientRpcParams clientRpcParams = default)
     {
-        if (_canvasUI == null) return;
+        if (_canvasUI == null || _cardsInHandScreen == null) return;
         _canvasUI.SetActivePlayer(isActive);
+        _cardsInHandScreen.CancelCardSelection();
     }
 
     [ClientRpc]
@@ -589,6 +591,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
     {
+        if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
+
         var clientId = serverRpcParams.Receive.SenderClientId;
         var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
 

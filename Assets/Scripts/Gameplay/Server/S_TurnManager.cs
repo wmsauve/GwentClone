@@ -11,6 +11,7 @@ public class S_TurnManager : NetworkBehaviour
         
     private NetworkVariable<float> _turnCount = new NetworkVariable<float>(0f);
     private NetworkVariable<EnumGameplayPhases> _currentPhase = new NetworkVariable<EnumGameplayPhases>(EnumGameplayPhases.CoinFlip);
+    public EnumGameplayPhases CurrentPhase { get { return _currentPhase.Value; } }
     private NetworkVariable<bool> _gameStart = new NetworkVariable<bool>(false);
     public bool GameStart
     {

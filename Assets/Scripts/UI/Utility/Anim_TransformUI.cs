@@ -28,16 +28,18 @@ public class Anim_TransformUI : SimpleAnimations
         if (!_beginAnim || _myTransform == null) return;
 
         base.Update();
-        
 
-        if(counter > 1.0f)
+        var _lerpAlpha = counter * m_animationSpeed;
+
+
+        if(_lerpAlpha > 1.0f)
         {
-            counter = 1.0f;
+            _lerpAlpha = 1.0f;
             _beginAnim = false;
         }
 
-        var _scale = Mathf.Lerp(_initalScale, _targetScale, counter);
-        var _pos = Vector2.Lerp(_initialPos, new Vector2(_targetXPos, _targetYPos), counter);
+        var _scale = Mathf.Lerp(_initalScale, _targetScale, _lerpAlpha);
+        var _pos = Vector2.Lerp(_initialPos, new Vector2(_targetXPos, _targetYPos), _lerpAlpha);
 
         _myTransform.localScale = new Vector3(_scale, _scale, _myTransform.localScale.z);
         if(!m_useWorldTransformPos) _myTransform.localPosition = _pos;
