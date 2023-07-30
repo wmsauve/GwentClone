@@ -8,6 +8,7 @@ public class UI_GameplayCard : UI_MainButtonGame
     [SerializeField] private Anim_TransformUI m_anim;
 
     public Anim_TransformUI Anim { get { return m_anim; } }
+    public RectTransform CardSpriteTransform { get { return m_cardSprite.rectTransform; } }
 
     private int m_cacheFirstSortOrder = 0;
     private int m_mySortOrder = 0;

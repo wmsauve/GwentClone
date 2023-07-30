@@ -30,11 +30,15 @@ public class PlayerControls : MonoBehaviour
                 GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
             }
 
-            else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
-            {
-                GlobalActions.OnClickZone?.Invoke(m_currentZone, this);
-            }
+            //else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
+            //{
+            //    GlobalActions.OnClickZone?.Invoke(m_currentZone, this);
+            //}
+        }
 
+        if (Input.GetMouseButtonUp(0))
+        {
+            GlobalActions.OnCardInteractionInGame?.Invoke();
         }
 
         if(_selectStyle == EnumPlayCardReason.ClickZone)

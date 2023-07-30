@@ -34,6 +34,10 @@ public class C_PlayerCardsUIManager : MonoBehaviour
     private EnumUnitPlacement _nonAgilePlacement;
     private bool isAgile = false;
 
+    private RectTransform canvasRect = null;
+    private Transform parentToMainRect = null;
+    private RectTransform mainRect = null;
+
     private void OnEnable()
     {
         if(m_playCard == null || m_cancelCard == null)
@@ -56,6 +60,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_playBtn.onClick.AddListener(() => PlayCardPassToServer(isAgile));
         m_cancelBtn.onClick.AddListener(CancelCardSelection);
         GlobalActions.OnClickCard += OnReceiveClickedCard;
+        GlobalActions.OnCardInteractionInGame += OnStopClickingCard;
         GlobalActions.OnClickZone += OnReceiveClickedZone;
 
         SetAllButtonsHidden();
@@ -66,6 +71,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_playBtn.onClick.RemoveListener(() => PlayCardPassToServer(isAgile));
         m_cancelBtn.onClick.RemoveListener(CancelCardSelection);
         GlobalActions.OnClickCard -= OnReceiveClickedCard;
+        GlobalActions.OnCardInteractionInGame -= OnStopClickingCard;
         GlobalActions.OnClickZone -= OnReceiveClickedZone;
     }
 
@@ -80,6 +86,22 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         if (!m_testEnv) return;
 
         InitializeHand();
+    }
+
+    private void Update()
+    {
+        if (m_currentCard == null) return;
+
+        if (canvasRect == null || mainRect == null) return;
+
+        Vector2 anchoredPos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, Input.mousePosition, null, out anchoredPos);
+
+        // Adjust for the pivot point of the UI element
+        anchoredPos.x += mainRect.rect.width * mainRect.pivot.x;
+        anchoredPos.y += mainRect.rect.height * mainRect.pivot.y;
+
+        mainRect.anchoredPosition = anchoredPos;
     }
 
     public void InitializeHand(List<Card> _cardInfo = null, S_GamePlayLogicManager _manager = null)
@@ -190,34 +212,70 @@ public class C_PlayerCardsUIManager : MonoBehaviour
     private void OnReceiveClickedCard(UI_GameplayCard clickedCard, PlayerControls _playerControls)
     {
         if (m_playerControls == null) m_playerControls = _playerControls;
-        if (m_currentCard != null) m_currentCard.Anim.ResetThisObject();
+        if (m_currentCard != null) return;
 
         var _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
         if (!_myLogic.TurnActive) return;
 
         m_currentCard = clickedCard;
-        Card _cardInfo = m_currentCard.CardData;
-        m_currentCard.Anim.BeginThisAnimation(m_params);
 
-        if (_cardInfo.unitPlacement == EnumUnitPlacement.Frontline
-         || _cardInfo.unitPlacement == EnumUnitPlacement.Ranged
-         || _cardInfo.unitPlacement == EnumUnitPlacement.Siege
-         || _cardInfo.unitPlacement == EnumUnitPlacement.Global)
+        mainRect = m_currentCard.CardSpriteTransform;
+        parentToMainRect = mainRect.parent;
+        if (mainRect == null)
         {
-            SetAllButtonsVisible();
-            _nonAgilePlacement = _cardInfo.unitPlacement;
+            Debug.LogWarning("Add Rect Transform to this.");
+            return;
         }
-        else if(_cardInfo.unitPlacement == EnumUnitPlacement.Any)
+
+        var _canvas = GameObject.FindGameObjectWithTag(GlobalConstantValues.TAG_MAINCANVAS);
+        if (_canvas == null)
         {
-            _playerControls.SelectStyle = EnumPlayCardReason.ClickZone;
-            m_cancelCard.SetActive(true);
-            isAgile = true;
+            Debug.LogWarning("Did you forget to add a MainUICanvas tag? Do you have a Canvas in your scene?");
+            return;
         }
-        else if(_cardInfo.unitPlacement == EnumUnitPlacement.SingleTarget)
+
+        canvasRect = _canvas.GetComponent<RectTransform>();
+        mainRect.SetParent(canvasRect);
+
+
+        //Card _cardInfo = m_currentCard.CardData;
+        //m_currentCard.Anim.BeginThisAnimation(m_params);
+
+        //if (_cardInfo.unitPlacement == EnumUnitPlacement.Frontline
+        // || _cardInfo.unitPlacement == EnumUnitPlacement.Ranged
+        // || _cardInfo.unitPlacement == EnumUnitPlacement.Siege
+        // || _cardInfo.unitPlacement == EnumUnitPlacement.Global)
+        //{
+        //    SetAllButtonsVisible();
+        //    _nonAgilePlacement = _cardInfo.unitPlacement;
+        //}
+        //else if(_cardInfo.unitPlacement == EnumUnitPlacement.Any)
+        //{
+        //    _playerControls.SelectStyle = EnumPlayCardReason.ClickZone;
+        //    m_cancelCard.SetActive(true);
+        //    isAgile = true;
+        //}
+        //else if(_cardInfo.unitPlacement == EnumUnitPlacement.SingleTarget)
+        //{
+        //    _playerControls.SelectStyle = EnumPlayCardReason.SingleTarget;
+        //    m_cancelCard.SetActive(true);
+        //}
+    }
+
+    private void OnStopClickingCard()
+    {
+        
+        if (m_currentCard == null) return;
+
+        if(parentToMainRect == null)
         {
-            _playerControls.SelectStyle = EnumPlayCardReason.SingleTarget;
-            m_cancelCard.SetActive(true);
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should be correctly setting card parent to reset card image.");
+            return;
         }
+        Debug.LogWarning("We here my friend?");
+        mainRect.SetParent(parentToMainRect);
+        mainRect.anchoredPosition = Vector2.zero;
+        m_currentCard = null;
     }
 
     private void OnReceiveClickedZone(C_GameZone _zone, PlayerControls _playerControls)
