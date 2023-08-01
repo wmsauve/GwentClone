@@ -12,7 +12,7 @@ public class C_PlayedCard : G_OutlinedGameObject
         base.Start();
     }
 
-    public void InitializePlayedCard(Card _card, EnumPlayCardReason _condition)
+    public void InitializePlayedCard(Card _card)
     {
         m_myCard = _card;
 
@@ -22,8 +22,6 @@ public class C_PlayedCard : G_OutlinedGameObject
         Texture2D _sprite = _card.cardImage.texture;
 
         _myMaterial.material.SetTexture("_MainTex", _sprite);
-
-        _outlineCondition = _condition;
     }
 
     public override void OnPointerEnter(PointerEventData eventData)

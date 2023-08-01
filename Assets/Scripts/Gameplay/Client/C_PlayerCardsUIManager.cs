@@ -262,7 +262,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         //}
     }
 
-    private void OnStopClickingCard()
+    private void OnStopClickingCard(EnumDropCardReason dropCard)
     {
         
         if (m_currentCard == null) return;
@@ -272,7 +272,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You should be correctly setting card parent to reset card image.");
             return;
         }
-        Debug.LogWarning("We here my friend?");
+
         mainRect.SetParent(parentToMainRect);
         mainRect.anchoredPosition = Vector2.zero;
         m_currentCard = null;
@@ -284,7 +284,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         m_currentZone = _zone;
         _zone.HideOutline();
         SetAllButtonsVisible();
-        _playerControls.SelectStyle = EnumPlayCardReason.ClickCard;
+        _playerControls.SelectStyle = EnumPlayerControlsStatus.ClickCard;
     }
 
     private void SetAllButtonsVisible()

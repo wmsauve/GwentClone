@@ -34,7 +34,7 @@ public class GeneralPurposeFunctions
         }
     }
 
-    public static string ReturnSkillDescription(EnumCardEffects effect, EnumUnitPlacement placement = EnumUnitPlacement.Any)
+    public static string ReturnSkillDescription(EnumCardEffects effect, EnumUnitPlacement placement = EnumUnitPlacement.AnyPlayer)
     {
         switch (effect)
         {
@@ -197,4 +197,35 @@ public class GeneralPurposeFunctions
 
         return objects[0];
     }
+
+    #region Game Logic Related
+
+    public static bool PlayCardOnDrop(EnumPlayCardStatus desired, EnumUnitPlacement _card)
+    {
+        if(desired == EnumPlayCardStatus.PlayToZone)
+        {
+            if (_card == EnumUnitPlacement.Global) return false;
+            if (_card == EnumUnitPlacement.SingleTarget) return false;
+
+            return true;
+        }
+
+        if(desired == EnumPlayCardStatus.SingleTarget)
+        {
+            if (_card != EnumUnitPlacement.SingleTarget) return false;
+
+            return true;
+        }
+
+        if(desired == EnumPlayCardStatus.Global)
+        {
+            if (_card != EnumUnitPlacement.Global) return false;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    #endregion Game Logic Related
 }

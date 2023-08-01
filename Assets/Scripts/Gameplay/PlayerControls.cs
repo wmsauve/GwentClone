@@ -10,8 +10,8 @@ public class PlayerControls : MonoBehaviour
     private C_PlayedCard m_currentTarget;
     private int _cardForward = 1000;
 
-    private EnumPlayCardReason _selectStyle = EnumPlayCardReason.ClickCard;
-    public EnumPlayCardReason SelectStyle 
+    private EnumPlayerControlsStatus _selectStyle = EnumPlayerControlsStatus.ClickCard;
+    public EnumPlayerControlsStatus SelectStyle 
     { 
         get { return _selectStyle; } 
         set 
@@ -21,13 +21,16 @@ public class PlayerControls : MonoBehaviour
         } 
     }
 
+    private EnumDropCardReason _currentDropCardStatus;
+
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if(m_currentCard != null && _selectStyle == EnumPlayCardReason.ClickCard)
+            if(m_currentCard != null && SelectStyle == EnumPlayerControlsStatus.ClickCard)
             {
                 GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
+                SelectStyle = EnumPlayerControlsStatus.CarryingCard;
             }
 
             //else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
@@ -38,81 +41,56 @@ public class PlayerControls : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            GlobalActions.OnCardInteractionInGame?.Invoke();
+            GlobalActions.OnCardInteractionInGame?.Invoke(_currentDropCardStatus);
+            SelectStyle = EnumPlayerControlsStatus.ClickCard;
         }
 
-        if(_selectStyle == EnumPlayCardReason.ClickZone)
+        //if(SelectStyle == EnumPlayCardReason.SingleTarget)
+        //{
+        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        //    RaycastHit hit;
+
+        //    if (Physics.Raycast(ray, out hit))
+        //    {
+        //        C_PlayedCard _card = hit.transform.gameObject.GetComponent<C_PlayedCard>();
+        //        if (_card == m_currentTarget) return;
+        //        if (_card != null)
+        //        {
+        //            if (m_currentTarget != null) m_currentZone.HideOutline();
+        //            m_currentTarget = _card;
+        //            m_currentTarget.ShowOutline();
+        //        }
+        //        else
+        //        {
+        //            if (m_currentTarget != null)
+        //            {
+        //                m_currentTarget.HideOutline();
+        //                m_currentTarget = null;
+        //            }
+        //        }
+        //    }
+        //}
+
+        switch (SelectStyle)
         {
-            //Used for mousing over cards in the scene. 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            case EnumPlayerControlsStatus.ClickCard:
+                HoverCardsInHand();
+                break;
+            case EnumPlayerControlsStatus.CarryingCard:
 
-            if (Physics.Raycast(ray, out hit))
-            {
-                C_GameZone _zone = hit.transform.gameObject.GetComponent<C_GameZone>();
-                if (_zone == m_currentZone) return;
-                if (_zone != null)
+                if (m_currentCard == null) break;
+
+                var _data = m_currentCard.CardData;
+
+                if (GeneralPurposeFunctions.PlayCardOnDrop(EnumPlayCardStatus.PlayToZone, _data.unitPlacement))
                 {
-                    if (!_zone.PlayerZone) return;
-                    if (m_currentZone != null) m_currentZone.HideOutline();
-                    m_currentZone = _zone;
-                    m_currentZone.ShowOutline();
+                    var success = FindCardZone();
+                    if (success) break;
                 }
-                else
-                {
-                    if(m_currentZone != null)
-                    {
-                        m_currentZone.HideOutline();
-                        m_currentZone = null;
-                    }
-                }
-            }
 
-            return;
-        }
 
-        if(_selectStyle == EnumPlayCardReason.SingleTarget)
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                C_PlayedCard _card = hit.transform.gameObject.GetComponent<C_PlayedCard>();
-                if (_card == m_currentTarget) return;
-                if (_card != null)
-                {
-                    if (m_currentTarget != null) m_currentZone.HideOutline();
-                    m_currentTarget = _card;
-                    m_currentTarget.ShowOutline();
-                }
-                else
-                {
-                    if (m_currentTarget != null)
-                    {
-                        m_currentTarget.HideOutline();
-                        m_currentTarget = null;
-                    }
-                }
-            }
-        }
-
-        if(_selectStyle == EnumPlayCardReason.ClickCard)
-        {
-            PointerEventData eventData = new PointerEventData(EventSystem.current);
-            eventData.position = Input.mousePosition;
-            List<RaycastResult> results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(eventData, results);
-
-            if (results.Count == 0)
-            {
-                if (m_currentCard != null)
-                {
-                    m_currentCard.ResetSortOrder();
-                    m_currentCard = null;
-                }
-            }
-            else DifferentCardHovered(results[0].gameObject);
+                _currentDropCardStatus = EnumDropCardReason.Nothing;
+                break;
         }
 
     }
@@ -140,7 +118,63 @@ public class PlayerControls : MonoBehaviour
 
     public void CancelButtonPressed()
     {
-        _selectStyle = EnumPlayCardReason.ClickCard;
+        SelectStyle = EnumPlayerControlsStatus.ClickCard;
 
+    }
+
+    private void HoverCardsInHand()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, results);
+
+        if (results.Count == 0)
+        {
+            if (m_currentCard != null)
+            {
+                m_currentCard.ResetSortOrder();
+                m_currentCard = null;
+            }
+        }
+        else DifferentCardHovered(results[0].gameObject);
+    }
+
+    private bool FindCardZone()
+    {
+        //Used for mousing over cards in the scene. 
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            C_GameZone _zone = hit.transform.gameObject.GetComponent<C_GameZone>();
+            if (_zone == m_currentZone) return false;
+            if (_zone != null)
+            {
+                if (!_zone.PlayerZone) return false;
+                if (m_currentZone != null) m_currentZone.HideOutline();
+                m_currentZone = _zone;
+
+                //TODO: For cards that target many zones, allow many zones.
+                if(m_currentCard.CardData.unitPlacement == m_currentZone.Zone)
+                {
+                    m_currentZone.ShowOutline();
+                    _currentDropCardStatus = EnumDropCardReason.PlayMinion;
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                if (m_currentZone != null)
+                {
+                    m_currentZone.HideOutline();
+                    m_currentZone = null;
+                }
+                return false;
+            }
+        }
+        return false;
     }
 }

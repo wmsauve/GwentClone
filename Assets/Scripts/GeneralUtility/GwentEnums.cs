@@ -6,12 +6,13 @@ public enum EnumUnitPlacement
     Frontline,
     Ranged,
     Siege,
-    Any,
+    AnyPlayer,
     Agile_FR,
     Agile_FS,
     Agile_RS,
     Global,
-    SingleTarget
+    SingleTarget,
+    AnyOpponent
 }
 
 /// <summary>
@@ -121,13 +122,25 @@ public enum EnumMulliganPos
     rightout,
 }
 
-public enum EnumPlayCardReason
+public enum EnumPlayerControlsStatus
 {
     ClickCard,
-    ClickZone,
-    ClickEnemyZone,
+    CarryingCard,
+}
+
+public enum EnumDropCardReason
+{
+    Nothing,
+    PlayMinion,
+    PlaySpy,
+    PlayGlobal,
+}
+
+public enum EnumPlayCardStatus
+{
+    PlayToZone,
     SingleTarget,
-    SingleTargetEnemy,
+    Global
 }
 
 public enum EnumCardListType
