@@ -169,15 +169,17 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
+    //Probably delete this anyways.
     private void PlayCardPassToServer(bool _agileCard = false)
     {
         int _cardSlot = m_currentCard.CardOrder;
         string _cardName = m_currentCard.CardData.id;
         EnumUnitPlacement _cardPlace = _nonAgilePlacement;
-        if (_agileCard) _cardPlace = m_currentZone.Zone;
+        //if (_agileCard) _cardPlace = m_currentZone.Zone;
         _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _cardPlace);
     }
     
+    //This needs to happen when no holding card anymore.
     public void CancelCardSelection()
     {
         if (m_playerControls == null)

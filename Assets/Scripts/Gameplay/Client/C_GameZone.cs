@@ -6,11 +6,11 @@ public class C_GameZone : G_OutlinedGameObject
 {
 
     [Header("Gameplay Related")]
-    [SerializeField] private EnumUnitPlacement m_zone = EnumUnitPlacement.Frontline;
-    [SerializeField] private bool m_playerZone = false;
+    [SerializeField] private bool m_playerZone;
+    [SerializeField] private List<EnumUnitPlacement> m_allowableCards = new List<EnumUnitPlacement>();
 
-    public bool PlayerZone { get { return m_playerZone; } }
-    public EnumUnitPlacement Zone { get { return m_zone; } }
+    public List<EnumUnitPlacement> AllowableCards { get { return m_allowableCards; } }
+    public bool IsPlayerZone { get { return m_playerZone; } }
 
     private Transform _cardPlace;
     public Transform CardPlace { get { return _cardPlace; } }
@@ -18,12 +18,6 @@ public class C_GameZone : G_OutlinedGameObject
     public override void Start()
     {
         base.Start();
-
-        if(m_zone != EnumUnitPlacement.Frontline && m_zone != EnumUnitPlacement.Ranged && m_zone != EnumUnitPlacement.Siege)
-        {
-            m_zone = EnumUnitPlacement.Frontline;
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Are you sure you set the zone position correctly?");
-        }
 
         //In the prefab, this appears on the visual aspect of the zone. Cards should be a child of the root.
         _cardPlace = transform.parent;

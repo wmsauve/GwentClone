@@ -36,7 +36,7 @@ public class C_ZonesManager : MonoBehaviour
 
         var _whichZones = _myLogic.TurnActive ? m_playerZones : m_opponentZones;
         //EnumPlayCardReason _outlineCondition = _myLogic.TurnActive ? EnumPlayCardReason.SingleTarget : EnumPlayCardReason.SingleTargetEnemy;
-        var _zone = _whichZones.Find((x) => _cardPlacement == x.Zone);
+        var _zone = _whichZones.Find((x) => x.AllowableCards.Contains(_cardPlacement));
         if (_zone != null)
         {
             var newCard = Instantiate(_placedCardPrefab, _zone.CardPlace);

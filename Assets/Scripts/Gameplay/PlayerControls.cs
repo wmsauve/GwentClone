@@ -9,6 +9,7 @@ public class PlayerControls : MonoBehaviour
     private C_GameZone m_currentZone;
     private C_PlayedCard m_currentTarget;
     private int _cardForward = 1000;
+    private C_PlayerGamePlayLogic _myLogic;
 
     private EnumPlayerControlsStatus _selectStyle = EnumPlayerControlsStatus.ClickCard;
     public EnumPlayerControlsStatus SelectStyle 
@@ -23,8 +24,20 @@ public class PlayerControls : MonoBehaviour
 
     private EnumDropCardReason _currentDropCardStatus;
 
+    private void Start()
+    {
+        _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
+        if (_myLogic == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your controller should have reference to player logic.");
+            return;
+        }
+    }
+
     private void Update()
     {
+        if (!_myLogic.TurnActive) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             if(m_currentCard != null && SelectStyle == EnumPlayerControlsStatus.ClickCard)
@@ -152,17 +165,16 @@ public class PlayerControls : MonoBehaviour
             if (_zone == m_currentZone) return false;
             if (_zone != null)
             {
-                if (!_zone.PlayerZone) return false;
-                if (m_currentZone != null) m_currentZone.HideOutline();
-                m_currentZone = _zone;
-
-                //TODO: For cards that target many zones, allow many zones.
-                if(m_currentCard.CardData.unitPlacement == m_currentZone.Zone)
+                //Successfully found our play area.
+                if (_zone.AllowableCards.Contains(m_currentCard.CardData.unitPlacement))
                 {
+                    if (m_currentZone != null) m_currentZone.HideOutline();
+                    m_currentZone = _zone;
                     m_currentZone.ShowOutline();
                     _currentDropCardStatus = EnumDropCardReason.PlayMinion;
                     return true;
                 }
+
                 return false;
             }
             else

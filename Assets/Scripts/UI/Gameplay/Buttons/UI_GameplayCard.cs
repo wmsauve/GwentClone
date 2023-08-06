@@ -3,7 +3,6 @@ using UnityEngine.UI;
 
 public class UI_GameplayCard : UI_MainButtonGame
 {
-    [SerializeField] private Canvas m_canvasComp;
     [SerializeField] private Image m_cardSprite;
     [SerializeField] private Anim_TransformUI m_anim;
 
@@ -18,10 +17,6 @@ public class UI_GameplayCard : UI_MainButtonGame
         set
         {
             m_mySortOrder = value;
-            if(m_canvasComp != null)
-            {
-                m_canvasComp.sortingOrder = value;
-            }
         }
     }
 
@@ -61,12 +56,6 @@ public class UI_GameplayCard : UI_MainButtonGame
 
     private void Start()
     {
-        if(m_canvasComp == null)
-        {
-            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need canvas comp on your gameplay card buttons.");
-            return;
-        }
-
         if(m_cardSprite == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need an Image comp on your gameplay card buttons.");
