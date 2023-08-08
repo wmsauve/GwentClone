@@ -275,6 +275,8 @@ public class C_PlayerCardsUIManager : MonoBehaviour
             return;
         }
 
+        Debug.LogWarning("We here friend?");
+
         mainRect.SetParent(parentToMainRect);
         mainRect.anchoredPosition = Vector2.zero;
         m_currentCard = null;

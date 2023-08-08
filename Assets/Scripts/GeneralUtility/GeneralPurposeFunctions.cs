@@ -198,6 +198,19 @@ public class GeneralPurposeFunctions
         return objects[0];
     }
 
+    public static T[] GetComponentsFromScene<T>() where T: Component
+    {
+        T[] objects = GameObject.FindObjectsOfType<T>();
+
+        if (objects == null || objects.Length == 0)
+        {
+            GamePlayLogger(EnumLoggerGameplay.Error, "You don't have any components of type: " + typeof(T).Name);
+            return null;
+        }
+
+        return objects;
+    }
+
     #region Game Logic Related
 
     public static bool PlayCardOnDrop(EnumPlayCardStatus desired, EnumUnitPlacement _card)
@@ -225,6 +238,25 @@ public class GeneralPurposeFunctions
         }
 
         return false;
+    }
+
+    public static EnumPlayCardStatus GetIntendedPlayLocation(Card _data)
+    {
+        //For now. need to update this later for single target cards.
+        switch (_data.unitPlacement)
+        {
+            case EnumUnitPlacement.Frontline:
+            case EnumUnitPlacement.Ranged:
+            case EnumUnitPlacement.Siege:
+            case EnumUnitPlacement.Agile_FR:
+            case EnumUnitPlacement.Agile_FS:
+            case EnumUnitPlacement.Agile_RS:
+                return EnumPlayCardStatus.PlayToZone;
+            case EnumUnitPlacement.Global:
+                return EnumPlayCardStatus.Global;
+        }
+        GamePlayLogger(EnumLoggerGameplay.Error, "You should not reach this point for setting Intended play location for dropped card.");
+        return EnumPlayCardStatus.PlayToZone;
     }
 
     #endregion Game Logic Related

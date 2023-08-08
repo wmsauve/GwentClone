@@ -1,15 +1,20 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine.UI;
 
 public class PlayerControls : MonoBehaviour
 {
     private UI_GameplayCard m_currentCard;
     private C_GameZone m_currentZone;
+    private C_GameZone[] m_allZones;
     private C_PlayedCard m_currentTarget;
     private int _cardForward = 1000;
     private C_PlayerGamePlayLogic _myLogic;
+
+    private bool _playerControls = true;
+    private bool _globalHover = false;
 
     private EnumPlayerControlsStatus _selectStyle = EnumPlayerControlsStatus.ClickCard;
     public EnumPlayerControlsStatus SelectStyle 
@@ -24,6 +29,8 @@ public class PlayerControls : MonoBehaviour
 
     private EnumDropCardReason _currentDropCardStatus;
 
+    private EnumPlayCardStatus _currentPlayLocation;
+
     private void Start()
     {
         _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
@@ -32,11 +39,17 @@ public class PlayerControls : MonoBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Your controller should have reference to player logic.");
             return;
         }
+
+        //Stop player from controlling the player controls on all players - consider removing this component.
+        var sharedLogic = GetComponent<C_PlayerGamePlayLogic>();
+        if (_myLogic != sharedLogic) _playerControls = false;
+
+        m_allZones = GeneralPurposeFunctions.GetComponentsFromScene<C_GameZone>();
     }
 
     private void Update()
     {
-        if (!_myLogic.TurnActive) return;
+        if (!_playerControls) return;
 
         if (Input.GetMouseButtonDown(0))
         {
@@ -44,6 +57,7 @@ public class PlayerControls : MonoBehaviour
             {
                 GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
                 SelectStyle = EnumPlayerControlsStatus.CarryingCard;
+                _currentPlayLocation = GeneralPurposeFunctions.GetIntendedPlayLocation(m_currentCard.CardData);
             }
 
             //else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
@@ -56,6 +70,7 @@ public class PlayerControls : MonoBehaviour
         {
             GlobalActions.OnCardInteractionInGame?.Invoke(_currentDropCardStatus);
             SelectStyle = EnumPlayerControlsStatus.ClickCard;
+            _globalHover = false;
         }
 
         //if(SelectStyle == EnumPlayCardReason.SingleTarget)
@@ -95,17 +110,15 @@ public class PlayerControls : MonoBehaviour
 
                 var _data = m_currentCard.CardData;
 
-                if (GeneralPurposeFunctions.PlayCardOnDrop(EnumPlayCardStatus.PlayToZone, _data.unitPlacement))
+                if (GeneralPurposeFunctions.PlayCardOnDrop(_currentPlayLocation, _data.unitPlacement))
                 {
                     var success = FindCardZone();
                     if (success) break;
                 }
 
-
                 _currentDropCardStatus = EnumDropCardReason.Nothing;
                 break;
         }
-
     }
 
     private void DifferentCardHovered(GameObject _newCard)
@@ -165,14 +178,31 @@ public class PlayerControls : MonoBehaviour
             if (_zone == m_currentZone) return false;
             if (_zone != null)
             {
+                EnumUnitPlacement _placement = m_currentCard.CardData.unitPlacement;
+
                 //Successfully found our play area.
-                if (_zone.AllowableCards.Contains(m_currentCard.CardData.unitPlacement))
+                if (_zone.AllowableCards.Contains(_placement) && _placement != EnumUnitPlacement.Global)
                 {
                     if (m_currentZone != null) m_currentZone.HideOutline();
                     m_currentZone = _zone;
                     m_currentZone.ShowOutline();
                     _currentDropCardStatus = EnumDropCardReason.PlayMinion;
                     return true;
+                }
+
+                if(_placement == EnumUnitPlacement.Global)
+                {
+                    if(!_globalHover)
+                    {
+                        m_currentZone = _zone;
+                        for(int i = 0; i < m_allZones.Length; i++)
+                        {
+                            m_allZones[i].ShowOutline();
+                        }
+                        _currentDropCardStatus = EnumDropCardReason.PlayGlobal;
+                        _globalHover = true;
+                        return true;
+                    }
                 }
 
                 return false;
@@ -184,6 +214,17 @@ public class PlayerControls : MonoBehaviour
                     m_currentZone.HideOutline();
                     m_currentZone = null;
                 }
+
+                if (_globalHover)
+                {
+                    m_currentZone = null;
+                    for (int i = 0; i < m_allZones.Length; i++)
+                    {
+                        m_allZones[i].HideOutline();
+                    }
+                    _globalHover = false;
+                }
+
                 return false;
             }
         }
