@@ -31,6 +31,16 @@ public class PlayerControls : MonoBehaviour
 
     private EnumPlayCardStatus _currentPlayLocation;
 
+    private void OnEnable()
+    {
+        GlobalActions.OnCardInteractionInGame += CardNotHeldAnymore;
+    }
+
+    private void OnDisable()
+    {
+        GlobalActions.OnCardInteractionInGame -= CardNotHeldAnymore;
+    }
+
     private void Start()
     {
         _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
@@ -55,49 +65,27 @@ public class PlayerControls : MonoBehaviour
         {
             if(m_currentCard != null && SelectStyle == EnumPlayerControlsStatus.ClickCard)
             {
+                m_currentCard.ResetSortOrder();
                 GlobalActions.OnClickCard?.Invoke(m_currentCard, this);
                 SelectStyle = EnumPlayerControlsStatus.CarryingCard;
                 _currentPlayLocation = GeneralPurposeFunctions.GetIntendedPlayLocation(m_currentCard.CardData);
             }
-
-            //else if (m_currentZone != null &&_selectStyle == EnumPlayCardReason.ClickZone)
-            //{
-            //    GlobalActions.OnClickZone?.Invoke(m_currentZone, this);
-            //}
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            GlobalActions.OnCardInteractionInGame?.Invoke(_currentDropCardStatus);
             SelectStyle = EnumPlayerControlsStatus.ClickCard;
+
+            if (_currentDropCardStatus == EnumDropCardReason.Nothing)
+            {
+                GlobalActions.OnNotPlayingHeldCard?.Invoke();
+                return;
+            }
+
+            GlobalActions.OnCardInteractionInGame?.Invoke(m_currentZone, _currentDropCardStatus);
+            _currentDropCardStatus = EnumDropCardReason.Nothing;
             _globalHover = false;
         }
-
-        //if(SelectStyle == EnumPlayCardReason.SingleTarget)
-        //{
-        //    Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //    RaycastHit hit;
-
-        //    if (Physics.Raycast(ray, out hit))
-        //    {
-        //        C_PlayedCard _card = hit.transform.gameObject.GetComponent<C_PlayedCard>();
-        //        if (_card == m_currentTarget) return;
-        //        if (_card != null)
-        //        {
-        //            if (m_currentTarget != null) m_currentZone.HideOutline();
-        //            m_currentTarget = _card;
-        //            m_currentTarget.ShowOutline();
-        //        }
-        //        else
-        //        {
-        //            if (m_currentTarget != null)
-        //            {
-        //                m_currentTarget.HideOutline();
-        //                m_currentTarget = null;
-        //            }
-        //        }
-        //    }
-        //}
 
         switch (SelectStyle)
         {
@@ -116,7 +104,6 @@ public class PlayerControls : MonoBehaviour
                     if (success) break;
                 }
 
-                _currentDropCardStatus = EnumDropCardReason.Nothing;
                 break;
         }
     }
@@ -140,12 +127,6 @@ public class PlayerControls : MonoBehaviour
         _card.CardOrder = _cardForward;
         m_currentCard = _card;
         return true;
-    }
-
-    public void CancelButtonPressed()
-    {
-        SelectStyle = EnumPlayerControlsStatus.ClickCard;
-
     }
 
     private void HoverCardsInHand()
@@ -225,9 +206,18 @@ public class PlayerControls : MonoBehaviour
                     _globalHover = false;
                 }
 
+                _currentDropCardStatus = EnumDropCardReason.Nothing;
                 return false;
             }
         }
         return false;
+    }
+
+    private void CardNotHeldAnymore(C_GameZone _zone, EnumDropCardReason _reason)
+    {
+        for (int i = 0; i < m_allZones.Length; i++)
+        {
+            m_allZones[i].HideOutline();
+        }
     }
 }

@@ -524,7 +524,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         _zoneManager.CleanZones();
         //_cardsInHandScreen.CancelCardSelection();
-        GlobalActions.OnCardInteractionInGame?.Invoke(EnumDropCardReason.Nothing);
+        GlobalActions.OnNotPlayingHeldCard?.Invoke();
     } 
 
     [ClientRpc]
@@ -547,7 +547,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         if (_canvasUI == null || _cardsInHandScreen == null) return;
         _canvasUI.SetActivePlayer(isActive);
         //_cardsInHandScreen.CancelCardSelection();
-        GlobalActions.OnCardInteractionInGame?.Invoke(EnumDropCardReason.Nothing);
+        GlobalActions.OnNotPlayingHeldCard?.Invoke();
     }
 
     [ClientRpc]
