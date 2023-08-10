@@ -254,6 +254,8 @@ public class GeneralPurposeFunctions
                 return EnumPlayCardStatus.PlayToZone;
             case EnumUnitPlacement.Global:
                 return EnumPlayCardStatus.Global;
+            case EnumUnitPlacement.SingleTarget:
+                return EnumPlayCardStatus.SingleTarget;
         }
         GamePlayLogger(EnumLoggerGameplay.Error, "You should not reach this point for setting Intended play location for dropped card.");
         return EnumPlayCardStatus.PlayToZone;

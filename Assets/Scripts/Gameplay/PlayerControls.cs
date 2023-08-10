@@ -98,9 +98,17 @@ public class PlayerControls : MonoBehaviour
 
                 var _data = m_currentCard.CardData;
 
-                if (GeneralPurposeFunctions.PlayCardOnDrop(_currentPlayLocation, _data.unitPlacement))
+                if (!GeneralPurposeFunctions.PlayCardOnDrop(_currentPlayLocation, _data.unitPlacement)) break;
+
+                if (_data.unitPlacement != EnumUnitPlacement.SingleTarget)
                 {
                     var success = FindCardZone();
+                    if (success) break;
+                }
+
+                else
+                {
+                    var success = FindSingleCard();
                     if (success) break;
                 }
 
@@ -210,6 +218,23 @@ public class PlayerControls : MonoBehaviour
                 return false;
             }
         }
+        return false;
+    }
+
+    private bool FindSingleCard()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            GameObject _obj = hit.transform.gameObject;
+            C_PlayedCard _targetCard = _obj.GetComponent<C_PlayedCard>();
+            if (_targetCard == null) return false;
+
+            _targetCard.ShowOutline();
+        }
+
         return false;
     }
 
