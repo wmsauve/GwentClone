@@ -5,7 +5,7 @@ Just for fun.
 ## Card Order
 Move card order in hierarchy to render moused over card on top. Put card back in original order to move down to the "not moused over" position.
 ## Playing Cards
-For Spy, need to only highlight your own cards. Need to handle logic on server to swap played card with spy card.
+For Decoy need to only highlight your own cards. Need to handle logic on server to swap played card with Decoy card.
 
 # Known Major Bugs
 ## Mulligan bug
