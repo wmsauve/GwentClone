@@ -3,6 +3,22 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+public class StringContainer : INetworkSerializable
+{
+    public string Text;
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        if (serializer.IsWriter)
+        {
+            serializer.GetFastBufferWriter().WriteValueSafe(Text);
+        }
+        else
+        {
+            serializer.GetFastBufferReader().ReadValueSafe(out Text);
+        }
+    }
+}
+
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
     private struct CardNames
@@ -591,8 +607,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
+    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, StringContainer[] _interactCards = null, ServerRpcParams serverRpcParams = default)
     {
+        if(_interactCards != null && _interactCards.Length > 0)
+        {
+            Debug.LogWarning(_interactCards[0].Text + " card yo.");
+        }
+
         if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
 
         var clientId = serverRpcParams.Receive.SenderClientId;

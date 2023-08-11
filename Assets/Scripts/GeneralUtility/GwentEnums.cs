@@ -134,6 +134,7 @@ public enum EnumDropCardReason
     PlayMinion,
     PlaySpy,
     PlayGlobal,
+    PlayDecoy
 }
 
 public enum EnumPlayCardStatus

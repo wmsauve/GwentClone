@@ -7,14 +7,18 @@ public class C_PlayedCard : G_OutlinedGameObject
     private Card m_myCard;
     public Card MyCard { get { return m_myCard; } }
 
+    private C_GameZone m_myZone;
+    public C_GameZone MyZone { get { return m_myZone; } }
+
     public override void Start()
     {
         base.Start();
     }
 
-    public void InitializePlayedCard(Card _card)
+    public void InitializePlayedCard(Card _card, C_GameZone _zone)
     {
         m_myCard = _card;
+        m_myZone = _zone;
 
         var _myMaterial = GetComponent<MeshRenderer>();
         if (_myMaterial == null) return;

@@ -132,11 +132,22 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    private void PlayCardPassToServer(EnumUnitPlacement _placement)
+    private void PlayCardPassToServer(EnumUnitPlacement _placement, List<string> _interactedCards = null)
     {
         int _cardSlot = m_currentCard.CardOrder;
         string _cardName = m_currentCard.CardData.id;
-        _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement);
+        if (_interactedCards == null || _interactedCards.Count == 0) _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement);
+        else
+        {
+            var _size = _interactedCards.Count;
+            var _cardNames = new StringContainer[_size];
+            for(int i = 0; i < _size; i++)
+            {
+                _cardNames[i] = new StringContainer();
+                _cardNames[i].Text = _interactedCards[i];
+            }
+            _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement, _cardNames);
+        }
     }
 
     public void RemoveCardFromHand(int slot)
@@ -177,8 +188,10 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         mainRect.SetParent(canvasRect);
     }
 
-    private void OnStopClickingCard(C_GameZone _zone, EnumDropCardReason dropCard)
+    private void OnStopClickingCard(InteractionValues _interact)
     {
+        var _zone = _interact.TargetZone;
+        var dropCard = _interact.DropReason;
         if (m_currentCard == null || _zone == null) return;
         EnumUnitPlacement _placement;
         if (_zone.AllowableCards.Contains(EnumUnitPlacement.Frontline)) _placement = EnumUnitPlacement.Frontline;
@@ -189,13 +202,18 @@ public class C_PlayerCardsUIManager : MonoBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "You need to check your allowable position on your zones.");
             return;
         }
-
+        
         switch (dropCard)
         {
             case EnumDropCardReason.PlayMinion:
             case EnumDropCardReason.PlaySpy:
             case EnumDropCardReason.PlayGlobal:
                 PlayCardPassToServer(_placement);
+                break;
+            case EnumDropCardReason.PlayDecoy:
+                List<string> _interactCards = new List<string>();
+                _interactCards.Add(_interact.DecoyCard.id);
+                PlayCardPassToServer(_placement, _interactCards);
                 break;
         }
     }

@@ -1,13 +1,43 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
-using Unity.Netcode;
-using UnityEngine.UI;
+
+public class InteractionValues
+{
+    private C_GameZone _targetZone;
+    public C_GameZone TargetZone
+    {
+        get { return _targetZone; }
+        set { _targetZone = value; }
+    }
+
+    private EnumDropCardReason _dropReason;
+    public EnumDropCardReason DropReason
+    {
+        get { return _dropReason; }
+        set { _dropReason = value; }
+    }
+
+    private Card _decoyCard;
+    public Card DecoyCard
+    {
+        get 
+        {
+            if(_decoyCard == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Attempted to pass decoy card to server without setting reference.");
+                return null;
+            }
+            return _decoyCard;
+        }
+        set { _decoyCard = value; }
+    }
+}
 
 public class PlayerControls : MonoBehaviour
 {
     private UI_GameplayCard m_currentCard;
-    private C_GameZone m_currentZone;
+    //private C_GameZone m_currentZone;
     private C_GameZone[] m_allZones;
     private C_PlayedCard m_currentTarget;
     private int _cardForward = 1000;
@@ -27,7 +57,8 @@ public class PlayerControls : MonoBehaviour
         } 
     }
 
-    private EnumDropCardReason _currentDropCardStatus;
+    //private EnumDropCardReason _currentDropCardStatus;
+    private InteractionValues _interaction = new InteractionValues();
 
     private EnumPlayCardStatus _currentPlayLocation;
 
@@ -76,14 +107,14 @@ public class PlayerControls : MonoBehaviour
         {
             SelectStyle = EnumPlayerControlsStatus.ClickCard;
 
-            if (_currentDropCardStatus == EnumDropCardReason.Nothing)
+            if (_interaction.DropReason == EnumDropCardReason.Nothing)
             {
                 GlobalActions.OnNotPlayingHeldCard?.Invoke();
                 return;
             }
 
-            GlobalActions.OnCardInteractionInGame?.Invoke(m_currentZone, _currentDropCardStatus);
-            _currentDropCardStatus = EnumDropCardReason.Nothing;
+            GlobalActions.OnCardInteractionInGame?.Invoke(_interaction);
+            _interaction.DropReason = EnumDropCardReason.Nothing;
             _globalHover = false;
         }
 
@@ -164,7 +195,7 @@ public class PlayerControls : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             C_GameZone _zone = hit.transform.gameObject.GetComponent<C_GameZone>();
-            if (_zone == m_currentZone) return false;
+            if (_zone == _interaction.TargetZone) return false;
             if (_zone != null)
             {
                 EnumUnitPlacement _placement = m_currentCard.CardData.unitPlacement;
@@ -172,10 +203,10 @@ public class PlayerControls : MonoBehaviour
                 //Successfully found our play area.
                 if (_zone.AllowableCards.Contains(_placement) && _placement != EnumUnitPlacement.Global)
                 {
-                    if (m_currentZone != null) m_currentZone.HideOutline();
-                    m_currentZone = _zone;
-                    m_currentZone.ShowOutline();
-                    _currentDropCardStatus = EnumDropCardReason.PlayMinion;
+                    if (_interaction.TargetZone != null) _interaction.TargetZone.HideOutline();
+                    _interaction.TargetZone = _zone;
+                    _interaction.TargetZone.ShowOutline();
+                    _interaction.DropReason = EnumDropCardReason.PlayMinion;
                     return true;
                 }
 
@@ -183,12 +214,12 @@ public class PlayerControls : MonoBehaviour
                 {
                     if(!_globalHover)
                     {
-                        m_currentZone = _zone;
+                        _interaction.TargetZone = _zone;
                         for(int i = 0; i < m_allZones.Length; i++)
                         {
                             m_allZones[i].ShowOutline();
                         }
-                        _currentDropCardStatus = EnumDropCardReason.PlayGlobal;
+                        _interaction.DropReason = EnumDropCardReason.PlayGlobal;
                         _globalHover = true;
                         return true;
                     }
@@ -198,15 +229,15 @@ public class PlayerControls : MonoBehaviour
             }
             else
             {
-                if (m_currentZone != null)
+                if (_interaction.TargetZone != null)
                 {
-                    m_currentZone.HideOutline();
-                    m_currentZone = null;
+                    _interaction.TargetZone.HideOutline();
+                    _interaction.TargetZone = null;
                 }
 
                 if (_globalHover)
                 {
-                    m_currentZone = null;
+                    _interaction.TargetZone = null;
                     for (int i = 0; i < m_allZones.Length; i++)
                     {
                         m_allZones[i].HideOutline();
@@ -214,7 +245,7 @@ public class PlayerControls : MonoBehaviour
                     _globalHover = false;
                 }
 
-                _currentDropCardStatus = EnumDropCardReason.Nothing;
+                _interaction.DropReason = EnumDropCardReason.Nothing;
                 return false;
             }
         }
@@ -232,13 +263,20 @@ public class PlayerControls : MonoBehaviour
             C_PlayedCard _targetCard = _obj.GetComponent<C_PlayedCard>();
             if (_targetCard == null) return false;
 
-            _targetCard.ShowOutline();
+            if (m_currentCard.CardData.cardEffects.Contains(EnumCardEffects.Decoy) && _targetCard.MyZone.IsPlayerZone)
+            {
+                _targetCard.ShowOutline();
+                _interaction.TargetZone = _targetCard.MyZone;
+                _interaction.DecoyCard = _targetCard.MyCard;
+                _interaction.DropReason = EnumDropCardReason.PlayDecoy;
+                return true;
+            }
         }
 
         return false;
     }
 
-    private void CardNotHeldAnymore(C_GameZone _zone, EnumDropCardReason _reason)
+    private void CardNotHeldAnymore(InteractionValues _interact)
     {
         for (int i = 0; i < m_allZones.Length; i++)
         {

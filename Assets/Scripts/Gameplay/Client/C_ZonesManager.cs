@@ -41,7 +41,7 @@ public class C_ZonesManager : MonoBehaviour
         {
             var newCard = Instantiate(_placedCardPrefab, _zone.CardPlace);
             var _cardComp = newCard.GetComponent<C_PlayedCard>();
-            if (_cardComp != null) _cardComp.InitializePlayedCard(_cardData);
+            if (_cardComp != null) _cardComp.InitializePlayedCard(_cardData, _zone);
         }
     }
 
