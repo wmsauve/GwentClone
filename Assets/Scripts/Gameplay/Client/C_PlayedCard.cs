@@ -5,7 +5,14 @@ public class C_PlayedCard : G_OutlinedGameObject
 {
 
     private Card m_myCard;
-    public Card MyCard { get { return m_myCard; } }
+    public Card MyCard { 
+        get { return m_myCard; }
+        set
+        {
+            m_myCard = value;
+            SetMaterial();
+        }
+    }
 
     private C_GameZone m_myZone;
     public C_GameZone MyZone { get { return m_myZone; } }
@@ -19,11 +26,20 @@ public class C_PlayedCard : G_OutlinedGameObject
     {
         m_myCard = _card;
         m_myZone = _zone;
+        SetMaterial();
+    }
 
+    public int GetMyLocation()
+    {
+        return gameObject.transform.GetSiblingIndex();
+    }
+
+    private void SetMaterial()
+    {
         var _myMaterial = GetComponent<MeshRenderer>();
         if (_myMaterial == null) return;
 
-        Texture2D _sprite = _card.cardImage.texture;
+        Texture2D _sprite = m_myCard.cardImage.texture;
 
         _myMaterial.material.SetTexture("_MainTex", _sprite);
     }

@@ -18,6 +18,13 @@ public class InteractionValues
         set { _dropReason = value; }
     }
 
+    private int _decoySlot;
+    public int DecotSlot
+    {
+        get { return _decoySlot; }
+        set { _decoySlot = value; }
+    }
+
     private Card _decoyCard;
     public Card DecoyCard
     {
@@ -269,6 +276,7 @@ public class PlayerControls : MonoBehaviour
                 _interaction.TargetZone = _targetCard.MyZone;
                 _interaction.DecoyCard = _targetCard.MyCard;
                 _interaction.DropReason = EnumDropCardReason.PlayDecoy;
+                _interaction.DecotSlot = _targetCard.GetMyLocation();
                 return true;
             }
         }

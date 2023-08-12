@@ -3,25 +3,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-public class StringContainer : INetworkSerializable
-{
-    public string Text;
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        if (serializer.IsWriter)
-        {
-            serializer.GetFastBufferWriter().WriteValueSafe(Text);
-        }
-        else
-        {
-            serializer.GetFastBufferReader().ReadValueSafe(out Text);
-        }
-    }
-}
-
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
-    private struct CardNames
+    public struct CardNames
     {
         public string[] _cards;
 
@@ -30,6 +14,31 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             _cards = cards;
         }
     }
+    [System.Serializable]
+    public struct InteractTarget
+    {
+        public string _card;
+        public int _placement;
+
+        public InteractTarget(string name, int placement)
+        {
+            _card = name;
+            _placement = placement;
+        }
+    }
+
+    public struct InteractCardsOnServer
+    {
+        public Card _card;
+        public int _placement;
+
+        public InteractCardsOnServer(Card card, int placement)
+        {
+            _card = card;
+            _placement = placement;
+        }
+    }
+
 
     public struct PlayerScores
     {
@@ -384,6 +393,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private void CreateListOfCardsFromString(ref List<Card> _cards, string names)
     {
+        if (names == null) return;
         CardNames _cardNames = JsonUtility.FromJson<CardNames>(names);
         foreach (string name in _cardNames._cards)
         {
@@ -396,6 +406,27 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             }
 
             _cards.Add(newCard);
+        }
+    }
+
+    private void CreateInteractCardsOnServer(ref List<InteractCardsOnServer> _cards, string interacts)
+    {
+        if (interacts == null) return;
+        GeneralPurposeFunctions.ArrayWrapper<InteractTarget> _cardNames = JsonUtility.FromJson<GeneralPurposeFunctions.ArrayWrapper<InteractTarget>>(interacts);
+        InteractTarget[] _arrayOfInteracts = _cardNames.array;
+        for(int i = 0; i < _arrayOfInteracts.Length; i++)
+        {
+            Card newCard = _deckManager.CardRepo.GetCard(_arrayOfInteracts[i]._card);
+            if (newCard == null)
+            {
+                Debug.LogWarning(name);
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Invalid card name from server to client.");
+                return;
+            }
+            InteractCardsOnServer _newInteract = new InteractCardsOnServer();
+            _newInteract._card = newCard;
+            _newInteract._placement = _arrayOfInteracts[i]._placement;
+            _cards.Add(_newInteract);
         }
     }
 
@@ -420,6 +451,54 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         _currentMatchScores = new MatchScores(_listOfIds);
+    }
+
+    private void HandleLogicFromPlayedCard(
+        Card _card, 
+        string _interactCards, 
+        ulong clientId, 
+        string cardName, 
+        EnumUnitPlacement cardPlace,  
+        int cardSlot,
+        C_PlayerGamePlayLogic _play
+        )
+    {
+        List<InteractCardsOnServer> _interacted = new List<InteractCardsOnServer>();
+        CreateInteractCardsOnServer(ref _interacted, _interactCards);
+
+        bool isUnit = true;
+        //Handle Card
+        if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
+        {
+            //Decoy
+            if (_card.cardType == EnumCardType.Special)
+            {
+                _spellsManager.HandleSpell(_card.cardEffects, _interacted, cardPlace, _play, cardSlot, _card);
+
+                PlaceCardInHandClientRpc(cardName, cardSlot, _play.ClientRpcParams);
+                SwapCardInPlayClientRpc(cardName, cardPlace, _interacted[0]._placement);
+                return;
+            }
+
+            //TODO: Handle Spy
+
+            PlacePlayedCardClientRpc(cardName, cardPlace);
+        }
+        // spells
+        else
+        {
+            isUnit = false;
+            _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
+
+            foreach (C_PlayerGamePlayLogic _player in _playersLogic)
+            {
+                string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
+                var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
+            }
+        }
+        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
+        _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
     }
 
     #region Client RPC
@@ -512,7 +591,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     public void MulliganACardClientRpc(string cardName, int mulliganCount, ClientRpcParams clientRpcParams = default)
     {
-        var newCard =_deckManager.CardRepo.GetCard(cardName);
+        var newCard = _deckManager.CardRepo.GetCard(cardName);
         if(newCard == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Doctored client receiving card from server.");
@@ -530,6 +609,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
         _zoneManager.AddCardToZone(_cardData, cardPlace);
+    }
+
+    [ClientRpc]
+    private void SwapCardInPlayClientRpc(string cardName, EnumUnitPlacement cardPlace, int inPlayLocation)
+    {
+        if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
+        if (_zoneManager == null) return;
+
+        var _cardData = _deckManager.CardRepo.GetCard(cardName);
+        _zoneManager.SwapCardInZone(_cardData, cardPlace, inPlayLocation);
+    }
+
+    [ClientRpc]
+    private void PlaceCardInHandClientRpc(string cardName, int cardSlot, ClientRpcParams clientRpcParams = default)
+    {
+  
     }
 
     [ClientRpc]
@@ -607,13 +702,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, StringContainer[] _interactCards = null, ServerRpcParams serverRpcParams = default)
+    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, string _interactCards = null, ServerRpcParams serverRpcParams = default)
     {
-        if(_interactCards != null && _interactCards.Length > 0)
-        {
-            Debug.LogWarning(_interactCards[0].Text + " card yo.");
-        }
-
         if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
 
         var clientId = serverRpcParams.Receive.SenderClientId;
@@ -632,28 +722,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
-        bool isUnit = true;
-        //Handle Card
-        if(_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
-        {
-            //Handle Spy
-            PlacePlayedCardClientRpc(cardName, cardPlace);
-        }
-        // spells
-        else
-        {
-            isUnit = false;
-            _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
-
-            foreach(C_PlayerGamePlayLogic _player in _playersLogic)
-            {
-                string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
-                var _json = JsonUtility.ToJson(new CardNames(cardNames));
-                UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
-            }
-        }
-        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
-        _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
+        HandleLogicFromPlayedCard(_card, _interactCards, clientId, cardName, cardPlace, cardSlot, _play);
 
         //Score
         if (_card.cardPower > 0)

@@ -142,7 +142,6 @@ public class GeneralPurposeFunctions
         return JsonUtility.ToJson(wrapper);
     }
 
-
     public static C_PlayerGamePlayLogic GetPlayerLogicReference()
     {
 

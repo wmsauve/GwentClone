@@ -19,6 +19,17 @@ public class S_SpellsManager : NetworkBehaviour
 
     }
 
+    public void HandleSpell(List<EnumCardEffects> _effect, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, C_PlayerGamePlayLogic _player, int _cardSlot, Card _played)
+    {
+        foreach(EnumCardEffects effect in _effect)
+        {
+            switch (effect)
+            {
+                case EnumCardEffects.Decoy: Decoy(_player, _cardSlot, _interact, _place, _played); break;
+            }
+        }
+    }
+
     private void Scorch(List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
     {
         //Todo: change this to use unity placement to determine where units are destroyed. Scorch is global, scorch battlecry is per placement.
@@ -51,5 +62,24 @@ public class S_SpellsManager : NetworkBehaviour
         }
 
         _gameManager.DestroyCardsFromEffectClientRpc(_highestScore);
+    }
+
+    private void Decoy(C_PlayerGamePlayLogic _play, int _cardSlot, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, Card _played)
+    {
+        List<Card> _zone = null;
+        //decoy only affects one card
+        switch (_place)
+        {
+            case EnumUnitPlacement.Frontline: _zone = _play.CardsInPlay.CardsInFront; break;
+            case EnumUnitPlacement.Ranged: _zone = _play.CardsInPlay.CardsInRanged; break;
+            case EnumUnitPlacement.Siege: _zone = _play.CardsInPlay.CardsInSiege; break;
+        }
+        var _loc = _interact[0]._placement - 1; //outline object exists at placement = 0
+        Debug.LogWarning(_loc + " where is target card in zone.");
+        _zone.RemoveAt(_loc);
+        _zone.Insert(_loc, _played);
+
+        _play.CardsInHand.RemoveAt(_cardSlot);
+        _play.CardsInHand.Insert(_cardSlot, _interact[0]._card);
     }
 }

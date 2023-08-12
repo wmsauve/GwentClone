@@ -132,21 +132,16 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    private void PlayCardPassToServer(EnumUnitPlacement _placement, List<string> _interactedCards = null)
+    private void PlayCardPassToServer(EnumUnitPlacement _placement, S_GamePlayLogicManager.InteractTarget[] _interactedCards = null)
     {
         int _cardSlot = m_currentCard.CardOrder;
         string _cardName = m_currentCard.CardData.id;
-        if (_interactedCards == null || _interactedCards.Count == 0) _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement);
+        if (_interactedCards == null || _interactedCards.Length == 0) _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement);
         else
         {
-            var _size = _interactedCards.Count;
-            var _cardNames = new StringContainer[_size];
-            for(int i = 0; i < _size; i++)
-            {
-                _cardNames[i] = new StringContainer();
-                _cardNames[i].Text = _interactedCards[i];
-            }
-            _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement, _cardNames);
+            var _json = GeneralPurposeFunctions.ConvertArrayToJson(_interactedCards);
+            Debug.LogWarning(_json + " json on client.");
+            _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement, _json);
         }
     }
 
@@ -211,8 +206,8 @@ public class C_PlayerCardsUIManager : MonoBehaviour
                 PlayCardPassToServer(_placement);
                 break;
             case EnumDropCardReason.PlayDecoy:
-                List<string> _interactCards = new List<string>();
-                _interactCards.Add(_interact.DecoyCard.id);
+                S_GamePlayLogicManager.InteractTarget[] _interactCards = new S_GamePlayLogicManager.InteractTarget[1];
+                _interactCards[0] = new S_GamePlayLogicManager.InteractTarget(_interact.DecoyCard.id, _interact.DecotSlot);
                 PlayCardPassToServer(_placement, _interactCards);
                 break;
         }
