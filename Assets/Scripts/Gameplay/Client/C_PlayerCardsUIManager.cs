@@ -154,6 +154,12 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         ReadjustCardPositionsInHand();
     }
 
+    public void SwapCardInHand(int slot, Card card)
+    {
+        UI_GameplayCard _cardInHand = m_cardInfo[slot];
+        _cardInHand.CardData = card;
+    }
+
     private void OnReceiveClickedCard(UI_GameplayCard clickedCard, PlayerControls _playerControls)
     {
         if (m_playerControls == null) m_playerControls = _playerControls;

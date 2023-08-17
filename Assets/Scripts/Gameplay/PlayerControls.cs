@@ -267,16 +267,16 @@ public class PlayerControls : MonoBehaviour
         if (Physics.Raycast(ray, out hit))
         {
             GameObject _obj = hit.transform.gameObject;
-            C_PlayedCard _targetCard = _obj.GetComponent<C_PlayedCard>();
-            if (_targetCard == null) return false;
+            m_currentTarget = _obj.GetComponent<C_PlayedCard>();
+            if (m_currentTarget == null) return false;
 
-            if (m_currentCard.CardData.cardEffects.Contains(EnumCardEffects.Decoy) && _targetCard.MyZone.IsPlayerZone)
+            if (m_currentCard.CardData.cardEffects.Contains(EnumCardEffects.Decoy) && m_currentTarget.MyZone.IsPlayerZone)
             {
-                _targetCard.ShowOutline();
-                _interaction.TargetZone = _targetCard.MyZone;
-                _interaction.DecoyCard = _targetCard.MyCard;
+                m_currentTarget.ShowOutline();
+                _interaction.TargetZone = m_currentTarget.MyZone;
+                _interaction.DecoyCard = m_currentTarget.MyCard;
                 _interaction.DropReason = EnumDropCardReason.PlayDecoy;
-                _interaction.DecotSlot = _targetCard.GetMyLocation();
+                _interaction.DecotSlot = m_currentTarget.GetMyLocation();
                 return true;
             }
         }
@@ -290,5 +290,7 @@ public class PlayerControls : MonoBehaviour
         {
             m_allZones[i].HideOutline();
         }
+
+        if (m_currentTarget != null) m_currentTarget.HideOutline();
     }
 }

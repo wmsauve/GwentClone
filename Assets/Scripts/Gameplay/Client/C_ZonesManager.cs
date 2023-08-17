@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class C_ZonesManager : MonoBehaviour
 {
-
+    [Header("Zones Related")]
     [SerializeField] private List<C_GameZone> m_playerZones = new List<C_GameZone>();
     [SerializeField] private List<C_GameZone> m_opponentZones = new List<C_GameZone>();
     [SerializeField] private int m_playerZone = 3;
@@ -16,7 +16,6 @@ public class C_ZonesManager : MonoBehaviour
 
     private void Start()
     {
-
         if(_placedCardPrefab == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You are missing a component for placing cards in zone.");
@@ -42,6 +41,7 @@ public class C_ZonesManager : MonoBehaviour
             var _cardComp = newCard.GetComponent<C_PlayedCard>();
             if (_cardComp != null) _cardComp.InitializePlayedCard(_cardData, _zone);
         }
+        _zone.ReadjustCardPositionsInZone();
     }
 
     public void SwapCardInZone(Card _cardData, EnumUnitPlacement _cardPlacement, int playLocation)

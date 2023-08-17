@@ -475,8 +475,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             {
                 _spellsManager.HandleSpell(_card.cardEffects, _interacted, cardPlace, _play, cardSlot, _card);
 
-                PlaceCardInHandClientRpc(cardName, cardSlot, _play.ClientRpcParams);
                 SwapCardInPlayClientRpc(cardName, cardPlace, _interacted[0]._placement);
+                SwapCardInHandClientRpc(_interacted[0]._card.id, cardSlot, _play.ClientRpcParams);
                 return;
             }
 
@@ -497,7 +497,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
             }
         }
-        FixUIAfterPlayedCardClientRpc(cardSlot, _play.ClientRpcParams);
+        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
         _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
     }
 
@@ -622,6 +622,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    private void SwapCardInHandClientRpc(string cardName, int cardSlot, ClientRpcParams clientRpcParams = default)
+    {
+        var _cardData = _deckManager.CardRepo.GetCard(cardName);
+        _cardsInHandScreen.SwapCardInHand(cardSlot, _cardData);
+    }
+
+    [ClientRpc]
     private void PlaceCardInHandClientRpc(string cardName, int cardSlot, ClientRpcParams clientRpcParams = default)
     {
   
@@ -639,7 +646,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     } 
 
     [ClientRpc]
-    public void FixUIAfterPlayedCardClientRpc(int cardSlot, ClientRpcParams clientRpcParams = default)
+    public void RemoveCardFromHandClientRpc(int cardSlot, ClientRpcParams clientRpcParams = default)
     {
         _cardsInHandScreen.RemoveCardFromHand(cardSlot);
     }
