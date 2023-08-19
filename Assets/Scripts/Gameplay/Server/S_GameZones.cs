@@ -26,6 +26,8 @@ public class S_GameZones
 
         foreach(Card card in _cardsInFront)
         {
+            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+
             if (card.cardPower > _highestValue)
             {
                 _highestValue = card.cardPower;
@@ -38,6 +40,8 @@ public class S_GameZones
 
         foreach (Card card in _cardsInRanged)
         {
+            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+
             if (card.cardPower > _highestValue)
             {
                 _highestValue = card.cardPower;
@@ -50,6 +54,8 @@ public class S_GameZones
 
         foreach (Card card in _cardsInSiege)
         {
+            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+
             if (card.cardPower > _highestValue)
             {
                 _highestValue = card.cardPower;
@@ -67,6 +73,8 @@ public class S_GameZones
     {
         foreach(Card card in _highestPowerCards)
         {
+            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+
             List<Card> zone = null;
             if (card.unitPlacement == EnumUnitPlacement.Frontline) zone = _cardsInFront;
             else if (card.unitPlacement == EnumUnitPlacement.Ranged) zone = _cardsInRanged;

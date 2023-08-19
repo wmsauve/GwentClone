@@ -112,13 +112,13 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     #region Deal With Cards Related
 
-    public void SuccessfullyPlayCards(int cardSlot, EnumUnitPlacement cardPlace, bool isUnit)
+    public void RemoveCardFromHandServer(int cardSlot, EnumUnitPlacement cardPlace)
     {
-        Card playedCard = _cardsInHand[cardSlot];
         _cardsInHand.RemoveAt(cardSlot);
+    }
 
-        if (!isUnit) return;
-
+    public void PlaceCardInPlay(Card playedCard, EnumUnitPlacement cardPlace)
+    {
         switch (cardPlace)
         {
             case EnumUnitPlacement.Frontline:
@@ -135,6 +135,20 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         _cardsInPlay.CheckForNewHighestCard();
     }
 
+    public List<Card> DrawCardFromDeck(int _num)
+    {
+        List<Card> _drawnCards = new List<Card>();
+        for(int i = 0; i < _num; i++)
+        {
+            Card _drawnCard = _myInfo.Deck.Cards[0];
+            _myInfo.Deck.Cards.Remove(_drawnCard);
+
+            _cardsInHand.Add(_drawnCard);
+            _drawnCards.Add(_drawnCard);
+        }
+
+        return _drawnCards;
+    }
     #endregion Deal With Cards Related
 
     #region Mulligan Related

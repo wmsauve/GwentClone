@@ -106,6 +106,29 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
+    public void DrawCards(List<Card> _cards)
+    {
+        float _shiftLeft = 1.0f;
+        var totalCards = m_cards.Count + _cards.Count;
+        if (totalCards * m_cardWidth > availableWidth) _shiftLeft = (availableWidth / m_cardWidth) / totalCards;
+
+        for (int i = 0; i < _cards.Count; i++)
+        {
+            GameObject card = Instantiate(cardPrefab, m_cardHolder);
+            UI_GameplayCard _cardComp = card.GetComponentInChildren<UI_GameplayCard>();
+            if (_cardComp == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need a card component on your prefab.");
+                break;
+            }
+            _cardComp.InitializeCardComponent(i, _shiftLeft);
+            _cardComp.CardData = _cards[i];
+            m_cards.Add(card);
+            m_cardInfo.Add(_cardComp);
+        }
+        ReadjustCardPositionsInHand();
+    }
+
     private float CalculateStartingPosition(int totalCards)
     {
         if(totalCards * m_cardWidth > availableWidth) return -(availableWidth / 2) + (m_cardWidth / 2);

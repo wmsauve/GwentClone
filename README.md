@@ -12,5 +12,3 @@ Going to start working on the medic card effect or muster.
 Sometimes, when you scroll over and mulligan a card, it will throw invalid input to server error.
 ## Playing siege
 Sometimes, After you start dragging a siege card, it wont be able to be dropped on the siege zone (probably need to pull camera back).
-## Score not resetting when cards are destroyed.
-Especially when scorch is used, the card will be removed, but server is not recalculating score correctly.

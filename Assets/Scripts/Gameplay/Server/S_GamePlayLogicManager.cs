@@ -466,7 +466,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         List<InteractCardsOnServer> _interacted = new List<InteractCardsOnServer>();
         CreateInteractCardsOnServer(ref _interacted, _interactCards);
 
-        bool isUnit = true;
+        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
+        _play.RemoveCardFromHandServer(cardSlot, cardPlace);
+
         //Handle Card
         if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
         {
@@ -480,14 +482,23 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 return;
             }
 
-            //TODO: Handle Spy
-
-            PlacePlayedCardClientRpc(cardName, cardPlace);
+            PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
+            switch (_card.unitType)
+            {
+                //Maybe refactor if game every doesn't have 1v1.
+                case EnumUnitType.Spy:
+                    C_PlayerGamePlayLogic _otherPlayer = _playersLogic.Find(x => x.OwnerClientId != _play.OwnerClientId);
+                    _otherPlayer.PlaceCardInPlay(_card, cardPlace);
+                    _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
+                    break;
+                case EnumUnitType.Regular:
+                    _play.PlaceCardInPlay(_card, cardPlace);
+                    break;
+            }
         }
         // spells
         else
         {
-            isUnit = false;
             _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
 
             foreach (C_PlayerGamePlayLogic _player in _playersLogic)
@@ -497,8 +508,23 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
             }
         }
-        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
-        _play.SuccessfullyPlayCards(cardSlot, cardPlace, isUnit);
+    }
+
+    private void UpdateScores()
+    {
+        _currentMatchScores.ResetScoresToZero();
+
+        foreach (C_PlayerGamePlayLogic _player in _playersLogic)
+        {
+            S_GameZones _zones = _player.CardsInPlay;
+            ulong _whichPlayer = _player.ReturnID();
+            foreach(Card card in _zones.CardsInFront) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
+            foreach (Card card in _zones.CardsInRanged) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
+            foreach (Card card in _zones.CardsInSiege) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);
+        }
+
+        var _json = _currentMatchScores.PassScoresToClient();
+        HandleScoresOnUIClientRpc(_json);
     }
 
     #region Client RPC
@@ -589,6 +615,20 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void PlaceCardInHandClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    {
+        if (_cardsInHandScreen == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Somehow your cards in hand component on UI is null.");
+            return;
+        }
+
+        List<Card> _cards = new List<Card>();
+        CreateListOfCardsFromString(ref _cards, cardNames);
+        _cardsInHandScreen.DrawCards(_cards);
+    }
+
+    [ClientRpc]
     public void MulliganACardClientRpc(string cardName, int mulliganCount, ClientRpcParams clientRpcParams = default)
     {
         var newCard = _deckManager.CardRepo.GetCard(cardName);
@@ -602,13 +642,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace)
+    public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace, EnumUnitType cardType)
     {
         if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
         if (_zoneManager == null) return;
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
-        _zoneManager.AddCardToZone(_cardData, cardPlace);
+        _zoneManager.AddCardToZone(_cardData, cardPlace, cardType);
     }
 
     [ClientRpc]
@@ -626,12 +666,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     {
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
         _cardsInHandScreen.SwapCardInHand(cardSlot, _cardData);
-    }
-
-    [ClientRpc]
-    private void PlaceCardInHandClientRpc(string cardName, int cardSlot, ClientRpcParams clientRpcParams = default)
-    {
-  
     }
 
     [ClientRpc]
@@ -732,12 +766,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         HandleLogicFromPlayedCard(_card, _interactCards, clientId, cardName, cardPlace, cardSlot, _play);
 
         //Score
-        if (_card.cardPower > 0)
-        {
-            _currentMatchScores.IncrementScore(cardPlace, _card.cardPower, clientId);
-            var _json = _currentMatchScores.PassScoresToClient();
-            HandleScoresOnUIClientRpc(_json);
-        }
+        UpdateScores();
 
         _turnManager.EndRegularTurn(false);
     }

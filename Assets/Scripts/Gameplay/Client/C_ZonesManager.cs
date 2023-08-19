@@ -29,11 +29,28 @@ public class C_ZonesManager : MonoBehaviour
         }
     }
 
-    public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement)
+    public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement, EnumUnitType _cardType)
     {
         if(_myLogic == null) _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
 
-        var _whichZones = _myLogic.TurnActive ? m_playerZones : m_opponentZones;
+        List<C_GameZone> _whichZones = null;
+        if (_myLogic.TurnActive)
+        {
+            if (_cardType == EnumUnitType.Regular) _whichZones = m_playerZones;
+            else if (_cardType == EnumUnitType.Spy) _whichZones = m_opponentZones;
+        }
+        else
+        {
+            if (_cardType == EnumUnitType.Regular) _whichZones = m_opponentZones;
+            else if (_cardType == EnumUnitType.Spy) _whichZones = m_playerZones;
+        }
+
+        if(_whichZones == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, $"Card {_cardData.id} is not played due to error in picking zone.");
+            return;
+        }
+
         var _zone = _whichZones.Find((x) => x.AllowableCards.Contains(_cardPlacement));
         if (_zone != null)
         {
@@ -96,7 +113,11 @@ public class C_ZonesManager : MonoBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
                     return;
                 }
-                if (_cardComp.MyCard.cardPower == _powerToDestroy) Destroy(_cardPlace.GetChild(j).gameObject);
+                if (_cardComp.MyCard.cardPower == _powerToDestroy)
+                {
+                    Destroy(_cardPlace.GetChild(j).gameObject);
+                    m_playerZones[i].ReadjustCardPositionsInZone();
+                }
             }
         }
 
@@ -111,7 +132,11 @@ public class C_ZonesManager : MonoBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
                     return;
                 }
-                if (_cardComp.MyCard.cardPower == _powerToDestroy) Destroy(_cardPlace.GetChild(j).gameObject);
+                if (_cardComp.MyCard.cardPower == _powerToDestroy)
+                {
+                    Destroy(_cardPlace.GetChild(j).gameObject);
+                    m_opponentZones[i].ReadjustCardPositionsInZone();
+                }
             }
         }
     }

@@ -7,6 +7,12 @@ public class S_SpellsManager : NetworkBehaviour
 {
     public S_GamePlayLogicManager _gameManager = null;
 
+    /// <summary>
+    /// Used for: Scorch, Spy
+    /// </summary>
+    /// <param name="_effect"></param>
+    /// <param name="_players"></param>
+    /// <param name="_whosCard"></param>
     public void HandleSpell(List<EnumCardEffects> _effect, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
     {
         foreach(EnumCardEffects effect in _effect)
@@ -14,11 +20,21 @@ public class S_SpellsManager : NetworkBehaviour
             switch (effect)
             {
                 case EnumCardEffects.Scorch: Scorch(_players, _whosCard); break;
+                case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
             }
         }
 
     }
 
+    /// <summary>
+    /// Used for: Decoy
+    /// </summary>
+    /// <param name="_effect"></param>
+    /// <param name="_interact"></param>
+    /// <param name="_place"></param>
+    /// <param name="_player"></param>
+    /// <param name="_cardSlot"></param>
+    /// <param name="_played"></param>
     public void HandleSpell(List<EnumCardEffects> _effect, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, C_PlayerGamePlayLogic _player, int _cardSlot, Card _played)
     {
         foreach(EnumCardEffects effect in _effect)
@@ -62,6 +78,20 @@ public class S_SpellsManager : NetworkBehaviour
         }
 
         _gameManager.DestroyCardsFromEffectClientRpc(_highestScore);
+    }
+
+    private void Spy(C_PlayerGamePlayLogic _player)
+    {
+        //Spies draw 2, but think about making this variable in the future.
+        int _numToDraw = 2;
+        List<Card> _drawnCards = _player.DrawCardFromDeck(_numToDraw);
+        string[] cardNames = new string[_drawnCards.Count];
+        for(int i = 0; i < _drawnCards.Count; i++) cardNames[i] = _drawnCards[i].id;
+        var _json = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(cardNames));
+
+        Debug.LogWarning(_json + " yo guy?");
+
+        _gameManager.PlaceCardInHandClientRpc(_json, _player.ClientRpcParams);
     }
 
     private void Decoy(C_PlayerGamePlayLogic _play, int _cardSlot, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, Card _played)

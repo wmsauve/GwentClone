@@ -211,6 +211,15 @@ public class PlayerControls : MonoBehaviour
                 if (_zone.AllowableCards.Contains(_placement) && _placement != EnumUnitPlacement.Global)
                 {
                     if (_interaction.TargetZone != null) _interaction.TargetZone.HideOutline();
+
+                    Card _data = m_currentCard.CardData;
+
+                    //Play on opponent.
+                    if (_data.cardEffects.Contains(EnumCardEffects.Spy) && _zone.IsPlayerZone) return false;
+
+                    //Play on Own.
+                    else if (!_data.cardEffects.Contains(EnumCardEffects.Spy) && !_zone.IsPlayerZone) return false;
+
                     _interaction.TargetZone = _zone;
                     _interaction.TargetZone.ShowOutline();
                     _interaction.DropReason = EnumDropCardReason.PlayMinion;
@@ -269,6 +278,8 @@ public class PlayerControls : MonoBehaviour
             GameObject _obj = hit.transform.gameObject;
             m_currentTarget = _obj.GetComponent<C_PlayedCard>();
             if (m_currentTarget == null) return false;
+
+            if (m_currentCard.CardData.cardEffects.Contains(EnumCardEffects.Hero)) return false;
 
             if (m_currentCard.CardData.cardEffects.Contains(EnumCardEffects.Decoy) && m_currentTarget.MyZone.IsPlayerZone)
             {
