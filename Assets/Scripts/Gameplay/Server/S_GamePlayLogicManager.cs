@@ -489,24 +489,20 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 case EnumUnitType.Spy:
                     C_PlayerGamePlayLogic _otherPlayer = _playersLogic.Find(x => x.OwnerClientId != _play.OwnerClientId);
                     _otherPlayer.PlaceCardInPlay(_card, cardPlace);
-                    _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
                     break;
                 case EnumUnitType.Regular:
                     _play.PlaceCardInPlay(_card, cardPlace);
                     break;
             }
         }
-        // spells
-        else
-        {
-            _spellsManager.HandleSpell(_card.cardEffects, _playersLogic, clientId);
 
-            foreach (C_PlayerGamePlayLogic _player in _playersLogic)
-            {
-                string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
-                var _json = JsonUtility.ToJson(new CardNames(cardNames));
-                UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
-            }
+        if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
+
+        foreach (C_PlayerGamePlayLogic _player in _playersLogic)
+        {
+            string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
+            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+            UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
         }
     }
 
@@ -518,9 +514,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             S_GameZones _zones = _player.CardsInPlay;
             ulong _whichPlayer = _player.ReturnID();
-            foreach(Card card in _zones.CardsInFront) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
-            foreach (Card card in _zones.CardsInRanged) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
-            foreach (Card card in _zones.CardsInSiege) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);
+            foreach(Card card in _zones.CardsInFront.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
+            foreach (Card card in _zones.CardsInRanged.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
+            foreach (Card card in _zones.CardsInSiege.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);
         }
 
         var _json = _currentMatchScores.PassScoresToClient();

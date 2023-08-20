@@ -113,6 +113,8 @@ public class C_ZonesManager : MonoBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
                     return;
                 }
+
+                if (_cardComp.MyCard.cardEffects.Contains(EnumCardEffects.Hero)) continue;
                 if (_cardComp.MyCard.cardPower == _powerToDestroy)
                 {
                     Destroy(_cardPlace.GetChild(j).gameObject);
@@ -132,6 +134,7 @@ public class C_ZonesManager : MonoBehaviour
                     GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "How does this card not have a comp?");
                     return;
                 }
+                if (_cardComp.MyCard.cardEffects.Contains(EnumCardEffects.Hero)) continue;
                 if (_cardComp.MyCard.cardPower == _powerToDestroy)
                 {
                     Destroy(_cardPlace.GetChild(j).gameObject);

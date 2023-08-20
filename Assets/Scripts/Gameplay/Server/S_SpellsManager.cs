@@ -13,13 +13,14 @@ public class S_SpellsManager : NetworkBehaviour
     /// <param name="_effect"></param>
     /// <param name="_players"></param>
     /// <param name="_whosCard"></param>
-    public void HandleSpell(List<EnumCardEffects> _effect, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
+    public void HandleSpell(Card _playedCard, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
     {
+        var _effect = _playedCard.cardEffects;
         foreach(EnumCardEffects effect in _effect)
         {
             switch (effect)
             {
-                case EnumCardEffects.Scorch: Scorch(_players, _whosCard); break;
+                case EnumCardEffects.Scorch: Scorch(_players, _playedCard.scorchTarget); break;
                 case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
             }
         }
@@ -46,9 +47,15 @@ public class S_SpellsManager : NetworkBehaviour
         }
     }
 
-    private void Scorch(List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
+    private void Scorch(List<C_PlayerGamePlayLogic> _players, EnumUnitPlacement _scorchTarget)
     {
-        //Todo: change this to use unity placement to determine where units are destroyed. Scorch is global, scorch battlecry is per placement.
+        //Scorch card
+        if(_scorchTarget == EnumUnitPlacement.AnyPlayer)
+        {
+
+        }
+ 
+
 
         //Determine highest score.
         int _highestScore = 0;
@@ -98,11 +105,12 @@ public class S_SpellsManager : NetworkBehaviour
     {
         List<Card> _zone = null;
         //decoy only affects one card
+        var _cardsInPlay = _play.CardsInPlay;
         switch (_place)
         {
-            case EnumUnitPlacement.Frontline: _zone = _play.CardsInPlay.CardsInFront; break;
-            case EnumUnitPlacement.Ranged: _zone = _play.CardsInPlay.CardsInRanged; break;
-            case EnumUnitPlacement.Siege: _zone = _play.CardsInPlay.CardsInSiege; break;
+            case EnumUnitPlacement.Frontline: _zone = _cardsInPlay.CardsInFront.Cards; break;
+            case EnumUnitPlacement.Ranged: _zone = _cardsInPlay.CardsInRanged.Cards; break;
+            case EnumUnitPlacement.Siege: _zone = _cardsInPlay.CardsInSiege.Cards; break;
         }
         var _loc = _interact[0]._placement - 1; //outline object exists at placement = 0
         Debug.LogWarning(_loc + " where is target card in zone.");

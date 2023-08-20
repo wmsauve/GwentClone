@@ -1,98 +1,95 @@
 using System.Collections;
 using System.Collections.Generic;
-
+using UnityEngine;
 public class S_GameZones
 {
-    private List<Card> _cardsInFront = new List<Card>();
-    private List<Card> _cardsInRanged = new List<Card>();
-    private List<Card> _cardsInSiege = new List<Card>();
+    public class GameZone
+    {
+        public List<Card> Cards = new List<Card>();
+        public int TotalPower;
 
-    public List<Card> CardsInFront { get { return _cardsInFront; } }
-    public List<Card> CardsInRanged { get { return _cardsInRanged; } }
-    public List<Card> CardsInSiege { get { return _cardsInSiege; } }
+        public List<Card> HighestPowerCards = new List<Card>();
+        public int HighestPowerCard;
+        
+        public void AddCardToZone(Card _newCard)
+        {
+            Cards.Add(_newCard);
+            RunHighestCardCheck();
+        }
+
+        public void DestroyCardsOfPower(int power)
+        {
+            List<Card> savedCards = new List<Card>();
+            foreach(Card _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero) || _card.cardPower != power) savedCards.Add(_card);
+            }
+
+            Cards = savedCards;
+            RunHighestCardCheck();
+        }
+
+        private void RunHighestCardCheck()
+        {
+            if (Cards == null || Cards.Count == 0) return;
+
+            TotalPower = 0;
+
+            foreach(Card _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+
+                TotalPower += _card.cardPower;
+
+                if (_card.cardPower > HighestPowerCard)
+                {
+                    HighestPowerCard = _card.cardPower;
+                    HighestPowerCards = new List<Card>();
+                    HighestPowerCards.Add(_card);
+                }
+
+                else if (_card.cardPower == HighestPowerCard) HighestPowerCards.Add(_card);
+            }
+        }
+    }
+
+    private GameZone _cardsInFront = new GameZone();
+    private GameZone _cardsInRanged = new GameZone();
+    private GameZone _cardsInSiege = new GameZone();
+
+    public GameZone CardsInFront { get { return _cardsInFront; } }
+    public GameZone CardsInRanged { get { return _cardsInRanged; } }
+    public GameZone CardsInSiege { get { return _cardsInSiege; } }
 
     private List<Card> _highestPowerCards = new List<Card>();
     public List<Card> HighestPowerCard { get { return _highestPowerCards; } }
 
+    private int _currentHighestPower;
+
     public void CheckForNewHighestCard()
     {
-        int _highestValue = 0;
-        List<Card> _placeholder = new List<Card>();
-        if (_highestPowerCards != null && _highestPowerCards.Count > 0)
-        {
-            _highestValue = _highestPowerCards[0].cardPower;
-            _placeholder = _highestPowerCards;
-        }
+        _currentHighestPower = _cardsInFront.HighestPowerCard;
+        if (_cardsInRanged.HighestPowerCard > _currentHighestPower) _currentHighestPower = _cardsInRanged.HighestPowerCard;
+        if (_cardsInSiege.HighestPowerCard > _currentHighestPower) _currentHighestPower = _cardsInSiege.HighestPowerCard;
 
-        foreach(Card card in _cardsInFront)
-        {
-            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-
-            if (card.cardPower > _highestValue)
-            {
-                _highestValue = card.cardPower;
-                _placeholder = new List<Card>();
-                _placeholder.Add(card);
-            }
-
-            else if(card.cardPower == _highestValue) _placeholder.Add(card);
-        }
-
-        foreach (Card card in _cardsInRanged)
-        {
-            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-
-            if (card.cardPower > _highestValue)
-            {
-                _highestValue = card.cardPower;
-                _placeholder = new List<Card>();
-                _placeholder.Add(card);
-            }
-
-            else if (card.cardPower == _highestValue) _placeholder.Add(card);
-        }
-
-        foreach (Card card in _cardsInSiege)
-        {
-            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-
-            if (card.cardPower > _highestValue)
-            {
-                _highestValue = card.cardPower;
-                _placeholder = new List<Card>();
-                _placeholder.Add(card);
-            }
-
-            else if (card.cardPower == _highestValue) _placeholder.Add(card);
-        }
-
-        if(_placeholder != null) _highestPowerCards = _placeholder;
+        //Store highest in a separate list
+        _highestPowerCards.Clear();
+        if (_cardsInFront.HighestPowerCard == _currentHighestPower
+        && _cardsInFront.HighestPowerCards != null
+        && _cardsInFront.HighestPowerCards.Count > 0) _highestPowerCards.AddRange(_cardsInFront.HighestPowerCards);
+        if (_cardsInRanged.HighestPowerCard == _currentHighestPower
+        && _cardsInRanged.HighestPowerCards != null
+        && _cardsInRanged.HighestPowerCards.Count > 0) _highestPowerCards.AddRange(_cardsInRanged.HighestPowerCards);
+        if (_cardsInSiege.HighestPowerCard == _currentHighestPower
+        && _cardsInSiege.HighestPowerCards != null
+        && _cardsInSiege.HighestPowerCards.Count > 0) _highestPowerCards.AddRange(_cardsInSiege.HighestPowerCards);
     }
 
     public bool DestroyCardsOfPowerInPlay()
     {
-        foreach(Card card in _highestPowerCards)
-        {
-            if (card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-
-            List<Card> zone = null;
-            if (card.unitPlacement == EnumUnitPlacement.Frontline) zone = _cardsInFront;
-            else if (card.unitPlacement == EnumUnitPlacement.Ranged) zone = _cardsInRanged;
-            else if (card.unitPlacement == EnumUnitPlacement.Siege) zone = _cardsInSiege;
-
-            if(zone == null)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Didn't get zone to remove card.");
-                return false;
-            }
-
-            var success = zone.Remove(card);
-            if (!success)
-            {
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "The removed card should be here.");
-                return false;
-            }
-        }
+        _cardsInFront.DestroyCardsOfPower(_currentHighestPower);
+        _cardsInRanged.DestroyCardsOfPower(_currentHighestPower);
+        _cardsInSiege.DestroyCardsOfPower(_currentHighestPower);
 
         CheckForNewHighestCard();
         return true;

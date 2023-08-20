@@ -5,7 +5,7 @@ Just for fun.
 ## Card Order
 Move card order in hierarchy to render moused over card on top. Put card back in original order to move down to the "not moused over" position.
 ## Work on effects
-Going to start working on the medic card effect or muster.
+Going to start working on the medic card effect or muster. Current: destroy from casting minion.
 
 # Known Major Bugs
 ## Mulligan bug

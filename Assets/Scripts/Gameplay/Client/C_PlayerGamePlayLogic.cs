@@ -83,23 +83,23 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     public void EndOfTurnGraveyardCards()
     {
-        foreach(Card card in _cardsInPlay.CardsInFront)
+        foreach(Card card in _cardsInPlay.CardsInFront.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
-        _cardsInPlay.CardsInFront.Clear();
+        _cardsInPlay.CardsInFront.Cards.Clear();
 
-        foreach (Card card in _cardsInPlay.CardsInRanged)
+        foreach (Card card in _cardsInPlay.CardsInRanged.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
-        _cardsInPlay.CardsInRanged.Clear();
+        _cardsInPlay.CardsInRanged.Cards.Clear();
 
-        foreach (Card card in _cardsInPlay.CardsInSiege)
+        foreach (Card card in _cardsInPlay.CardsInSiege.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
-        _cardsInPlay.CardsInSiege.Clear();
+        _cardsInPlay.CardsInSiege.Cards.Clear();
     }
     #endregion Graveyard Related
 
@@ -122,13 +122,13 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         switch (cardPlace)
         {
             case EnumUnitPlacement.Frontline:
-                _cardsInPlay.CardsInFront.Add(playedCard);
+                _cardsInPlay.CardsInFront.AddCardToZone(playedCard);
                 break;
             case EnumUnitPlacement.Ranged:
-                _cardsInPlay.CardsInRanged.Add(playedCard);
+                _cardsInPlay.CardsInRanged.AddCardToZone(playedCard);
                 break;
             case EnumUnitPlacement.Siege:
-                _cardsInPlay.CardsInSiege.Add(playedCard);
+                _cardsInPlay.CardsInSiege.AddCardToZone(playedCard);
                 break;
         }
 
@@ -192,6 +192,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     public string[] ReturnCardIds(EnumCardListType which)
     {
         List<Card> _list = new List<Card>();
+
         switch (which)
         {
             case EnumCardListType.Hand: _list = _cardsInHand; break;
