@@ -23,6 +23,7 @@ public class S_GameZones
             foreach(Card _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero) || _card.cardPower != power) savedCards.Add(_card);
+                else Debug.LogWarning(_card.id + " this guy getting killed.");
             }
 
             Cards = savedCards;
@@ -85,11 +86,11 @@ public class S_GameZones
         && _cardsInSiege.HighestPowerCards.Count > 0) _highestPowerCards.AddRange(_cardsInSiege.HighestPowerCards);
     }
 
-    public bool DestroyCardsOfPowerInPlay()
+    public bool DestroyCardsOfPowerInPlay(EnumUnitPlacement _placement = EnumUnitPlacement.AnyPlayer)
     {
-        _cardsInFront.DestroyCardsOfPower(_currentHighestPower);
-        _cardsInRanged.DestroyCardsOfPower(_currentHighestPower);
-        _cardsInSiege.DestroyCardsOfPower(_currentHighestPower);
+        if(_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Frontline) _cardsInFront.DestroyCardsOfPower(_currentHighestPower);
+        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Ranged) _cardsInRanged.DestroyCardsOfPower(_currentHighestPower);
+        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Siege) _cardsInSiege.DestroyCardsOfPower(_currentHighestPower);
 
         CheckForNewHighestCard();
         return true;

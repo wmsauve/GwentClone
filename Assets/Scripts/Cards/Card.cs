@@ -26,6 +26,8 @@ public class Card : ScriptableObject
     public string musterTag;
     [Tooltip("Specify scorch target since cards can either target their placement or any placement for scorching.")]
     public EnumUnitPlacement scorchTarget;
+    [Tooltip("In case we want variable scorch thresholds.")]
+    public int scorchAmount;
         
 }
 

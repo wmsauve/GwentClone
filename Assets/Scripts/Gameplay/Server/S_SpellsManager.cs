@@ -20,7 +20,7 @@ public class S_SpellsManager : NetworkBehaviour
         {
             switch (effect)
             {
-                case EnumCardEffects.Scorch: Scorch(_players, _playedCard.scorchTarget); break;
+                case EnumCardEffects.Scorch: Scorch(_players, _playedCard.scorchTarget, _playedCard.scorchAmount, _whosCard); break;
                 case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
             }
         }
@@ -47,44 +47,78 @@ public class S_SpellsManager : NetworkBehaviour
         }
     }
 
-    private void Scorch(List<C_PlayerGamePlayLogic> _players, EnumUnitPlacement _scorchTarget)
+    private void Scorch(List<C_PlayerGamePlayLogic> _players, EnumUnitPlacement _scorchTarget, int _scorchAmount, ulong _whosCard)
     {
-        //Scorch card
-        if(_scorchTarget == EnumUnitPlacement.AnyPlayer)
-        {
-
-        }
- 
-
-
-        //Determine highest score.
-        int _highestScore = 0;
-        foreach(C_PlayerGamePlayLogic _player in _players)
-        {
-            List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
-            if (_highestCards.Count == 0) continue;
-
-            if (_highestCards[0].cardPower > _highestScore) _highestScore = _highestCards[0].cardPower;
-        }
-
-        //Destroy cards of highest power.
-        if (_highestScore == 0) return;
-
-        foreach(C_PlayerGamePlayLogic _player in _players)
-        {
-            List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
-            if (_highestCards.Count == 0) continue;
-
-            if (_highestCards[0].cardPower == _highestScore) _player.PlaceCardInGraveyardScorch(); 
-        }
-
         if (_gameManager == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need Game manager reference here.");
             return;
         }
 
-        _gameManager.DestroyCardsFromEffectClientRpc(_highestScore);
+        //Scorch card
+        if (_scorchTarget == EnumUnitPlacement.AnyPlayer)
+        {
+            //Determine highest score.
+            int _highestScore = 0;
+            foreach (C_PlayerGamePlayLogic _player in _players)
+            {
+                List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
+                if (_highestCards.Count == 0) continue;
+
+                if (_highestCards[0].cardPower > _highestScore) _highestScore = _highestCards[0].cardPower;
+            }
+
+            //Destroy cards of highest power.
+            if (_highestScore == 0) return;
+
+            foreach (C_PlayerGamePlayLogic _player in _players)
+            {
+                List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
+                if (_highestCards.Count == 0) continue;
+
+                if (_highestCards[0].cardPower == _highestScore) _player.PlaceCardInGraveyardScorch();
+            }
+
+            _gameManager.DestroyCardsFromEffectClientRpc(_highestScore);
+
+        }
+
+        //Targetted Scorch
+        else if (
+            _scorchTarget == EnumUnitPlacement.Frontline ||
+            _scorchTarget == EnumUnitPlacement.Ranged ||
+            _scorchTarget == EnumUnitPlacement.Siege)
+        {
+            C_PlayerGamePlayLogic _other = _players.Find(x => x.ReturnID() != _whosCard);
+
+            if(_other == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Failed to find other player for scorching their cards.");
+                return;
+            }
+
+            S_GameZones.GameZone _zone = null;
+
+            switch (_scorchTarget)
+            {
+                case EnumUnitPlacement.Frontline: _zone = _other.CardsInPlay.CardsInFront; break;
+                case EnumUnitPlacement.Ranged: _zone = _other.CardsInPlay.CardsInRanged; break;
+                case EnumUnitPlacement.Siege: _zone = _other.CardsInPlay.CardsInSiege; break;
+            }
+
+            if (_zone == null)
+            {
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Failed to zone to scorch opponent cards.");
+                return;
+            }
+
+            //Destroy cards.
+            Debug.LogWarning(_zone.TotalPower + $" if this is more than {_scorchAmount} destroy");
+            if (_zone.TotalPower >= _scorchAmount)
+            {
+                _other.PlaceCardInGraveyardScorch(_scorchTarget, _zone);
+            }
+        }
     }
 
     private void Spy(C_PlayerGamePlayLogic _player)

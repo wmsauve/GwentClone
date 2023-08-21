@@ -22,5 +22,5 @@ MonoBehaviour:
   cardPower: 7
   maxPerDeck: 3
   musterTag: 
-  transforms: 0
   scorchTarget: 1
+  scorchAmount: 10

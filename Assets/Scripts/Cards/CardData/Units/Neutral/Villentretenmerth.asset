@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Villentretenmerth
   m_EditorClassIdentifier: 
   id: Villentretenmerth
+  cardImage: {fileID: 21300000, guid: d0d669e9157925541a6c1a7c79630797, type: 3}
   unitType: 0
   cardType: 1
   unitPlacement: 0
@@ -21,4 +22,5 @@ MonoBehaviour:
   cardPower: 7
   maxPerDeck: 3
   musterTag: 
-  cardImage: {fileID: 21300000, guid: d0d669e9157925541a6c1a7c79630797, type: 3}
+  scorchTarget: 0
+  scorchAmount: 10
