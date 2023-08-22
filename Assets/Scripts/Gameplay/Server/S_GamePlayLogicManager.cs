@@ -531,10 +531,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void DestroyCardsFromEffectClientRpc(int _powerToDestroy)
+    public void DestroyCardsFromEffectClientRpc(int _powerToDestroy, EnumUnitPlacement _placement, bool targetIsPlayer = false, ClientRpcParams clientRpcParams = default)
     {
-        //Todo: This needs to check for unit placement in the future.
-        _zoneManager.DestroyCardsOfPowerDueToScorch(_powerToDestroy);
+        _zoneManager.DestroyCardsOfPowerDueToScorch(_powerToDestroy, _placement, targetIsPlayer);
     }
 
     [ClientRpc]
@@ -545,6 +544,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         List<Card> _cards = new List<Card>();
         CreateListOfCardsFromString(ref _cards, cardNames);
+        Debug.LogWarning(cardNames + " what's in graveyard?");
         _graveYardManager.PassCardsToGraveyard(_cards);
     }
 

@@ -2,7 +2,7 @@
 Just for fun.
 
 # Current Task Being Worked On
-Scorch on minions that target specific zones works on server. Need to apply destroying that card on client.
+Work on Medic.
 
 # TODO
 ## Card Order

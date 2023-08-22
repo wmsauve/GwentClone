@@ -79,7 +79,7 @@ public class S_SpellsManager : NetworkBehaviour
                 if (_highestCards[0].cardPower == _highestScore) _player.PlaceCardInGraveyardScorch();
             }
 
-            _gameManager.DestroyCardsFromEffectClientRpc(_highestScore);
+            _gameManager.DestroyCardsFromEffectClientRpc(_highestScore, _scorchTarget);
 
         }
 
@@ -90,8 +90,9 @@ public class S_SpellsManager : NetworkBehaviour
             _scorchTarget == EnumUnitPlacement.Siege)
         {
             C_PlayerGamePlayLogic _other = _players.Find(x => x.ReturnID() != _whosCard);
+            C_PlayerGamePlayLogic _player = _players.Find(x => x.ReturnID() == _whosCard);
 
-            if(_other == null)
+            if(_other == null || _player == null)
             {
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Failed to find other player for scorching their cards.");
                 return;
@@ -113,10 +114,11 @@ public class S_SpellsManager : NetworkBehaviour
             }
 
             //Destroy cards.
-            Debug.LogWarning(_zone.TotalPower + $" if this is more than {_scorchAmount} destroy");
             if (_zone.TotalPower >= _scorchAmount)
             {
                 _other.PlaceCardInGraveyardScorch(_scorchTarget, _zone);
+                _gameManager.DestroyCardsFromEffectClientRpc(_zone.FlaggedPowerForDestroy, _scorchTarget, false, _player.ClientRpcParams);
+                _gameManager.DestroyCardsFromEffectClientRpc(_zone.FlaggedPowerForDestroy, _scorchTarget, true, _other.ClientRpcParams);
             }
         }
     }
@@ -129,8 +131,6 @@ public class S_SpellsManager : NetworkBehaviour
         string[] cardNames = new string[_drawnCards.Count];
         for(int i = 0; i < _drawnCards.Count; i++) cardNames[i] = _drawnCards[i].id;
         var _json = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(cardNames));
-
-        Debug.LogWarning(_json + " yo guy?");
 
         _gameManager.PlaceCardInHandClientRpc(_json, _player.ClientRpcParams);
     }

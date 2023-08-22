@@ -10,6 +10,7 @@ public class S_GameZones
 
         public List<Card> HighestPowerCards = new List<Card>();
         public int HighestPowerCard;
+        public int FlaggedPowerForDestroy;
         
         public void AddCardToZone(Card _newCard)
         {
@@ -19,11 +20,11 @@ public class S_GameZones
 
         public void DestroyCardsOfPower(int power)
         {
+            FlaggedPowerForDestroy = power;
             List<Card> savedCards = new List<Card>();
             foreach(Card _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero) || _card.cardPower != power) savedCards.Add(_card);
-                else Debug.LogWarning(_card.id + " this guy getting killed.");
             }
 
             Cards = savedCards;
@@ -32,11 +33,13 @@ public class S_GameZones
 
         private void RunHighestCardCheck()
         {
+            TotalPower = 0;
+            HighestPowerCard = 0;
+            HighestPowerCards.Clear();
+
             if (Cards == null || Cards.Count == 0) return;
 
-            TotalPower = 0;
-
-            foreach(Card _card in Cards)
+            foreach (Card _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
 
@@ -86,13 +89,19 @@ public class S_GameZones
         && _cardsInSiege.HighestPowerCards.Count > 0) _highestPowerCards.AddRange(_cardsInSiege.HighestPowerCards);
     }
 
-    public bool DestroyCardsOfPowerInPlay(EnumUnitPlacement _placement = EnumUnitPlacement.AnyPlayer)
+    /// <summary>
+    /// Use Highest card across all zones if not passing value for _power.
+    /// </summary>
+    /// <param name="_placement"></param>
+    /// <param name="_power"></param>
+    public void DestroyCardsOfPowerInPlay(EnumUnitPlacement _placement = EnumUnitPlacement.AnyPlayer, int _power = -1)
     {
-        if(_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Frontline) _cardsInFront.DestroyCardsOfPower(_currentHighestPower);
-        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Ranged) _cardsInRanged.DestroyCardsOfPower(_currentHighestPower);
-        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Siege) _cardsInSiege.DestroyCardsOfPower(_currentHighestPower);
+        var _destroyThreshold = _power;
+        if (_power == -1) _destroyThreshold = _currentHighestPower;
+        if(_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Frontline) _cardsInFront.DestroyCardsOfPower(_destroyThreshold);
+        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Ranged) _cardsInRanged.DestroyCardsOfPower(_destroyThreshold);
+        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Siege) _cardsInSiege.DestroyCardsOfPower(_destroyThreshold);
 
         CheckForNewHighestCard();
-        return true;
     }
 }

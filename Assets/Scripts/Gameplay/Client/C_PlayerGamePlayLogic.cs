@@ -69,18 +69,17 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     #region Graveyard Related
     public void PlaceCardInGraveyardScorch(EnumUnitPlacement _placement = EnumUnitPlacement.AnyPlayer, S_GameZones.GameZone _zone = null)
     {
-        List<Card> _cardsToGraveyard = _cardsInPlay.HighestPowerCard;
-        if (_zone != null) _cardsInGraveyard = _zone.HighestPowerCards;
-        Debug.LogWarning(_zone.HighestPowerCards.Count + " number of dudes here.");
-        var success = _cardsInPlay.DestroyCardsOfPowerInPlay(_placement);
-
-        if (success)
+        if (_zone != null)
         {
-            foreach(Card _card in _cardsToGraveyard)
-            {
-                _cardsInGraveyard.Add(_card);
-            }
+            foreach (Card _card in _zone.HighestPowerCards) _cardsInGraveyard.Add(_card);
+            _cardsInPlay.DestroyCardsOfPowerInPlay(_placement, _zone.HighestPowerCard);
         }
+        else
+        {
+            foreach (Card _card in _cardsInPlay.HighestPowerCard) _cardsInGraveyard.Add(_card);
+            _cardsInPlay.DestroyCardsOfPowerInPlay(_placement);
+        }
+        
     }
 
     public void EndOfTurnGraveyardCards()

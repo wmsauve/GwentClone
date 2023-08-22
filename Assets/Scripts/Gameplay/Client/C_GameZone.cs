@@ -55,5 +55,6 @@ public class C_GameZone : G_OutlinedGameObject
             Vector3 cardLocalPosition = new Vector3(0f, m_cardYPos, cardPosition); //Because I'm fucking dumb, Red axis is forward facing.
             _cardPlace.GetChild(i + 1).transform.localPosition = cardLocalPosition;
         }
+
     }
 }
