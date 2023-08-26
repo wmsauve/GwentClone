@@ -4,8 +4,22 @@ using UnityEngine;
 
 public class C_PlayerGamePlayLogic : NetworkBehaviour
 {
+    private struct StoreAdditionalStepCards
+    {
+        public Card CardData;
+        public EnumUnitPlacement CardPlace;
+        public int CardSlot;
+    }
+
     private NetworkVariable<bool> _turnActive = new NetworkVariable<bool>(false);
-    public bool TurnActive { get { return _turnActive.Value; } set { _turnActive.Value = value; } }
+    public bool TurnActive { 
+        get { return _turnActive.Value; } 
+        set 
+        {
+            _tempAdditionalStepCards.Clear();
+            _turnActive.Value = value; 
+        } 
+    }
     private NetworkVariable<int> _mulligans = new NetworkVariable<int>(GlobalConstantValues.GAME_MULLIGANSAMOUNT);
     public int Mulligans { get { return _mulligans.Value; } }
 
@@ -31,6 +45,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
+    private List<StoreAdditionalStepCards> _tempAdditionalStepCards = new List<StoreAdditionalStepCards>();
+
     public void InitializePlayerLogic(GwentPlayer player)
     {
         _myInfo = player;
@@ -42,14 +58,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             }
         };
     }
-
-    private void Update()
-    {
-        if (IsClient && IsOwner)
-        {
-        }
-    }
-
     public string[] CreateInitialHand()
     {
         List<string> toClient = new List<string>();
@@ -67,6 +75,16 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     }
 
     #region Graveyard Related
+    public void StoreReferenceToPlayingMultiStepCard(Card _card, EnumUnitPlacement _cardPlace, int _cardSlot)
+    {
+        StoreAdditionalStepCards _temp;
+        _temp.CardData = _card;
+        _temp.CardPlace = _cardPlace;
+        _temp.CardSlot = _cardSlot;
+
+        _tempAdditionalStepCards.Add(_temp);
+    }
+
     public void PlaceCardInGraveyardScorch(EnumUnitPlacement _placement = EnumUnitPlacement.AnyPlayer, S_GameZones.GameZone _zone = null)
     {
         if (_zone != null)
@@ -79,7 +97,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             foreach (Card _card in _cardsInPlay.HighestPowerCard) _cardsInGraveyard.Add(_card);
             _cardsInPlay.DestroyCardsOfPowerInPlay(_placement);
         }
-        
     }
 
     public void EndOfTurnGraveyardCards()

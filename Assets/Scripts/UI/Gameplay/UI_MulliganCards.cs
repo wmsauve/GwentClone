@@ -66,10 +66,8 @@ public class UI_MulliganCards : UI_CardViewScroll
         HideMulliganButton();
     }
 
-    public void InitializeMulliganCards(List<Card> cardInfo, S_GamePlayLogicManager manager, int startMulligans)
+    public void InitializeMulliganCards(List<Card> cardInfo, int startMulligans)
     {
-        _gameManager = manager;
-
         for (int i = 0; i < m_intialHandSize; i++)
         {
             var newCard = Instantiate(m_cardPrefab, m_viewTransform);
@@ -126,20 +124,10 @@ public class UI_MulliganCards : UI_CardViewScroll
         _gameManager.MulliganACardServerRpc(_cardToSelect, _cardSlot);
     }
 
-    public void SendCardToMulligan(string cardName, UI_ScrollCardButton pressed)
+    public override void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
     {
-        foreach (UI_ScrollCardButton button in _buttons)
-        {
-            if (button.IsPressed)
-            {
-                button.IsPressed = false;
-                break;
-            }
-        }
-        pressed.IsPressed = true;
+        base.InteractWithScrollCard(cardName, pressed);
         m_mulliganBtn.gameObject.SetActive(true);
-        _cardToSelect = cardName;
-        _cardSlot = pressed.CardOrder;
     }
 
     public void HideMulliganButton()

@@ -6,35 +6,45 @@ public class UI_GraveyardCards : UI_CardViewScroll
 {
     [Header("Graveyard Related")]
     [SerializeField] private Button m_closeButton = null;
+    [SerializeField] private Button m_interactButton = null;
     [SerializeField] private GameObject m_objectToClose = null;
 
     protected override void Start()
     {
         base.Start();
-        if (m_closeButton == null || m_objectToClose == null)
+        if (m_closeButton == null || m_objectToClose == null || m_interactButton == null)
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "No reference for graveyard scene.");
             return;
         }
 
         m_closeButton.gameObject.SetActive(true);
+        m_interactButton.gameObject.SetActive(false);
     }
 
     protected override void OnEnable()
     {
         base.OnEnable();
         m_closeButton.onClick.AddListener(CloseGraveyard);
+        m_interactButton.onClick.AddListener(InteractWithSelectedGraveyard);
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
         m_closeButton.onClick.RemoveListener(CloseGraveyard);
+        m_interactButton.onClick.RemoveListener(InteractWithSelectedGraveyard);
     }
 
     private void CloseGraveyard()
     {
         m_objectToClose.SetActive(false);
+    }
+
+    private void InteractWithSelectedGraveyard()
+    {
+        Debug.LogWarning("Trying to interact with graveyard.");
+        _gameManager.SelectedGraveyardCardServerRpc(_cardToSelect, _cardSlot);
     }
 
     public void AddCardsToGraveyard(List<Card> cardInfo)
@@ -73,5 +83,16 @@ public class UI_GraveyardCards : UI_CardViewScroll
             else if (i == 2) animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.right], EnumMulliganPos.right);
             else animComp.InitializeCardForAnim(_spots[(int)EnumMulliganPos.rightout], EnumMulliganPos.rightout);
         }
+    }
+
+    public override void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
+    {
+        base.InteractWithScrollCard(cardName, pressed);
+        m_interactButton.gameObject.SetActive(true);
+    }
+
+    public void HideInteractButton()
+    {
+        m_interactButton.gameObject.SetActive(false);
     }
 }

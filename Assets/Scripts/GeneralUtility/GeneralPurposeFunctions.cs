@@ -178,11 +178,11 @@ public class GeneralPurposeFunctions
         return component;
     }
 
-    public static T GetComponentFromScene<T>(GameObject prefab) where T : Component
+    public static T GetComponentFromScene<T>(GameObject prefab = null) where T : Component
     {
         T[] objects = GameObject.FindObjectsOfType<T>();
 
-        if (objects.Length == 0)
+        if (objects.Length == 0 && prefab != null)
         {
             GameObject obj = GameObject.Instantiate(prefab);
             return obj.GetComponent<T>();
@@ -208,6 +208,23 @@ public class GeneralPurposeFunctions
         }
 
         return objects;
+    }
+
+    public static bool FetchComponentOnClient<T>(ref T reference, GameObject searchObj) where T: Component
+    {
+        if (reference == null)
+        {
+            reference = GetComponentFromGameObject<T>(searchObj);
+            if (reference == null)
+            {
+                GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Don't have Deck manager");
+                return false;
+            }
+
+            return true;
+        }
+
+        return true;
     }
 
     #region Game Logic Related

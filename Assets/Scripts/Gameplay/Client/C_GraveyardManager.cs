@@ -31,13 +31,7 @@ public class C_GraveyardManager : MonoBehaviour
         m_toggleGYButton.onClick.RemoveListener(ToggleGraveyardUI);
     }
 
-    private void ToggleGraveyardUI()
-    {
-        if (m_graveYardContainer == null) return;
-        m_graveYardContainer.SetActive(true);
-    }
-
-    public void PlayingCardThatRequiresGraveyard()
+    public void ToggleGraveyardUI()
     {
         if (m_graveYardContainer == null) return;
         m_graveYardContainer.SetActive(true);

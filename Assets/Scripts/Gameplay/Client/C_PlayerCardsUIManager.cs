@@ -19,14 +19,10 @@ public class C_PlayerCardsUIManager : MonoBehaviour
 
     private S_GamePlayLogicManager _gameManager = null;
     private UI_GameplayCard m_currentCard = null;
-    private C_GameZone m_currentZone = null;
     private List<GameObject> m_cards = new List<GameObject>();
     private List<UI_GameplayCard> m_cardInfo = new List<UI_GameplayCard>();
 
     private PlayerControls m_playerControls;
-    private EnumUnitPlacement _nonAgilePlacement;
-    private bool isAgile = false;
-
     private RectTransform canvasRect = null;
     private Transform parentToMainRect = null;
     private RectTransform mainRect = null;
@@ -35,14 +31,14 @@ public class C_PlayerCardsUIManager : MonoBehaviour
     {
         GlobalActions.OnClickCard += OnReceiveClickedCard;
         GlobalActions.OnCardInteractionInGame += OnStopClickingCard;
-        GlobalActions.OnNotPlayingHeldCard += OnNotPlayingHeldCard;
+        GlobalActions.OnNotPlayingHeldCard += OnNotDraggingThisCard;
     }
 
     private void OnDisable()
     {
         GlobalActions.OnClickCard -= OnReceiveClickedCard;
         GlobalActions.OnCardInteractionInGame -= OnStopClickingCard;
-        GlobalActions.OnNotPlayingHeldCard -= OnNotPlayingHeldCard;
+        GlobalActions.OnNotPlayingHeldCard -= OnNotDraggingThisCard;
     }
 
     private void Start()
@@ -242,7 +238,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    private void OnNotPlayingHeldCard()
+    public void OnNotDraggingThisCard()
     {
         if (m_currentCard == null) return;
 

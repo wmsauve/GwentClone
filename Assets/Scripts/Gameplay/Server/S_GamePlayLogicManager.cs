@@ -453,7 +453,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _currentMatchScores = new MatchScores(_listOfIds);
     }
 
-    private void HandleLogicFromPlayedCard(
+    private bool HandleLogicFromPlayedCard(
         Card _card, 
         string _interactCards, 
         ulong clientId, 
@@ -466,9 +466,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         List<InteractCardsOnServer> _interacted = new List<InteractCardsOnServer>();
         CreateInteractCardsOnServer(ref _interacted, _interactCards);
 
-        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
-        _play.RemoveCardFromHandServer(cardSlot, cardPlace);
-
         //Handle Card
         if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
         {
@@ -479,7 +476,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
                 SwapCardInPlayClientRpc(cardName, cardPlace, _interacted[0]._placement);
                 SwapCardInHandClientRpc(_interacted[0]._card.id, cardSlot, _play.ClientRpcParams);
-                return;
+                return true;
+            }
+
+            //Cards that don't just drop right away. For example, medic needs to go to graveyard.
+            if (_card.cardEffects.Contains(EnumCardEffects.Medic))
+            {
+                _spellsManager.HandleSpell(_card, _playersLogic, clientId);
+                _play.StoreReferenceToPlayingMultiStepCard(_card, cardPlace, cardSlot);
+                return false;
             }
 
             PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
@@ -504,6 +509,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             var _json = JsonUtility.ToJson(new CardNames(cardNames));
             UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
         }
+
+        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
+        _play.RemoveCardFromHandServer(cardSlot, cardPlace);
+
+        return true;
     }
 
     private void UpdateScores()
@@ -539,8 +549,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     [ClientRpc]
     private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
-        _graveYardManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_GraveyardManager>(gameObject);
-        if (_graveYardManager == null) return;
+        var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _graveYardManager, gameObject);
+        if (!_found) return;
 
         List<Card> _cards = new List<Card>();
         CreateListOfCardsFromString(ref _cards, cardNames);
@@ -549,11 +559,21 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    public void OpenGraveyardUIClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _graveYardManager, gameObject);
+        if (!_found) return;
+
+        _graveYardManager.ToggleGraveyardUI();
+        _cardsInHandScreen.OnNotDraggingThisCard();
+    }
+
+    [ClientRpc]
     private void ShowMulliganScreenClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
     {
-        _deckManager = GeneralPurposeFunctions.GetComponentFromGameObject<S_DeckManagers>(gameObject);
-        if (_deckManager == null) return;
-        
+        var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _deckManager, gameObject);
+        if (!_found) return;
+
         Debug.LogWarning(cardNames);
 
         var _mulligan = Resources.FindObjectsOfTypeAll<UI_MulliganCards>();
@@ -578,7 +598,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         List<Card> _cards = new List<Card>();
         CreateListOfCardsFromString(ref _cards, cardNames);
-        _mulliganScreen.InitializeMulliganCards(_cards, this, GlobalConstantValues.GAME_MULLIGANSAMOUNT);
+        _mulliganScreen.InitializeMulliganCards(_cards, GlobalConstantValues.GAME_MULLIGANSAMOUNT);
         _mulliganScreen.gameObject.SetActive(true);
     }
 
@@ -759,7 +779,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
-        HandleLogicFromPlayedCard(_card, _interactCards, clientId, cardName, cardPlace, cardSlot, _play);
+        var _continue = HandleLogicFromPlayedCard(_card, _interactCards, clientId, cardName, cardPlace, cardSlot, _play);
+
+        if (!_continue) return;
 
         //Score
         UpdateScores();
@@ -781,6 +803,29 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         _turnManager.EndRegularTurn(true);
 
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SelectedGraveyardCardServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
+    {
+        if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
+
+        var clientId = serverRpcParams.Receive.SenderClientId;
+        var _play = _playersLogic.Find((logic) => logic.MyInfo.ID == clientId);
+
+        if (!_play.TurnActive)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Wrong player sending inputs to server.", _play.MyInfo.Username);
+            return;
+        }
+
+        if (!ValidateCardFromServer(cardName, cardSlot, _play.CardsInGraveyard))
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
+            return;
+        }
+
+        Debug.LogWarning($"Trying to play card {cardName}");
     }
     #endregion Server RPC
 }

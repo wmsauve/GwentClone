@@ -18,7 +18,7 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
         base.OnEnable();
         if (m_cardSprite == null || m_cardBtn == null) return;
 
-        //m_cardBtn.onClick.AddListener();
+        m_cardBtn.onClick.AddListener(InteractWithGraveyardButton);
     }
 
     protected override void OnDisable()
@@ -26,6 +26,17 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
         base.OnDisable();
         if (m_cardSprite == null || m_cardBtn == null) return;
 
-        //m_cardBtn.onClick.RemoveListener();
+        m_cardBtn.onClick.RemoveListener(InteractWithGraveyardButton);
+    }
+
+    private void InteractWithGraveyardButton()
+    {
+        if (_pressed)
+        {
+            graveyardManager.HideInteractButton();
+            return;
+        }
+        
+        graveyardManager.InteractWithScrollCard(m_myData.id, this);
     }
 }

@@ -39,6 +39,13 @@ public class UI_CardViewScroll : MonoBehaviour
 
     protected virtual void Start()
     {
+        _gameManager = GeneralPurposeFunctions.GetComponentFromScene<S_GamePlayLogicManager>();
+        if(_gameManager == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "Can't find Game Manager");
+            return;
+        }
+
         gameObject.SetActive(false);
         _leftMostIndex = 0;
         _rightMostIndex = 2;
@@ -221,5 +228,20 @@ public class UI_CardViewScroll : MonoBehaviour
         {
             if (button.IsPressed) button.IsPressed = false;
         }
+    }
+
+    public virtual void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
+    {
+        foreach (UI_ScrollCardButton button in _buttons)
+        {
+            if (button.IsPressed)
+            {
+                button.IsPressed = false;
+                break;
+            }
+        }
+        pressed.IsPressed = true;
+        _cardToSelect = cardName;
+        _cardSlot = pressed.CardOrder;
     }
 }

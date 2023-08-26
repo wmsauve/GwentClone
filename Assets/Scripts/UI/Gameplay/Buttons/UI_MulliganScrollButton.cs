@@ -36,6 +36,6 @@ public class UI_MulliganScrollButton : UI_ScrollCardButton
             return;
         }
 
-        mulliganManager.SendCardToMulligan(m_myData.id, this);
+        mulliganManager.InteractWithScrollCard(m_myData.id, this);
     }
 }

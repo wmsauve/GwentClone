@@ -22,6 +22,7 @@ public class S_SpellsManager : NetworkBehaviour
             {
                 case EnumCardEffects.Scorch: Scorch(_players, _playedCard.scorchTarget, _playedCard.scorchAmount, _whosCard); break;
                 case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
+                case EnumCardEffects.Medic: Medic(_players.Find(x => x.ReturnID() == _whosCard)); break;
             }
         }
 
@@ -125,6 +126,12 @@ public class S_SpellsManager : NetworkBehaviour
 
     private void Spy(C_PlayerGamePlayLogic _player)
     {
+        if (_gameManager == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need Game manager reference here.");
+            return;
+        }
+
         //Spies draw 2, but think about making this variable in the future.
         int _numToDraw = 2;
         List<Card> _drawnCards = _player.DrawCardFromDeck(_numToDraw);
@@ -147,11 +154,21 @@ public class S_SpellsManager : NetworkBehaviour
             case EnumUnitPlacement.Siege: _zone = _cardsInPlay.CardsInSiege.Cards; break;
         }
         var _loc = _interact[0]._placement - 1; //outline object exists at placement = 0
-        Debug.LogWarning(_loc + " where is target card in zone.");
         _zone.RemoveAt(_loc);
         _zone.Insert(_loc, _played);
 
         _play.CardsInHand.RemoveAt(_cardSlot);
         _play.CardsInHand.Insert(_cardSlot, _interact[0]._card);
+    }
+
+    private void Medic(C_PlayerGamePlayLogic _player)
+    {
+        if (_gameManager == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need Game manager reference here.");
+            return;
+        }
+        Debug.LogWarning(_player.MyInfo.ID + " is playing a medic.");
+        _gameManager.OpenGraveyardUIClientRpc(_player.ClientRpcParams);
     }
 }
