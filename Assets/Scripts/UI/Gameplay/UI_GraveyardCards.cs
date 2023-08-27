@@ -8,6 +8,9 @@ public class UI_GraveyardCards : UI_CardViewScroll
     [SerializeField] private Button m_closeButton = null;
     [SerializeField] private Button m_interactButton = null;
     [SerializeField] private GameObject m_objectToClose = null;
+    [SerializeField] private AgileSelector m_agileSelector = null;
+
+    private EnumUnitPlacement _cardPlace;
 
     protected override void Start()
     {
@@ -18,8 +21,15 @@ public class UI_GraveyardCards : UI_CardViewScroll
             return;
         }
 
+        if (m_agileSelector == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You can't choose agile cards.");
+            return;
+        }
+
         m_closeButton.gameObject.SetActive(true);
         m_interactButton.gameObject.SetActive(false);
+        m_agileSelector.HideScreen();
     }
 
     protected override void OnEnable()
@@ -27,6 +37,8 @@ public class UI_GraveyardCards : UI_CardViewScroll
         base.OnEnable();
         m_closeButton.onClick.AddListener(CloseGraveyard);
         m_interactButton.onClick.AddListener(InteractWithSelectedGraveyard);
+
+        m_agileSelector.OnSelectedAgile += ShowInteractButton;
     }
 
     protected override void OnDisable()
@@ -34,6 +46,8 @@ public class UI_GraveyardCards : UI_CardViewScroll
         base.OnDisable();
         m_closeButton.onClick.RemoveListener(CloseGraveyard);
         m_interactButton.onClick.RemoveListener(InteractWithSelectedGraveyard);
+
+        m_agileSelector.OnSelectedAgile -= ShowInteractButton;
     }
 
     private void CloseGraveyard()
@@ -44,7 +58,7 @@ public class UI_GraveyardCards : UI_CardViewScroll
     private void InteractWithSelectedGraveyard()
     {
         Debug.LogWarning("Trying to interact with graveyard.");
-        _gameManager.SelectedGraveyardCardServerRpc(_cardToSelect, _cardSlot);
+        _gameManager.SelectedGraveyardCardServerRpc(_cardToSelect, _cardSlot, _cardPlace);
     }
 
     public void AddCardsToGraveyard(List<Card> cardInfo)
@@ -88,11 +102,24 @@ public class UI_GraveyardCards : UI_CardViewScroll
     public override void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
     {
         base.InteractWithScrollCard(cardName, pressed);
+
+        if((pressed as UI_GraveyardScrollCard).CardData.cardEffects.Contains(EnumCardEffects.Agile))
+        {
+            m_agileSelector.ShowScreen();
+            return;
+        }
+
         m_interactButton.gameObject.SetActive(true);
     }
 
     public void HideInteractButton()
     {
         m_interactButton.gameObject.SetActive(false);
+    }
+
+    private void ShowInteractButton(EnumUnitPlacement placement)
+    {
+        m_interactButton.gameObject.SetActive(true);
+        _cardPlace = placement;
     }
 }

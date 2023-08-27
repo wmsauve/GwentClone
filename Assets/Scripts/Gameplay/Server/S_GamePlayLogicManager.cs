@@ -400,8 +400,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             Card newCard = _deckManager.CardRepo.GetCard(name);
             if (newCard == null)
             {
-                Debug.LogWarning(name);
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Invalid card name from server to client.");
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, $"Invalid card name from server to client: {name}");
                 return;
             }
 
@@ -455,22 +454,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
     private bool HandleLogicFromPlayedCard(
         Card _card, 
-        string _interactCards, 
         ulong clientId, 
         string cardName, 
         EnumUnitPlacement cardPlace,  
         int cardSlot,
-        C_PlayerGamePlayLogic _play
+        C_PlayerGamePlayLogic _play,
+        string _interactCards = null
         )
     {
         List<InteractCardsOnServer> _interacted = new List<InteractCardsOnServer>();
-        CreateInteractCardsOnServer(ref _interacted, _interactCards);
-
+        if (_interactCards != null) CreateInteractCardsOnServer(ref _interacted, _interactCards);
+        
         //Handle Card
         if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
         {
             //Decoy
-            if (_card.cardType == EnumCardType.Special)
+            if (_card.cardType == EnumCardType.Special && _interactCards != null)
             {
                 _spellsManager.HandleSpell(_card.cardEffects, _interacted, cardPlace, _play, cardSlot, _card);
 
@@ -779,7 +778,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
-        var _continue = HandleLogicFromPlayedCard(_card, _interactCards, clientId, cardName, cardPlace, cardSlot, _play);
+        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, cardSlot, _play, _interactCards);
 
         if (!_continue) return;
 
@@ -806,7 +805,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SelectedGraveyardCardServerRpc(string cardName, int cardSlot, ServerRpcParams serverRpcParams = default)
+    public void SelectedGraveyardCardServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
     {
         if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
 
@@ -826,6 +825,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Debug.LogWarning($"Trying to play card {cardName}");
+        Card _card = _deckManager.CardRepo.GetCard(cardName);
+
     }
     #endregion Server RPC
 }
