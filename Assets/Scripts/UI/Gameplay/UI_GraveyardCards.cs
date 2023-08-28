@@ -105,7 +105,7 @@ public class UI_GraveyardCards : UI_CardViewScroll
 
         if((pressed as UI_GraveyardScrollCard).CardData.cardEffects.Contains(EnumCardEffects.Agile))
         {
-            m_agileSelector.ShowScreen();
+            m_agileSelector.ShowScreen((pressed as UI_GraveyardScrollCard).CardData.unitPlacement);
             return;
         }
 

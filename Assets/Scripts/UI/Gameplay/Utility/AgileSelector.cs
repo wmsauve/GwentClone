@@ -13,6 +13,7 @@ public class AgileSelector : MonoBehaviour
     [SerializeField] private Button m_cancel = null;
 
     public Action<EnumUnitPlacement> OnSelectedAgile;
+    public static Action OnCancelSelect;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +30,7 @@ public class AgileSelector : MonoBehaviour
         m_rangedBtn.onClick.AddListener(() => SetAgilePlacement(EnumUnitPlacement.Ranged));
         m_siegeBtn.onClick.AddListener(() => SetAgilePlacement(EnumUnitPlacement.Siege));
 
+        m_cancel.onClick.AddListener(HideScreen);
     }
 
     private void OnDisable()
@@ -36,20 +38,46 @@ public class AgileSelector : MonoBehaviour
         m_frontBtn.onClick.RemoveListener(() => SetAgilePlacement(EnumUnitPlacement.Frontline));
         m_rangedBtn.onClick.RemoveListener(() => SetAgilePlacement(EnumUnitPlacement.Ranged));
         m_siegeBtn.onClick.RemoveListener(() => SetAgilePlacement(EnumUnitPlacement.Siege));
+
+        m_cancel.onClick.RemoveListener(HideScreen);
     }
 
     private void SetAgilePlacement(EnumUnitPlacement _placement)
     {
         OnSelectedAgile?.Invoke(_placement);
+        gameObject.SetActive(false);
     }
 
     public void HideScreen()
     {
         gameObject.SetActive(false);
+        OnCancelSelect?.Invoke();
     }
 
-    public void ShowScreen()
+    public void ShowScreen(EnumUnitPlacement placement)
     {
+        switch (placement)
+        {
+            case EnumUnitPlacement.Agile_FR:
+                m_frontBtn.enabled = true;
+                m_rangedBtn.enabled = true;
+                m_siegeBtn.enabled = false;
+                break;
+            case EnumUnitPlacement.Agile_FS:
+                m_frontBtn.enabled = true;
+                m_rangedBtn.enabled = false;
+                m_siegeBtn.enabled = true;
+                break;
+            case EnumUnitPlacement.Agile_RS:
+                m_frontBtn.enabled = false;
+                m_rangedBtn.enabled = true;
+                m_siegeBtn.enabled = true;
+                break;
+            default:
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, $"Only Agile. You tried this placement for Agile Selector: {placement}");
+                break;
+        }
+
         gameObject.SetActive(true);
     }
 }

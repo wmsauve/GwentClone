@@ -429,6 +429,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
+    #region Validate Info From Client Related
+
     private bool ValidateCardFromServer(string cardName, int cardSlot, List<Card> _cards)
     {
         int whichCard = 0;
@@ -439,6 +441,39 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
         return false;
     }
+
+    private bool ValidatePlayedMinionPlacement(Card _card, EnumUnitPlacement _target)
+    {
+        if (_card.cardType != EnumCardType.Unit) return true;
+
+        if (_card.cardEffects.Contains(EnumCardEffects.Agile))
+        {
+            switch (_card.unitPlacement)
+            {
+                case EnumUnitPlacement.Agile_FR:
+                    if (_target == EnumUnitPlacement.Siege) return false;
+                    else return true;
+                case EnumUnitPlacement.Agile_FS:
+                    if (_target == EnumUnitPlacement.Ranged) return false;
+                    else return true;
+                case EnumUnitPlacement.Agile_RS:
+                    if (_target == EnumUnitPlacement.Frontline) return false;
+                    else return true;
+                default:
+                    GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, $"Only Agile. You tried this placement for Agile validation: {_target}");
+                    return false;
+            }
+        }
+
+        else
+        {
+            if (_card.unitPlacement == _target) return true;
+        }
+
+        return false;
+    }
+
+    #endregion Validate Info From Client Related
 
     private void CreateMatchScores()
     {
@@ -778,6 +813,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         Card _card = _deckManager.CardRepo.GetCard(cardName);
+
+        if (!ValidatePlayedMinionPlacement(_card, cardPlace))
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, $"Invalid placement for this card: {_card.id} {cardPlace}", _play.MyInfo.Username);
+            return;
+        }
+
         var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, cardSlot, _play, _interactCards);
 
         if (!_continue) return;
@@ -824,9 +866,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        Debug.LogWarning($"Trying to play card {cardName}");
         Card _card = _deckManager.CardRepo.GetCard(cardName);
 
+        if (!ValidatePlayedMinionPlacement(_card, cardPlace))
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, $"Invalid placement for this card: {_card.id} {cardPlace}", _play.MyInfo.Username);
+            return;
+        }
+
+        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, cardSlot, _play);
+
+        if (!_continue) return;
+
+        //Score
+        UpdateScores();
+
+        _turnManager.EndRegularTurn(false);
     }
     #endregion Server RPC
 }

@@ -19,6 +19,7 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
         if (m_cardSprite == null || m_cardBtn == null) return;
 
         m_cardBtn.onClick.AddListener(InteractWithGraveyardButton);
+        AgileSelector.OnCancelSelect += AgileNotSelected;
     }
 
     protected override void OnDisable()
@@ -27,16 +28,24 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
         if (m_cardSprite == null || m_cardBtn == null) return;
 
         m_cardBtn.onClick.RemoveListener(InteractWithGraveyardButton);
+        AgileSelector.OnCancelSelect += AgileNotSelected;
     }
 
     private void InteractWithGraveyardButton()
     {
-        if (_pressed)
+        if (IsPressed)
         {
             graveyardManager.HideInteractButton();
             return;
         }
         
         graveyardManager.InteractWithScrollCard(m_myData.id, this);
+    }
+
+    private void AgileNotSelected()
+    {
+        if (!IsPressed) return;
+
+        IsPressed = false;
     }
 }

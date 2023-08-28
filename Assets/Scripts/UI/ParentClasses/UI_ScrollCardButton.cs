@@ -21,7 +21,7 @@ public class UI_ScrollCardButton : UI_MainButtonGame
         } 
     }
 
-    protected bool _pressed = false;
+    private bool _pressed = false;
     public bool IsPressed 
     { 
         get { return _pressed; } 

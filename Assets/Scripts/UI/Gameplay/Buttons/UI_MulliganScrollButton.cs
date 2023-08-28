@@ -30,7 +30,7 @@ public class UI_MulliganScrollButton : UI_ScrollCardButton
 
     private void ShowMulliganButton()
     {
-        if (_pressed)
+        if (IsPressed)
         {
             mulliganManager.HideMulliganButton();
             return;
