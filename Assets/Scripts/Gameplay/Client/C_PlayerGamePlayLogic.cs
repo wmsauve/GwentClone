@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class C_PlayerGamePlayLogic : NetworkBehaviour
 {
-    private struct StoreAdditionalStepCards
+    public struct StoreAdditionalStepCards
     {
         public Card CardData;
         public EnumUnitPlacement CardPlace;
@@ -46,6 +46,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private int _initialHandSize = GlobalConstantValues.GAME_INITIALHANDSIZE;
 
     private List<StoreAdditionalStepCards> _tempAdditionalStepCards = new List<StoreAdditionalStepCards>();
+    public List<StoreAdditionalStepCards> MultiStepCards { get { return _tempAdditionalStepCards; } }
 
     public void InitializePlayerLogic(GwentPlayer player)
     {
@@ -118,6 +119,11 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             _cardsInGraveyard.Add(card);
         }
         _cardsInPlay.CardsInSiege.Cards.Clear();
+    }
+
+    public void RemoveCardFromGraveyard(int _slot)
+    {
+        _cardsInGraveyard.RemoveAt(_slot);
     }
     #endregion Graveyard Related
 

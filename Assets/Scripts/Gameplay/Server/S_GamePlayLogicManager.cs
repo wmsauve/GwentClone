@@ -295,6 +295,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         else
                         {
                             PassTurnSwapClientRpc(player.TurnActive, player.ClientRpcParams);
+                            CloseGraveyardUIClientRpc(player.ClientRpcParams);
                         }
                     }
 
@@ -356,6 +357,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         var _json = JsonUtility.ToJson(new CardNames(cardNames));
                         UpdateGraveyardClientRpc(_json, _playersLogic[i].ClientRpcParams);
                         SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
+                        CloseGraveyardUIClientRpc(_playersLogic[i].ClientRpcParams);
                     }
 
                     if (_loser != null)
@@ -487,11 +489,22 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         _currentMatchScores = new MatchScores(_listOfIds);
     }
 
+    /// <summary>
+    /// For CardSlot = GlobalConstantValues.LOGIC_NULLINT, minion is not played from hand.
+    /// </summary>
+    /// <param name="_card"></param>
+    /// <param name="clientId"></param>
+    /// <param name="cardName"></param>
+    /// <param name="cardPlace"></param>
+    /// <param name="cardSlot"></param>
+    /// <param name="_play"></param>
+    /// <param name="_interactCards"></param>
+    /// <returns></returns>
     private bool HandleLogicFromPlayedCard(
         Card _card, 
         ulong clientId, 
         string cardName, 
-        EnumUnitPlacement cardPlace,  
+        EnumUnitPlacement cardPlace,
         int cardSlot,
         C_PlayerGamePlayLogic _play,
         string _interactCards = null
@@ -544,8 +557,11 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
         }
 
-        RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
-        _play.RemoveCardFromHandServer(cardSlot, cardPlace);
+        if (cardSlot != GlobalConstantValues.LOGIC_NULLINT)
+        {
+            RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
+            _play.RemoveCardFromHandServer(cardSlot, cardPlace);
+        }
 
         return true;
     }
@@ -565,6 +581,36 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         var _json = _currentMatchScores.PassScoresToClient();
         HandleScoresOnUIClientRpc(_json);
+    }
+
+    private void PlayStoredMultiStepCardsFromPlayer(C_PlayerGamePlayLogic _player)
+    {
+        List<C_PlayerGamePlayLogic.StoreAdditionalStepCards> _multiStepCards = _player.MultiStepCards;
+        foreach(C_PlayerGamePlayLogic.StoreAdditionalStepCards _card in _multiStepCards)
+        {
+            Card _data = _card.CardData;
+            EnumUnitPlacement _placement = _card.CardPlace;
+            int _slot = _card.CardSlot;
+
+            PlacePlayedCardClientRpc(_data.id, _placement, _data.unitType);
+            switch (_data.unitType)
+            {
+                //Maybe refactor if game every doesn't have 1v1.
+                case EnumUnitType.Spy:
+                    C_PlayerGamePlayLogic _otherPlayer = _playersLogic.Find(x => x.OwnerClientId != _player.OwnerClientId);
+                    _otherPlayer.PlaceCardInPlay(_data, _placement);
+                    break;
+                case EnumUnitType.Regular:
+                    _player.PlaceCardInPlay(_data, _placement);
+                    break;
+            }
+
+            if (_slot != GlobalConstantValues.LOGIC_NULLINT)
+            {
+                RemoveCardFromHandClientRpc(_slot, _player.ClientRpcParams);
+                _player.RemoveCardFromHandServer(_slot, _placement);
+            }
+        }
     }
 
     #region Client RPC
@@ -600,6 +646,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         _graveYardManager.ToggleGraveyardUI();
         _cardsInHandScreen.OnNotDraggingThisCard();
+    }
+
+    [ClientRpc]
+    public void CloseGraveyardUIClientRpc(ClientRpcParams clientRpcParams = default)
+    {
+        var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _graveYardManager, gameObject);
+        if (!_found) return;
+
+        _graveYardManager.TurnOffGraveyardFromServer();
     }
 
     [ClientRpc]
@@ -874,13 +929,17 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, cardSlot, _play);
+        _play.RemoveCardFromGraveyard(cardSlot);
+        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, GlobalConstantValues.LOGIC_NULLINT, _play);
 
         if (!_continue) return;
 
+        //Play other multistep cards
+        PlayStoredMultiStepCardsFromPlayer(_play);
+        CloseGraveyardUIClientRpc(_play.ClientRpcParams);
+
         //Score
         UpdateScores();
-
         _turnManager.EndRegularTurn(false);
     }
     #endregion Server RPC

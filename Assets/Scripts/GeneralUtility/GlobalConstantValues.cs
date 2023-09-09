@@ -23,4 +23,7 @@ public class GlobalConstantValues : MonoBehaviour
     public const int GAME_MULLIGANSAMOUNT = 2;
     public const int GAME_INITIALLIVES = 2;
     public const ulong GAME_DRAWNGAME = 69420;
+
+    //Logic
+    public const int LOGIC_NULLINT = -69420;
 }

@@ -50,7 +50,7 @@ public class UI_GraveyardCards : UI_CardViewScroll
         m_agileSelector.OnSelectedAgile -= ShowInteractButton;
     }
 
-    private void CloseGraveyard()
+    public void CloseGraveyard()
     {
         m_objectToClose.SetActive(false);
     }

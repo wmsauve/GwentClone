@@ -154,7 +154,7 @@ public class C_ZonesManager : MonoBehaviour
             }
 
             if (_cardComp.MyCard.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-            Debug.LogWarning(_powerToDestroy + " power yo.");
+
             if (_cardComp.MyCard.cardPower == _powerToDestroy)
             {
                 Destroy(_cardPlace.GetChild(j).gameObject);

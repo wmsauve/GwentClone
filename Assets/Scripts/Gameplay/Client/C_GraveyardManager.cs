@@ -41,4 +41,9 @@ public class C_GraveyardManager : MonoBehaviour
     {
         m_graveYardUI.AddCardsToGraveyard(_cards);
     }
+
+    public void TurnOffGraveyardFromServer()
+    {
+        m_graveYardUI.CloseGraveyard();
+    }
 }
