@@ -9,7 +9,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         public Card CardData;
         public EnumUnitPlacement CardPlace;
         public int CardSlot;
-    }
+    } 
 
     private NetworkVariable<bool> _turnActive = new NetworkVariable<bool>(false);
     public bool TurnActive { 
@@ -47,6 +47,8 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     private List<StoreAdditionalStepCards> _tempAdditionalStepCards = new List<StoreAdditionalStepCards>();
     public List<StoreAdditionalStepCards> MultiStepCards { get { return _tempAdditionalStepCards; } }
+
+    private List<StoreAdditionalStepCards> _storeGraveyardUntilEndOfTurn = new List<StoreAdditionalStepCards>();
 
     public void InitializePlayerLogic(GwentPlayer player)
     {
@@ -119,11 +121,28 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             _cardsInGraveyard.Add(card);
         }
         _cardsInPlay.CardsInSiege.Cards.Clear();
+        _cardsInPlay.HighestPowerCard.Clear();
     }
 
     public void RemoveCardFromGraveyard(int _slot)
     {
+        StoreAdditionalStepCards _card = new StoreAdditionalStepCards();
+        _card.CardData = _cardsInGraveyard[_slot];
+        _card.CardSlot = _slot;
+        _storeGraveyardUntilEndOfTurn.Add(_card);
         _cardsInGraveyard.RemoveAt(_slot);
+    }
+
+    public void RunCheckUnresolvedCards()
+    {
+        if (_storeGraveyardUntilEndOfTurn.Count <= 0) return;
+
+        foreach(StoreAdditionalStepCards _card in _storeGraveyardUntilEndOfTurn)
+        {
+            _cardsInGraveyard.Add(_card.CardData);
+        }
+
+        _storeGraveyardUntilEndOfTurn.Clear();
     }
     #endregion Graveyard Related
 

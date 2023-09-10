@@ -2,7 +2,7 @@
 Just for fun.
 
 # Current Task Being Worked On
-Work on Medic.
+Work on Medic. Need to add functionality to cancel button so that people can decide not to continue playing a medic.
 
 # TODO
 ## Card Order

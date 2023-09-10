@@ -52,6 +52,7 @@ public class UI_GraveyardCards : UI_CardViewScroll
 
     public void CloseGraveyard()
     {
+        m_agileSelector.HideScreen();
         m_objectToClose.SetActive(false);
     }
 
@@ -109,6 +110,7 @@ public class UI_GraveyardCards : UI_CardViewScroll
             return;
         }
 
+        _cardPlace = pressed.CardData.unitPlacement;
         m_interactButton.gameObject.SetActive(true);
     }
 

@@ -28,7 +28,7 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
         if (m_cardSprite == null || m_cardBtn == null) return;
 
         m_cardBtn.onClick.RemoveListener(InteractWithGraveyardButton);
-        AgileSelector.OnCancelSelect += AgileNotSelected;
+        AgileSelector.OnCancelSelect -= AgileNotSelected;
     }
 
     private void InteractWithGraveyardButton()

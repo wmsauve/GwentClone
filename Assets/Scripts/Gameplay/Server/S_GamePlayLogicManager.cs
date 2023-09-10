@@ -295,6 +295,10 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         else
                         {
                             PassTurnSwapClientRpc(player.TurnActive, player.ClientRpcParams);
+                            player.RunCheckUnresolvedCards();
+                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Graveyard);
+                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            UpdateGraveyardClientRpc(_json, player.ClientRpcParams);
                             CloseGraveyardUIClientRpc(player.ClientRpcParams);
                         }
                     }
@@ -353,6 +357,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                             }
                         }
                         _playersLogic[i].EndOfTurnGraveyardCards();
+                        _playersLogic[i].RunCheckUnresolvedCards();
                         string[] cardNames = _playersLogic[i].ReturnCardIds(EnumCardListType.Graveyard);
                         var _json = JsonUtility.ToJson(new CardNames(cardNames));
                         UpdateGraveyardClientRpc(_json, _playersLogic[i].ClientRpcParams);
@@ -436,6 +441,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     private bool ValidateCardFromServer(string cardName, int cardSlot, List<Card> _cards)
     {
         int whichCard = 0;
+
         foreach (Card card in _cards)
         {
             if (card.id == cardName && cardSlot == whichCard) return true;
@@ -527,7 +533,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             }
 
             //Cards that don't just drop right away. For example, medic needs to go to graveyard.
-            if (_card.cardEffects.Contains(EnumCardEffects.Medic))
+            if (_card.cardEffects.Contains(EnumCardEffects.Medic) && _play.CardsInGraveyard.Count > 0)
             {
                 _spellsManager.HandleSpell(_card, _playersLogic, clientId);
                 _play.StoreReferenceToPlayingMultiStepCard(_card, cardPlace, cardSlot);
@@ -930,6 +936,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
 
         _play.RemoveCardFromGraveyard(cardSlot);
+        string[] cardNames = _play.ReturnCardIds(EnumCardListType.Graveyard);
+        var _json = JsonUtility.ToJson(new CardNames(cardNames));
+        UpdateGraveyardClientRpc(_json, _play.ClientRpcParams);
         var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, GlobalConstantValues.LOGIC_NULLINT, _play);
 
         if (!_continue) return;
