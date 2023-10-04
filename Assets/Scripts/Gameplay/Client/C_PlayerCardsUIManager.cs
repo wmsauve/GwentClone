@@ -173,6 +173,24 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         ReadjustCardPositionsInHand();
     }
 
+    public void RemoveManyCardsFromHand(List<int> slots)
+    {
+        slots.Sort();
+        slots.Reverse();
+        int j = 0;
+        for(int i = m_cards.Count - 1; i >= 0; i--)
+        {
+            Debug.LogWarning($"i {i} j {j}");
+            if(i == slots[j])
+            {
+                RemoveCardFromHand(i);
+                j++;
+            }
+
+            if (j == slots.Count) break;
+        }
+    }
+
     public void SwapCardInHand(int slot, Card card)
     {
         UI_GameplayCard _cardInHand = m_cardInfo[slot];

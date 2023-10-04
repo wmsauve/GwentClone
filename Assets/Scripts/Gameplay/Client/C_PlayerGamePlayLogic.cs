@@ -155,7 +155,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
     #region Deal With Cards Related
 
-    public void RemoveCardFromHandServer(int cardSlot, EnumUnitPlacement cardPlace)
+    public void RemoveCardFromHandServer(int cardSlot)
     {
         _cardsInHand.RemoveAt(cardSlot);
     }
@@ -176,6 +176,48 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         }
 
         _cardsInPlay.CheckForNewHighestCard();
+    }
+
+    public (List<Card>, List<int>) RemoveMusterCardsFromHand(string _tag)
+    {
+        List<Card> _playedCard = new List<Card>();
+        List<int> _placements = new List<int>();
+
+        List<Card> _hand = _cardsInHand;
+
+        for (int i = _hand.Count - 1; i >= 0; i--)
+        {
+            if (_hand[i].cardEffects.Contains(EnumCardEffects.Muster) && _hand[i].musterTag == _tag)
+            {
+                _playedCard.Add(_hand[i]);
+                EnumUnitPlacement _placement = _hand[i].unitPlacement;
+                PlaceCardInPlay(_hand[i], _placement);
+                RemoveCardFromHandServer(i);
+                _placements.Add(i);
+            }
+        }
+
+        return (_playedCard, _placements);
+    }
+
+    public List<Card> RemoveMusterCardsFromDeck(string _tag)
+    {
+        List<Card> _drawnCards = new List<Card>();
+
+        List<Card> _deck = _myInfo.Deck.Cards;
+
+        for (int i = _deck.Count - 1; i >= 0; i--)
+        {
+            if(_deck[i].cardEffects.Contains(EnumCardEffects.Muster) && _deck[i].musterTag == _tag)
+            {
+                _drawnCards.Add(_deck[i]);
+                EnumUnitPlacement _placement = _deck[i].unitPlacement;
+                PlaceCardInPlay(_deck[i], _placement);
+                _deck.RemoveAt(i);
+            }
+        }
+
+        return _drawnCards;
     }
 
     public List<Card> DrawCardFromDeck(int _num)
@@ -232,16 +274,21 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     #endregion Mulligan Related
 
     #region Utility Related
-    public string[] ReturnCardIds(EnumCardListType which)
+    public string[] ReturnCardIds(EnumCardListType which, List<Card> _cards = null)
     {
         List<Card> _list = new List<Card>();
 
-        switch (which)
+        if(_cards == null)
         {
-            case EnumCardListType.Hand: _list = _cardsInHand; break;
-            case EnumCardListType.Graveyard: _list = _cardsInGraveyard; break;
-            default: break;
+            switch (which)
+            {
+                case EnumCardListType.Hand: _list = _cardsInHand; break;
+                case EnumCardListType.Graveyard: _list = _cardsInGraveyard; break;
+                default: break;
+            }
         }
+        else _list = _cards;
+
 
         List<string> toClient = new List<string>();
         for (int i = 0; i < _list.Count; i++) toClient.Add(_list[i].id);

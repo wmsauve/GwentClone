@@ -14,6 +14,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             _cards = cards;
         }
     }
+
+    public struct CardPlacements
+    {
+        public int[] _placements;
+
+        public CardPlacements(int[] placements)
+        {
+            _placements = placements;
+        }
+    }
     [System.Serializable]
     public struct InteractTarget
     {
@@ -415,6 +425,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
+    private void CreateListOfPlacementsFromString(ref List<int> _placements, string placement)
+    {
+        if (placement == null) return;
+        CardPlacements _cardPlacements = JsonUtility.FromJson<CardPlacements>(placement);
+        foreach (int place in _cardPlacements._placements)
+        {
+            _placements.Add(place);
+        }
+    }
+
     private void CreateInteractCardsOnServer(ref List<InteractCardsOnServer> _cards, string interacts)
     {
         if (interacts == null) return;
@@ -539,7 +559,29 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 _play.StoreReferenceToPlayingMultiStepCard(_card, cardPlace, cardSlot);
                 return false;
             }
+        }
 
+        if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
+
+        //Early skip depending on card. i.e. when multiple cards need handling
+        if (_card.cardEffects.Contains(EnumCardEffects.Muster)) return true;
+
+        //Process if not early skip.
+        foreach (C_PlayerGamePlayLogic _player in _playersLogic)
+        {
+            string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
+            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+            UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
+        }
+
+        if (cardSlot != GlobalConstantValues.LOGIC_NULLINT)
+        {
+            RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
+            _play.RemoveCardFromHandServer(cardSlot);
+        }
+
+        if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
+        {
             PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
             switch (_card.unitType)
             {
@@ -552,21 +594,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     _play.PlaceCardInPlay(_card, cardPlace);
                     break;
             }
-        }
-
-        if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
-
-        foreach (C_PlayerGamePlayLogic _player in _playersLogic)
-        {
-            string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
-            var _json = JsonUtility.ToJson(new CardNames(cardNames));
-            UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
-        }
-
-        if (cardSlot != GlobalConstantValues.LOGIC_NULLINT)
-        {
-            RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
-            _play.RemoveCardFromHandServer(cardSlot, cardPlace);
         }
 
         return true;
@@ -589,6 +616,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         HandleScoresOnUIClientRpc(_json);
     }
 
+    //TODO: refactor to not use loop for applying logic to client.
     private void PlayStoredMultiStepCardsFromPlayer(C_PlayerGamePlayLogic _player)
     {
         List<C_PlayerGamePlayLogic.StoreAdditionalStepCards> _multiStepCards = _player.MultiStepCards;
@@ -614,7 +642,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             if (_slot != GlobalConstantValues.LOGIC_NULLINT)
             {
                 RemoveCardFromHandClientRpc(_slot, _player.ClientRpcParams);
-                _player.RemoveCardFromHandServer(_slot, _placement);
+                _player.RemoveCardFromHandServer(_slot);
             }
         }
     }
@@ -760,6 +788,28 @@ public class S_GamePlayLogicManager : NetworkBehaviour
 
         var _cardData = _deckManager.CardRepo.GetCard(cardName);
         _zoneManager.AddCardToZone(_cardData, cardPlace, cardType);
+    }
+
+    [ClientRpc]
+    public void PlayMultipleCardsClientRpc(string cardNames, string placements, ClientRpcParams clientRpcParams = default)
+    {
+        if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
+        if (_zoneManager == null) return;
+
+        List<Card> _cards = new List<Card>();
+        List<int> _placements = new List<int>();
+        CreateListOfCardsFromString(ref _cards, cardNames);
+        CreateListOfPlacementsFromString(ref _placements, placements);
+
+        foreach (Card _card in _cards)
+        {
+            _zoneManager.AddCardToZone(_card, _card.unitPlacement, _card.unitType);
+        }
+
+        var _playerOfCard = GeneralPurposeFunctions.GetPlayerLogicReference();
+        if (!_playerOfCard.TurnActive) return;
+
+        _cardsInHandScreen.RemoveManyCardsFromHand(_placements);
     }
 
     [ClientRpc]

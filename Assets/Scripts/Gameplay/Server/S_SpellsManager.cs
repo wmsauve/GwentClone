@@ -23,6 +23,7 @@ public class S_SpellsManager : NetworkBehaviour
                 case EnumCardEffects.Scorch: Scorch(_players, _playedCard.scorchTarget, _playedCard.scorchAmount, _whosCard); break;
                 case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
                 case EnumCardEffects.Medic: Medic(_players.Find(x => x.ReturnID() == _whosCard)); break;
+                case EnumCardEffects.Muster: Muster(_players, _whosCard, _playedCard); break;
             }
         }
 
@@ -168,7 +169,39 @@ public class S_SpellsManager : NetworkBehaviour
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need Game manager reference here.");
             return;
         }
-        Debug.LogWarning(_player.MyInfo.ID + " is playing a medic.");
+
         _gameManager.OpenGraveyardUIClientRpc(_player.ClientRpcParams);
+    }
+
+    private void Muster(List<C_PlayerGamePlayLogic> _players, ulong _whos, Card _card)
+    {
+        if (_gameManager == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need Game manager reference here.");
+            return;
+        }
+
+        C_PlayerGamePlayLogic _play = _players.Find(x => x.ReturnID() == _whos);
+
+        string _musterTag = _card.musterTag;
+        List<Card> _cardsToPlay = new List<Card>();
+
+        Debug.LogWarning(_play.MyInfo.Deck.Cards.Count + " cards in deck.");
+
+        (List<Card> _handCards, List<int> _placements) = _play.RemoveMusterCardsFromHand(_musterTag);
+
+        _cardsToPlay.AddRange(_play.RemoveMusterCardsFromDeck(_musterTag));
+        _cardsToPlay.AddRange(_handCards);
+
+        Debug.LogWarning(_play.MyInfo.Deck.Cards.Count + " cards in deck after muster logic on server.");
+
+        string[] _ids = _play.ReturnCardIds(EnumCardListType.Hand, _cardsToPlay);
+        var _cardString = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(_ids));
+        var _placementString = JsonUtility.ToJson(new S_GamePlayLogicManager.CardPlacements(_placements.ToArray()));
+
+        foreach(C_PlayerGamePlayLogic player in _players)
+        {
+            _gameManager.PlayMultipleCardsClientRpc(_cardString, _placementString, player.ClientRpcParams);
+        }
     }
 }

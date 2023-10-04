@@ -2,13 +2,15 @@
 Just for fun.
 
 # Current Task Being Worked On
-Work on Medic. Need to add functionality to cancel button so that people can decide not to continue playing a medic.
+Work on stat boosting effects. (horn)
 
 # TODO
 ## Card Order
 Move card order in hierarchy to render moused over card on top. Put card back in original order to move down to the "not moused over" position.
-## Work on effects
-Going to start working on the medic card effect or muster.
+## UX
+Work on Medic. Need to add functionality to cancel button so that people can decide not to continue playing a medic.
+## Server Logic
+Playing multi stage cards like medic should be a single client rpc call, not multiple calls in a loop.
 
 # Known Major Bugs
 ## Mulligan bug
