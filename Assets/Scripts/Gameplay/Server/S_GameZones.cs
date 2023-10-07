@@ -31,6 +31,58 @@ public class S_GameZones
             RunHighestCardCheck();
         }
 
+        public void ApplyWeather()
+        {
+            foreach(Card _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+                _card.cardPower = 1;
+            }
+
+            RunHighestCardCheck();
+        }
+
+        public void ApplyPowerFromEffect(EnumCardEffects _effect)
+        {
+            switch (_effect)
+            {
+                case EnumCardEffects.MoraleBoost:
+                    int numOfChars = 0;
+                    foreach(Card _card in Cards)
+                    {
+                        if (_card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) numOfChars++;
+                    }
+
+                    foreach (Card _card in Cards)
+                    {
+                        if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) continue;
+                        _card.cardPower += numOfChars;
+                    }
+                    break;
+                case EnumCardEffects.CommandersHorn:
+                    foreach (Card _card in Cards)
+                    {
+                        if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.CommandersHorn)) continue;
+                        _card.cardPower *= 2;
+                    }
+                    break;
+                default:
+                    Debug.LogWarning("You are not checking a card effect that alters card power.");
+                    break;
+            }
+
+            RunHighestCardCheck();
+        }
+
+        public void ResetCards()
+        {
+            foreach (Card _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
+                _card.ResetToBasePower();
+            }
+        }
+
         private void RunHighestCardCheck()
         {
             TotalPower = 0;
@@ -57,9 +109,24 @@ public class S_GameZones
         }
     }
 
+    public class StatChangeEffects
+    {
+        public bool FrontWeather = false;
+        public bool RangedWeather = false;
+        public bool SiegeWeather = false;
+        public bool FrontHorns = false;
+        public bool RangedHorns = false;
+        public bool SiegeHorns = false;
+        public bool FrontMoraleBoost = false;
+        public bool RangedMoraleBoost = false;
+        public bool SiegeMoraleBoost = false;
+    }
+
     private GameZone _cardsInFront = new GameZone();
     private GameZone _cardsInRanged = new GameZone();
     private GameZone _cardsInSiege = new GameZone();
+
+    private StatChangeEffects _effectsActive = new StatChangeEffects();
 
     public GameZone CardsInFront { get { return _cardsInFront; } }
     public GameZone CardsInRanged { get { return _cardsInRanged; } }
@@ -98,10 +165,34 @@ public class S_GameZones
     {
         var _destroyThreshold = _power;
         if (_power == -1) _destroyThreshold = _currentHighestPower;
-        if(_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Frontline) _cardsInFront.DestroyCardsOfPower(_destroyThreshold);
+        if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Frontline) _cardsInFront.DestroyCardsOfPower(_destroyThreshold);
         if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Ranged) _cardsInRanged.DestroyCardsOfPower(_destroyThreshold);
         if (_placement == EnumUnitPlacement.AnyPlayer || _placement == EnumUnitPlacement.Siege) _cardsInSiege.DestroyCardsOfPower(_destroyThreshold);
 
         CheckForNewHighestCard();
     }
+
+    #region Adjust Card Power Related
+    public void RunEvaluationForStatChanges()
+    {
+        _cardsInFront.ResetCards();
+        _cardsInRanged.ResetCards();
+        _cardsInSiege.ResetCards();
+
+        //weather first
+        if (_effectsActive.FrontWeather) _cardsInFront.ApplyWeather();
+        if (_effectsActive.RangedWeather) _cardsInRanged.ApplyWeather();
+        if (_effectsActive.SiegeWeather) _cardsInSiege.ApplyWeather();
+
+        //abilities second
+        if (_effectsActive.FrontMoraleBoost) _cardsInFront.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
+        if (_effectsActive.RangedMoraleBoost) _cardsInRanged.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
+        if (_effectsActive.SiegeMoraleBoost) _cardsInSiege.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
+
+        //horns
+        if (_effectsActive.FrontHorns) _cardsInFront.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
+        if (_effectsActive.RangedHorns) _cardsInRanged.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
+        if (_effectsActive.SiegeHorns) _cardsInSiege.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
+    }
+    #endregion Adjust Card Power Related
 }

@@ -24,6 +24,8 @@ public class S_SpellsManager : NetworkBehaviour
                 case EnumCardEffects.Spy: Spy(_players.Find(x => x.ReturnID() == _whosCard)); break;
                 case EnumCardEffects.Medic: Medic(_players.Find(x => x.ReturnID() == _whosCard)); break;
                 case EnumCardEffects.Muster: Muster(_players, _whosCard, _playedCard); break;
+                case EnumCardEffects.MoraleBoost: 
+                case EnumCardEffects.CommandersHorn: PowerAdjustRelated(); break;
             }
         }
 
@@ -203,5 +205,10 @@ public class S_SpellsManager : NetworkBehaviour
         {
             _gameManager.PlayMultipleCardsClientRpc(_cardString, _placementString, player.ClientRpcParams);
         }
+    }
+
+    private void PowerAdjustRelated()
+    {
+
     }
 }

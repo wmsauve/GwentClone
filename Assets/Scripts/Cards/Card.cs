@@ -28,7 +28,20 @@ public class Card : ScriptableObject
     public EnumUnitPlacement scorchTarget;
     [Tooltip("In case we want variable scorch thresholds.")]
     public int scorchAmount;
-        
+
+    #region Power Handling Related
+    private int basePower;
+    #endregion Power Handling Related 
+
+    public void Awake()
+    {
+        basePower = cardPower;
+    }
+
+    public void ResetToBasePower()
+    {
+        cardPower = basePower;
+    }
 }
 
 

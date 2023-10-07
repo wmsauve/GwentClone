@@ -623,6 +623,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         foreach(C_PlayerGamePlayLogic.StoreAdditionalStepCards _card in _multiStepCards)
         {
             Card _data = _card.CardData;
+
             EnumUnitPlacement _placement = _card.CardPlace;
             int _slot = _card.CardSlot;
 
