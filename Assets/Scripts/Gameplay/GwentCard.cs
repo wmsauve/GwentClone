@@ -1,10 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
-[Serializable]
-[CreateAssetMenu(fileName = "Card", menuName = "ScriptableObjects/GwentCard")]
-public class Card : ScriptableObject
+public class GwentCard 
 {
     [Header("Identifier Related")]
     [Tooltip("Name of the card, but also used as identifier in code.")]
@@ -28,6 +25,29 @@ public class Card : ScriptableObject
     public EnumUnitPlacement scorchTarget;
     [Tooltip("In case we want variable scorch thresholds.")]
     public int scorchAmount;
+
+    private int basePower;
+
+    public void InitializeCard(Card card)
+    {
+        id = card.id;
+        cardImage = card.cardImage;
+        unitType = card.unitType;
+        cardType = card.cardType;
+        unitPlacement = card.unitPlacement;
+        factionType = card.factionType;
+        cardEffects = card.cardEffects;
+        cardPower = card.cardPower;
+        maxPerDeck = card.maxPerDeck;
+        musterTag = card.musterTag;
+        scorchTarget = card.scorchTarget;
+        scorchAmount = card.scorchAmount;
+
+        basePower = cardPower;
+    }
+
+    public void ResetToBasePower()
+    {
+        cardPower = basePower;
+    }
 }
-
-

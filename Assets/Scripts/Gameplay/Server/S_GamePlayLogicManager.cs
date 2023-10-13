@@ -559,6 +559,19 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 _play.StoreReferenceToPlayingMultiStepCard(_card, cardPlace, cardSlot);
                 return false;
             }
+
+            PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
+            switch (_card.unitType)
+            {
+                //Maybe refactor if game every doesn't have 1v1.
+                case EnumUnitType.Spy:
+                    C_PlayerGamePlayLogic _otherPlayer = _playersLogic.Find(x => x.OwnerClientId != _play.OwnerClientId);
+                    _otherPlayer.PlaceCardInPlay(_card, cardPlace);
+                    break;
+                case EnumUnitType.Regular:
+                    _play.PlaceCardInPlay(_card, cardPlace);
+                    break;
+            }
         }
 
         if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
@@ -578,22 +591,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
             _play.RemoveCardFromHandServer(cardSlot);
-        }
-
-        if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
-        {
-            PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
-            switch (_card.unitType)
-            {
-                //Maybe refactor if game every doesn't have 1v1.
-                case EnumUnitType.Spy:
-                    C_PlayerGamePlayLogic _otherPlayer = _playersLogic.Find(x => x.OwnerClientId != _play.OwnerClientId);
-                    _otherPlayer.PlaceCardInPlay(_card, cardPlace);
-                    break;
-                case EnumUnitType.Regular:
-                    _play.PlaceCardInPlay(_card, cardPlace);
-                    break;
-            }
         }
 
         return true;

@@ -178,7 +178,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         _cardsInPlay.CheckForNewHighestCard();
     }
 
-    public (List<Card>, List<int>) RemoveMusterCardsFromHand(string _tag)
+    public (List<Card>, List<int>) RemoveMusterCardsFromHand(string _tag, Card _played)
     {
         List<Card> _playedCard = new List<Card>();
         List<int> _placements = new List<int>();
@@ -187,6 +187,13 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
         for (int i = _hand.Count - 1; i >= 0; i--)
         {
+            //We are not mustering the muster card that was played.
+            //if (_hand[i].UniqueMusterID == _played.UniqueMusterID)
+            //{
+            //    Debug.LogWarning($" is this a thing? {i} _hand id {_hand[i].UniqueMusterID} _played id {_played.UniqueMusterID}");
+            //    continue;
+            //}
+
             if (_hand[i].cardEffects.Contains(EnumCardEffects.Muster) && _hand[i].musterTag == _tag)
             {
                 _playedCard.Add(_hand[i]);

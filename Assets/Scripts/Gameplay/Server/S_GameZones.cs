@@ -79,7 +79,7 @@ public class S_GameZones
             foreach (Card _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-                _card.ResetToBasePower();
+                //_card.ResetToBasePower();
             }
         }
 

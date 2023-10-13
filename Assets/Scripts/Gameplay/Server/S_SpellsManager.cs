@@ -25,7 +25,7 @@ public class S_SpellsManager : NetworkBehaviour
                 case EnumCardEffects.Medic: Medic(_players.Find(x => x.ReturnID() == _whosCard)); break;
                 case EnumCardEffects.Muster: Muster(_players, _whosCard, _playedCard); break;
                 case EnumCardEffects.MoraleBoost: 
-                case EnumCardEffects.CommandersHorn: PowerAdjustRelated(); break;
+                case EnumCardEffects.CommandersHorn: PowerAdjustRelated(_players, _playedCard); break;
             }
         }
 
@@ -190,7 +190,7 @@ public class S_SpellsManager : NetworkBehaviour
 
         Debug.LogWarning(_play.MyInfo.Deck.Cards.Count + " cards in deck.");
 
-        (List<Card> _handCards, List<int> _placements) = _play.RemoveMusterCardsFromHand(_musterTag);
+        (List<Card> _handCards, List<int> _placements) = _play.RemoveMusterCardsFromHand(_musterTag, _card);
 
         _cardsToPlay.AddRange(_play.RemoveMusterCardsFromDeck(_musterTag));
         _cardsToPlay.AddRange(_handCards);
@@ -207,8 +207,11 @@ public class S_SpellsManager : NetworkBehaviour
         }
     }
 
-    private void PowerAdjustRelated()
+    private void PowerAdjustRelated(List<C_PlayerGamePlayLogic> _players, Card _card)
     {
-
+        foreach(C_PlayerGamePlayLogic player in _players)
+        {
+            //player.
+        }
     }
 }

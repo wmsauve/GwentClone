@@ -2,6 +2,8 @@
 Just for fun.
 
 # Current Task Being Worked On
+Refactor cards to use classes instead of scriptable objects.
+
 Work on stat boosting effects. (horn)
 
 # TODO

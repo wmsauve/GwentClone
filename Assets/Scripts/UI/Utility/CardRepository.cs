@@ -55,7 +55,11 @@ public class CardRepository : MonoBehaviour
     {
         Card newCard;
         var success = m_cardFetch.TryGetValue(_cardID, out newCard);
-        if (success) return newCard;
+        if (success)
+        {
+            //newCard.InitializeCard();
+            return newCard;
+        }
         else
         {
             Debug.LogWarning("Invalid card Id. Try again.");
