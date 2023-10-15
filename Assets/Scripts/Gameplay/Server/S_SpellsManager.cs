@@ -13,7 +13,7 @@ public class S_SpellsManager : NetworkBehaviour
     /// <param name="_effect"></param>
     /// <param name="_players"></param>
     /// <param name="_whosCard"></param>
-    public void HandleSpell(Card _playedCard, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
+    public void HandleSpell(GwentCard _playedCard, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
     {
         var _effect = _playedCard.cardEffects;
         foreach(EnumCardEffects effect in _effect)
@@ -40,7 +40,7 @@ public class S_SpellsManager : NetworkBehaviour
     /// <param name="_player"></param>
     /// <param name="_cardSlot"></param>
     /// <param name="_played"></param>
-    public void HandleSpell(List<EnumCardEffects> _effect, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, C_PlayerGamePlayLogic _player, int _cardSlot, Card _played)
+    public void HandleSpell(List<EnumCardEffects> _effect, S_GamePlayLogicManager.CardToClient[] _interact, EnumUnitPlacement _place, C_PlayerGamePlayLogic _player, int _cardSlot, GwentCard _played)
     {
         foreach(EnumCardEffects effect in _effect)
         {
@@ -66,7 +66,7 @@ public class S_SpellsManager : NetworkBehaviour
             int _highestScore = 0;
             foreach (C_PlayerGamePlayLogic _player in _players)
             {
-                List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
+                List<GwentCard> _highestCards = _player.CardsInPlay.HighestPowerCard;
                 if (_highestCards.Count == 0) continue;
 
                 if (_highestCards[0].cardPower > _highestScore) _highestScore = _highestCards[0].cardPower;
@@ -77,7 +77,7 @@ public class S_SpellsManager : NetworkBehaviour
 
             foreach (C_PlayerGamePlayLogic _player in _players)
             {
-                List<Card> _highestCards = _player.CardsInPlay.HighestPowerCard;
+                List<GwentCard> _highestCards = _player.CardsInPlay.HighestPowerCard;
                 if (_highestCards.Count == 0) continue;
 
                 if (_highestCards[0].cardPower == _highestScore) _player.PlaceCardInGraveyardScorch();
@@ -137,17 +137,23 @@ public class S_SpellsManager : NetworkBehaviour
 
         //Spies draw 2, but think about making this variable in the future.
         int _numToDraw = 2;
-        List<Card> _drawnCards = _player.DrawCardFromDeck(_numToDraw);
-        string[] cardNames = new string[_drawnCards.Count];
-        for(int i = 0; i < _drawnCards.Count; i++) cardNames[i] = _drawnCards[i].id;
-        var _json = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(cardNames));
-
+        List<GwentCard> _drawnCards = _player.DrawCardFromDeck(_numToDraw);
+        S_GamePlayLogicManager.CardToClient[] cardNames = new S_GamePlayLogicManager.CardToClient[_drawnCards.Count];
+        for(int i = 0; i < _drawnCards.Count; i++)
+        {
+            S_GamePlayLogicManager.CardToClient _cardToClient = new S_GamePlayLogicManager.CardToClient();
+            _cardToClient._card = _drawnCards[i].id;
+            _cardToClient._unique = _drawnCards[i].UniqueGuid;
+            cardNames[i] = _cardToClient;
+        }
+        //var _json = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(cardNames));
+        var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
         _gameManager.PlaceCardInHandClientRpc(_json, _player.ClientRpcParams);
     }
 
-    private void Decoy(C_PlayerGamePlayLogic _play, int _cardSlot, List<S_GamePlayLogicManager.InteractCardsOnServer> _interact, EnumUnitPlacement _place, Card _played)
+    private void Decoy(C_PlayerGamePlayLogic _play, int _cardSlot, S_GamePlayLogicManager.CardToClient[] _interact, EnumUnitPlacement _place, GwentCard _played)
     {
-        List<Card> _zone = null;
+        List<GwentCard> _zone = null;
         //decoy only affects one card
         var _cardsInPlay = _play.CardsInPlay;
         switch (_place)
@@ -156,12 +162,13 @@ public class S_SpellsManager : NetworkBehaviour
             case EnumUnitPlacement.Ranged: _zone = _cardsInPlay.CardsInRanged.Cards; break;
             case EnumUnitPlacement.Siege: _zone = _cardsInPlay.CardsInSiege.Cards; break;
         }
-        var _loc = _interact[0]._placement - 1; //outline object exists at placement = 0
+        var _loc = _zone.FindIndex(x => x.UniqueGuid == _interact[0]._unique); //outline object exists at placement = 0
+        GwentCard _toHand = _zone[_loc];
         _zone.RemoveAt(_loc);
         _zone.Insert(_loc, _played);
 
         _play.CardsInHand.RemoveAt(_cardSlot);
-        _play.CardsInHand.Insert(_cardSlot, _interact[0]._card);
+        _play.CardsInHand.Insert(_cardSlot, _toHand);
     }
 
     private void Medic(C_PlayerGamePlayLogic _player)
@@ -175,7 +182,7 @@ public class S_SpellsManager : NetworkBehaviour
         _gameManager.OpenGraveyardUIClientRpc(_player.ClientRpcParams);
     }
 
-    private void Muster(List<C_PlayerGamePlayLogic> _players, ulong _whos, Card _card)
+    private void Muster(List<C_PlayerGamePlayLogic> _players, ulong _whos, GwentCard _card)
     {
         if (_gameManager == null)
         {
@@ -186,28 +193,28 @@ public class S_SpellsManager : NetworkBehaviour
         C_PlayerGamePlayLogic _play = _players.Find(x => x.ReturnID() == _whos);
 
         string _musterTag = _card.musterTag;
-        List<Card> _cardsToPlay = new List<Card>();
+        List<GwentCard> _cardsToPlay = new List<GwentCard>();
 
         Debug.LogWarning(_play.MyInfo.Deck.Cards.Count + " cards in deck.");
 
-        (List<Card> _handCards, List<int> _placements) = _play.RemoveMusterCardsFromHand(_musterTag, _card);
+        List<GwentCard> _handCards = _play.RemoveMusterCardsFromHand(_musterTag, _card);
 
         _cardsToPlay.AddRange(_play.RemoveMusterCardsFromDeck(_musterTag));
         _cardsToPlay.AddRange(_handCards);
 
         Debug.LogWarning(_play.MyInfo.Deck.Cards.Count + " cards in deck after muster logic on server.");
 
-        string[] _ids = _play.ReturnCardIds(EnumCardListType.Hand, _cardsToPlay);
-        var _cardString = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(_ids));
-        var _placementString = JsonUtility.ToJson(new S_GamePlayLogicManager.CardPlacements(_placements.ToArray()));
+        S_GamePlayLogicManager.CardToClient[] _ids = _play.ReturnCardIds(EnumCardListType.Hand, _cardsToPlay);
+        //var _cardString = JsonUtility.ToJson(new S_GamePlayLogicManager.CardNames(_ids));
+        var _json = GeneralPurposeFunctions.ConvertArrayToJson(_ids);
 
-        foreach(C_PlayerGamePlayLogic player in _players)
+        foreach (C_PlayerGamePlayLogic player in _players)
         {
-            _gameManager.PlayMultipleCardsClientRpc(_cardString, _placementString, player.ClientRpcParams);
+            _gameManager.PlayMultipleCardsClientRpc(_json, player.ClientRpcParams);
         }
     }
 
-    private void PowerAdjustRelated(List<C_PlayerGamePlayLogic> _players, Card _card)
+    private void PowerAdjustRelated(List<C_PlayerGamePlayLogic> _players, GwentCard _card)
     {
         foreach(C_PlayerGamePlayLogic player in _players)
         {

@@ -37,7 +37,7 @@ public class C_GraveyardManager : MonoBehaviour
         m_graveYardContainer.SetActive(true);
     }
 
-    public void PassCardsToGraveyard(List<Card> _cards)
+    public void PassCardsToGraveyard(List<GwentCard> _cards)
     {
         m_graveYardUI.AddCardsToGraveyard(_cards);
     }

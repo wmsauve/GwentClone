@@ -29,7 +29,7 @@ public class C_ZonesManager : MonoBehaviour
         }
     }
 
-    public void AddCardToZone(Card _cardData, EnumUnitPlacement _cardPlacement, EnumUnitType _cardType)
+    public void AddCardToZone(GwentCard _cardData, EnumUnitPlacement _cardPlacement, EnumUnitType _cardType)
     {
         if(_myLogic == null) _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
 
@@ -61,7 +61,7 @@ public class C_ZonesManager : MonoBehaviour
         _zone.ReadjustCardPositionsInZone();
     }
 
-    public void SwapCardInZone(Card _cardData, EnumUnitPlacement _cardPlacement, int playLocation)
+    public void SwapCardInZone(GwentCard _cardData, EnumUnitPlacement _cardPlacement, string interactID)
     {
         if (_myLogic == null) _myLogic = GeneralPurposeFunctions.GetPlayerLogicReference();
 
@@ -69,10 +69,22 @@ public class C_ZonesManager : MonoBehaviour
         var _zone = _whichZones.Find((x) => x.AllowableCards.Contains(_cardPlacement));
         if (_zone != null)
         {
-            var targetCard = _zone.CardPlace.GetChild(playLocation);
-            var _cardComp = targetCard.GetComponent<C_PlayedCard>();
+            var _cardComp = GetInteractedCardPosition(_zone, interactID);
             if (_cardComp != null) _cardComp.MyCard = _cardData;
         }
+    }
+
+    private C_PlayedCard GetInteractedCardPosition(C_GameZone zone, string interact)
+    {
+        List<Transform> _cards = new List<Transform>();
+        for (int i = 0; i < zone.CardPlace.childCount; i++) _cards.Add(zone.CardPlace.GetChild(i));
+        foreach(Transform _card in _cards)
+        {
+            var component = _card.GetComponent<C_PlayedCard>();
+            if (component.MyCard.UniqueGuid == interact) return component;
+        }
+
+        return null;
     }
 
     public void CleanZones()

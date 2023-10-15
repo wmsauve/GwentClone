@@ -6,7 +6,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 {
     public struct StoreAdditionalStepCards
     {
-        public Card CardData;
+        public GwentCard CardData;
         public EnumUnitPlacement CardPlace;
         public int CardSlot;
     } 
@@ -26,10 +26,10 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     private GwentPlayer _myInfo = null;
     public GwentPlayer MyInfo { get { return _myInfo; } }
 
-    private List<Card> _cardsInHand = new List<Card>();
-    public List<Card> CardsInHand { get { return _cardsInHand; } }
-    private List<Card> _cardsInGraveyard = new List<Card>();
-    public List<Card> CardsInGraveyard { get { return _cardsInGraveyard; } }
+    private List<GwentCard> _cardsInHand = new List<GwentCard>();
+    public List<GwentCard> CardsInHand { get { return _cardsInHand; } }
+    private List<GwentCard> _cardsInGraveyard = new List<GwentCard>();
+    public List<GwentCard> CardsInGraveyard { get { return _cardsInGraveyard; } }
 
     private S_GameZones _cardsInPlay = new S_GameZones();
     public S_GameZones CardsInPlay { get { return _cardsInPlay; } }
@@ -61,24 +61,28 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             }
         };
     }
-    public string[] CreateInitialHand()
+    public S_GamePlayLogicManager.CardToClient[] CreateInitialHand()
     {
-        List<string> toClient = new List<string>();
+        List<S_GamePlayLogicManager.CardToClient> toClient = new List<S_GamePlayLogicManager.CardToClient>();
 
         for(int i = 0; i < _initialHandSize; i++)
         {
             int which = Random.Range(0, _myInfo.Deck.Cards.Count);
             Card inHand = _myInfo.Deck.Cards[which];
             _myInfo.Deck.RemoveCard(inHand);
-            toClient.Add(inHand.id);
-            _cardsInHand.Add(inHand);
+            GwentCard _newCard = new GwentCard(inHand);
+
+            S_GamePlayLogicManager.CardToClient _clientCard = new S_GamePlayLogicManager.CardToClient(_newCard.id, _newCard.UniqueGuid);
+
+            toClient.Add(_clientCard);
+            _cardsInHand.Add(_newCard);
         }
 
         return toClient.ToArray();
     }
 
     #region Graveyard Related
-    public void StoreReferenceToPlayingMultiStepCard(Card _card, EnumUnitPlacement _cardPlace, int _cardSlot)
+    public void StoreReferenceToPlayingMultiStepCard(GwentCard _card, EnumUnitPlacement _cardPlace, int _cardSlot)
     {
         StoreAdditionalStepCards _temp;
         _temp.CardData = _card;
@@ -92,31 +96,31 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     {
         if (_zone != null)
         {
-            foreach (Card _card in _zone.HighestPowerCards) _cardsInGraveyard.Add(_card);
+            foreach (GwentCard _card in _zone.HighestPowerCards) _cardsInGraveyard.Add(_card);
             _cardsInPlay.DestroyCardsOfPowerInPlay(_placement, _zone.HighestPowerCard);
         }
         else
         {
-            foreach (Card _card in _cardsInPlay.HighestPowerCard) _cardsInGraveyard.Add(_card);
+            foreach (GwentCard _card in _cardsInPlay.HighestPowerCard) _cardsInGraveyard.Add(_card);
             _cardsInPlay.DestroyCardsOfPowerInPlay(_placement);
         }
     }
 
     public void EndOfTurnGraveyardCards()
     {
-        foreach(Card card in _cardsInPlay.CardsInFront.Cards)
+        foreach(GwentCard card in _cardsInPlay.CardsInFront.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
         _cardsInPlay.CardsInFront.Cards.Clear();
 
-        foreach (Card card in _cardsInPlay.CardsInRanged.Cards)
+        foreach (GwentCard card in _cardsInPlay.CardsInRanged.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
         _cardsInPlay.CardsInRanged.Cards.Clear();
 
-        foreach (Card card in _cardsInPlay.CardsInSiege.Cards)
+        foreach (GwentCard card in _cardsInPlay.CardsInSiege.Cards)
         {
             _cardsInGraveyard.Add(card);
         }
@@ -160,7 +164,7 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         _cardsInHand.RemoveAt(cardSlot);
     }
 
-    public void PlaceCardInPlay(Card playedCard, EnumUnitPlacement cardPlace)
+    public void PlaceCardInPlay(GwentCard playedCard, EnumUnitPlacement cardPlace)
     {
         switch (cardPlace)
         {
@@ -178,12 +182,10 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         _cardsInPlay.CheckForNewHighestCard();
     }
 
-    public (List<Card>, List<int>) RemoveMusterCardsFromHand(string _tag, Card _played)
+    public List<GwentCard> RemoveMusterCardsFromHand(string _tag, GwentCard _played)
     {
-        List<Card> _playedCard = new List<Card>();
-        List<int> _placements = new List<int>();
-
-        List<Card> _hand = _cardsInHand;
+        List<GwentCard> _playedCard = new List<GwentCard>();
+        List<GwentCard> _hand = _cardsInHand;
 
         for (int i = _hand.Count - 1; i >= 0; i--)
         {
@@ -200,16 +202,15 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
                 EnumUnitPlacement _placement = _hand[i].unitPlacement;
                 PlaceCardInPlay(_hand[i], _placement);
                 RemoveCardFromHandServer(i);
-                _placements.Add(i);
             }
         }
 
-        return (_playedCard, _placements);
+        return _playedCard;
     }
 
-    public List<Card> RemoveMusterCardsFromDeck(string _tag)
+    public List<GwentCard> RemoveMusterCardsFromDeck(string _tag)
     {
-        List<Card> _drawnCards = new List<Card>();
+        List<GwentCard> _drawnCards = new List<GwentCard>();
 
         List<Card> _deck = _myInfo.Deck.Cards;
 
@@ -217,26 +218,28 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         {
             if(_deck[i].cardEffects.Contains(EnumCardEffects.Muster) && _deck[i].musterTag == _tag)
             {
-                _drawnCards.Add(_deck[i]);
-                EnumUnitPlacement _placement = _deck[i].unitPlacement;
-                PlaceCardInPlay(_deck[i], _placement);
+                GwentCard _musterCard = new GwentCard(_deck[i]);
+                EnumUnitPlacement _placement = _musterCard.unitPlacement;
+                PlaceCardInPlay(_musterCard, _placement);
                 _deck.RemoveAt(i);
+                _drawnCards.Add(_musterCard);
             }
         }
 
         return _drawnCards;
     }
 
-    public List<Card> DrawCardFromDeck(int _num)
+    public List<GwentCard> DrawCardFromDeck(int _num)
     {
-        List<Card> _drawnCards = new List<Card>();
+        List<GwentCard> _drawnCards = new List<GwentCard>();
         for(int i = 0; i < _num; i++)
         {
             Card _drawnCard = _myInfo.Deck.Cards[0];
+            GwentCard _newGwentCard = new GwentCard(_drawnCard);
             _myInfo.Deck.Cards.Remove(_drawnCard);
 
-            _cardsInHand.Add(_drawnCard);
-            _drawnCards.Add(_drawnCard);
+            _cardsInHand.Add(_newGwentCard);
+            _drawnCards.Add(_newGwentCard);
         }
 
         return _drawnCards;
@@ -259,10 +262,11 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
 
             //Place new card into mulliganed slot.
             int cardIndex = _cardsInHand.FindIndex((card) => card.id == mulliganed);
-            Card oldCard = _cardsInHand[cardIndex];
+            Card oldCard = _cardsInHand[cardIndex].DataRef;
             _mulliganStorage.Add(oldCard);
             _cardsInHand.RemoveAt(cardIndex);
-            _cardsInHand.Insert(cardIndex, newHandCard);
+            GwentCard _gwentCard = new GwentCard(newHandCard);
+            _cardsInHand.Insert(cardIndex, _gwentCard);
 
             return newHandCard.id;
         }
@@ -281,9 +285,9 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     #endregion Mulligan Related
 
     #region Utility Related
-    public string[] ReturnCardIds(EnumCardListType which, List<Card> _cards = null)
+    public S_GamePlayLogicManager.CardToClient[] ReturnCardIds(EnumCardListType which, List<GwentCard> _cards = null)
     {
-        List<Card> _list = new List<Card>();
+        List<GwentCard> _list = new List<GwentCard>();
 
         if(_cards == null)
         {
@@ -297,8 +301,14 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         else _list = _cards;
 
 
-        List<string> toClient = new List<string>();
-        for (int i = 0; i < _list.Count; i++) toClient.Add(_list[i].id);
+        List<S_GamePlayLogicManager.CardToClient> toClient = new List<S_GamePlayLogicManager.CardToClient>();
+        for (int i = 0; i < _list.Count; i++)
+        {
+            S_GamePlayLogicManager.CardToClient _toClient = new S_GamePlayLogicManager.CardToClient();
+            _toClient._card = _list[i].id;
+            _toClient._unique = _list[i].UniqueGuid;
+            toClient.Add(_toClient);
+        }
         return toClient.ToArray();
     }
 

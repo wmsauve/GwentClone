@@ -2,7 +2,7 @@
 Just for fun.
 
 # Current Task Being Worked On
-Refactor cards to use classes instead of scriptable objects.
+To Test: After changing Card to GwentCard whenever game logic is being dealt with, make sure everything works the same.
 
 Work on stat boosting effects. (horn)
 

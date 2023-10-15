@@ -20,7 +20,7 @@ public class UI_GameplayCard : UI_MainButtonGame
         }
     }
 
-    public override Card CardData 
+    public override GwentCard CardData 
     { 
         get { return m_myData; } 
         set 

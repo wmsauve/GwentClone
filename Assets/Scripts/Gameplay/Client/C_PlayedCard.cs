@@ -4,8 +4,8 @@ using UnityEngine.EventSystems;
 public class C_PlayedCard : G_OutlinedGameObject
 {
 
-    private Card m_myCard;
-    public Card MyCard { 
+    private GwentCard m_myCard;
+    public GwentCard MyCard { 
         get { return m_myCard; }
         set
         {
@@ -22,7 +22,7 @@ public class C_PlayedCard : G_OutlinedGameObject
         base.Start();
     }
 
-    public void InitializePlayedCard(Card _card, C_GameZone _zone)
+    public void InitializePlayedCard(GwentCard _card, C_GameZone _zone)
     {
         m_myCard = _card;
         m_myZone = _zone;

@@ -5,14 +5,14 @@ public class S_GameZones
 {
     public class GameZone
     {
-        public List<Card> Cards = new List<Card>();
+        public List<GwentCard> Cards = new List<GwentCard>();
         public int TotalPower;
 
-        public List<Card> HighestPowerCards = new List<Card>();
+        public List<GwentCard> HighestPowerCards = new List<GwentCard>();
         public int HighestPowerCard;
         public int FlaggedPowerForDestroy;
         
-        public void AddCardToZone(Card _newCard)
+        public void AddCardToZone(GwentCard _newCard)
         {
             Cards.Add(_newCard);
             RunHighestCardCheck();
@@ -21,8 +21,8 @@ public class S_GameZones
         public void DestroyCardsOfPower(int power)
         {
             FlaggedPowerForDestroy = power;
-            List<Card> savedCards = new List<Card>();
-            foreach(Card _card in Cards)
+            List<GwentCard> savedCards = new List<GwentCard>();
+            foreach(GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero) || _card.cardPower != power) savedCards.Add(_card);
             }
@@ -33,7 +33,7 @@ public class S_GameZones
 
         public void ApplyWeather()
         {
-            foreach(Card _card in Cards)
+            foreach(GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
                 _card.cardPower = 1;
@@ -48,19 +48,19 @@ public class S_GameZones
             {
                 case EnumCardEffects.MoraleBoost:
                     int numOfChars = 0;
-                    foreach(Card _card in Cards)
+                    foreach(GwentCard _card in Cards)
                     {
                         if (_card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) numOfChars++;
                     }
 
-                    foreach (Card _card in Cards)
+                    foreach (GwentCard _card in Cards)
                     {
                         if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) continue;
                         _card.cardPower += numOfChars;
                     }
                     break;
                 case EnumCardEffects.CommandersHorn:
-                    foreach (Card _card in Cards)
+                    foreach (GwentCard _card in Cards)
                     {
                         if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.CommandersHorn)) continue;
                         _card.cardPower *= 2;
@@ -76,7 +76,7 @@ public class S_GameZones
 
         public void ResetCards()
         {
-            foreach (Card _card in Cards)
+            foreach (GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
                 //_card.ResetToBasePower();
@@ -91,7 +91,7 @@ public class S_GameZones
 
             if (Cards == null || Cards.Count == 0) return;
 
-            foreach (Card _card in Cards)
+            foreach (GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
 
@@ -100,7 +100,7 @@ public class S_GameZones
                 if (_card.cardPower > HighestPowerCard)
                 {
                     HighestPowerCard = _card.cardPower;
-                    HighestPowerCards = new List<Card>();
+                    HighestPowerCards = new List<GwentCard>();
                     HighestPowerCards.Add(_card);
                 }
 
@@ -132,8 +132,8 @@ public class S_GameZones
     public GameZone CardsInRanged { get { return _cardsInRanged; } }
     public GameZone CardsInSiege { get { return _cardsInSiege; } }
 
-    private List<Card> _highestPowerCards = new List<Card>();
-    public List<Card> HighestPowerCard { get { return _highestPowerCards; } }
+    private List<GwentCard> _highestPowerCards = new List<GwentCard>();
+    public List<GwentCard> HighestPowerCard { get { return _highestPowerCards; } }
 
     private int _currentHighestPower;
 

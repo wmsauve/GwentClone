@@ -256,7 +256,7 @@ public class GeneralPurposeFunctions
         return false;
     }
 
-    public static EnumPlayCardStatus GetIntendedPlayLocation(Card _data)
+    public static EnumPlayCardStatus GetIntendedPlayLocation(GwentCard _data)
     {
         //For now. need to update this later for single target cards.
         switch (_data.unitPlacement)

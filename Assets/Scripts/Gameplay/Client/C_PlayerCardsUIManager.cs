@@ -70,7 +70,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         mainRect.anchoredPosition = anchoredPos;
     }
 
-    public void InitializeHand(List<Card> _cardInfo = null, S_GamePlayLogicManager _manager = null)
+    public void InitializeHand(List<GwentCard> _cardInfo = null, S_GamePlayLogicManager _manager = null)
     {
         int totalCards = testHandSize;
 
@@ -102,7 +102,7 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    public void DrawCards(List<Card> _cards)
+    public void DrawCards(List<GwentCard> _cards)
     {
         float _shiftLeft = 1.0f;
         var totalCards = m_cards.Count + _cards.Count;
@@ -151,16 +151,22 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         }
     }
 
-    private void PlayCardPassToServer(EnumUnitPlacement _placement, S_GamePlayLogicManager.InteractTarget[] _interactedCards = null)
+    private void PlayCardPassToServer(EnumUnitPlacement _placement, S_GamePlayLogicManager.CardToClient[] _interactedCards = null)
     {
         int _cardSlot = m_currentCard.CardOrder;
         string _cardName = m_currentCard.CardData.id;
-        if (_interactedCards == null || _interactedCards.Length == 0) _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement);
+
+        S_GamePlayLogicManager.CardToClient _cardToServer = new S_GamePlayLogicManager.CardToClient();
+        _cardToServer._card = _cardName;
+        _cardToServer._unique = m_currentCard.CardData.UniqueGuid;
+        var _cardJson = JsonUtility.ToJson(_cardToServer);
+
+        if (_interactedCards == null || _interactedCards.Length == 0) _gameManager.PlayCardDuringTurnServerRpc(_cardJson, _cardSlot, _placement);
         else
         {
             var _json = GeneralPurposeFunctions.ConvertArrayToJson(_interactedCards);
             Debug.LogWarning(_json + " json on client.");
-            _gameManager.PlayCardDuringTurnServerRpc(_cardName, _cardSlot, _placement, _json);
+            _gameManager.PlayCardDuringTurnServerRpc(_cardJson, _cardSlot, _placement, _json);
         }
     }
 
@@ -173,25 +179,33 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         ReadjustCardPositionsInHand();
     }
 
-    public void RemoveManyCardsFromHand(List<int> slots)
+    public void RemoveManyCardsFromHand(List<GwentCard> cards)
     {
-        slots.Sort();
-        slots.Reverse();
-        int j = 0;
-        for(int i = m_cards.Count - 1; i >= 0; i--)
-        {
-            Debug.LogWarning($"i {i} j {j}");
-            if(i == slots[j])
-            {
-                RemoveCardFromHand(i);
-                j++;
-            }
+        //slots.Sort();
+        //slots.Reverse();
+        //int j = 0;
+        //for(int i = m_cards.Count - 1; i >= 0; i--)
+        //{
+        //    Debug.LogWarning($"i {i} j {j}");
+        //    if(i == slots[j])
+        //    {
+        //        RemoveCardFromHand(i);
+        //        j++;
+        //    }
 
-            if (j == slots.Count) break;
+        //    if (j == slots.Count) break;
+        //}
+
+        foreach(GwentCard card in cards)
+        {
+            int _index = m_cardInfo.FindIndex(x => x.CardData.UniqueGuid == card.UniqueGuid);
+            if (_index == -1) continue;
+
+            RemoveCardFromHand(_index);
         }
     }
 
-    public void SwapCardInHand(int slot, Card card)
+    public void SwapCardInHand(int slot, GwentCard card)
     {
         UI_GameplayCard _cardInHand = m_cardInfo[slot];
         _cardInHand.CardData = card;
@@ -249,8 +263,10 @@ public class C_PlayerCardsUIManager : MonoBehaviour
                 PlayCardPassToServer(_placement);
                 break;
             case EnumDropCardReason.PlayDecoy:
-                S_GamePlayLogicManager.InteractTarget[] _interactCards = new S_GamePlayLogicManager.InteractTarget[1];
-                _interactCards[0] = new S_GamePlayLogicManager.InteractTarget(_interact.DecoyCard.id, _interact.DecotSlot);
+                S_GamePlayLogicManager.CardToClient[] _interactCards = new S_GamePlayLogicManager.CardToClient[1];
+                _interactCards[0] = new S_GamePlayLogicManager.CardToClient();
+                _interactCards[0]._card = _interact.DecoyCard.id;
+                _interactCards[0]._unique = _interact.DecoyCard.UniqueGuid;
                 PlayCardPassToServer(_placement, _interactCards);
                 break;
         }

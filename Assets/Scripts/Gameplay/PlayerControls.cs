@@ -25,8 +25,8 @@ public class InteractionValues
         set { _decoySlot = value; }
     }
 
-    private Card _decoyCard;
-    public Card DecoyCard
+    private GwentCard _decoyCard;
+    public GwentCard DecoyCard
     {
         get 
         {
@@ -212,7 +212,7 @@ public class PlayerControls : MonoBehaviour
                 {
                     if (_interaction.TargetZone != null) _interaction.TargetZone.HideOutline();
 
-                    Card _data = m_currentCard.CardData;
+                    GwentCard _data = m_currentCard.CardData;
 
                     //Play on opponent.
                     if (_data.cardEffects.Contains(EnumCardEffects.Spy) && _zone.IsPlayerZone) return false;

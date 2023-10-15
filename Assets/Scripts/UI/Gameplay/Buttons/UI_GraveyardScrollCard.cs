@@ -6,7 +6,7 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
 {
     private UI_GraveyardCards graveyardManager = null;
 
-    public override void InitializeButton(Card info, int order, UI_CardViewScroll manager)
+    public override void InitializeButton(GwentCard info, int order, UI_CardViewScroll manager)
     {
         base.InitializeButton(info, order, manager);
 
@@ -39,7 +39,7 @@ public class UI_GraveyardScrollCard : UI_ScrollCardButton
             return;
         }
         
-        graveyardManager.InteractWithScrollCard(m_myData.id, this);
+        graveyardManager.InteractWithScrollCard(m_myData.id, m_myData.UniqueGuid, this);
     }
 
     private void AgileNotSelected()

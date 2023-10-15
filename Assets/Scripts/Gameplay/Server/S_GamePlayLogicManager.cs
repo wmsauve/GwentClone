@@ -5,13 +5,28 @@ using System.Linq;
 
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
-    public struct CardNames
-    {
-        public string[] _cards;
+    //public struct CardNames
+    //{
+    //    public string[] _cards;
 
-        public CardNames(string[] cards)
+    //    public CardNames(string[] cards)
+    //    {
+    //        _cards = cards;
+    //    }
+    //}
+
+    /// <summary>
+    /// Rename this later. Use to pass cards through network to identify cards.
+    /// </summary>
+    public struct CardToClient
+    {
+        public string _card;
+        public string _unique;
+
+        public CardToClient(string _name, string _guid)
         {
-            _cards = cards;
+            _card = _name;
+            _unique = _guid;
         }
     }
 
@@ -25,29 +40,29 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
     [System.Serializable]
-    public struct InteractTarget
-    {
-        public string _card;
-        public int _placement;
+    //public struct InteractTarget
+    //{
+    //    public string _card;
+    //    public int _placement;
 
-        public InteractTarget(string name, int placement)
-        {
-            _card = name;
-            _placement = placement;
-        }
-    }
+    //    public InteractTarget(string name, int placement)
+    //    {
+    //        _card = name;
+    //        _placement = placement;
+    //    }
+    //}
 
-    public struct InteractCardsOnServer
-    {
-        public Card _card;
-        public int _placement;
+    //public struct InteractCardsOnServer
+    //{
+    //    public GwentCard _card;
+    //    public int _placement;
 
-        public InteractCardsOnServer(Card card, int placement)
-        {
-            _card = card;
-            _placement = placement;
-        }
-    }
+    //    public InteractCardsOnServer(GwentCard card, int placement)
+    //    {
+    //        _card = card;
+    //        _placement = placement;
+    //    }
+    //}
 
 
     public struct PlayerScores
@@ -264,8 +279,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 {
                     foreach(C_PlayerGamePlayLogic player in _playersLogic)
                     {
-                        string[] cardNames = player.CreateInitialHand();
-                        var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                        CardToClient[] cardNames = player.CreateInitialHand();
+                        //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                        var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
                         ShowMulliganScreenClientRpc(_json, player.ClientRpcParams);
                     }
 
@@ -298,16 +314,18 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         if (_currentPhase == EnumGameplayPhases.Mulligan)
                         {
                             player.EndMulliganPhase();
-                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Hand);
-                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            CardToClient[] cardNames = player.ReturnCardIds(EnumCardListType.Hand);
+                            //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
                             StartFirstRegularTurnClientRpc(_json, player.TurnActive, player.ClientRpcParams);
                         }
                         else
                         {
                             PassTurnSwapClientRpc(player.TurnActive, player.ClientRpcParams);
                             player.RunCheckUnresolvedCards();
-                            string[] cardNames = player.ReturnCardIds(EnumCardListType.Graveyard);
-                            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            CardToClient[] cardNames = player.ReturnCardIds(EnumCardListType.Graveyard);
+                            //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                            var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
                             UpdateGraveyardClientRpc(_json, player.ClientRpcParams);
                             CloseGraveyardUIClientRpc(player.ClientRpcParams);
                         }
@@ -368,8 +386,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                         }
                         _playersLogic[i].EndOfTurnGraveyardCards();
                         _playersLogic[i].RunCheckUnresolvedCards();
-                        string[] cardNames = _playersLogic[i].ReturnCardIds(EnumCardListType.Graveyard);
-                        var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                        CardToClient[] cardNames = _playersLogic[i].ReturnCardIds(EnumCardListType.Graveyard);
+                        //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+                        var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
                         UpdateGraveyardClientRpc(_json, _playersLogic[i].ClientRpcParams);
                         SetHealthCrystalsClientRpc(myLives, opponentLives, _playersLogic[i].ClientRpcParams);
                         CloseGraveyardUIClientRpc(_playersLogic[i].ClientRpcParams);
@@ -408,20 +427,26 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
-    private void CreateListOfCardsFromString(ref List<Card> _cards, string names)
+    private void CreateListOfCardsFromString(ref List<GwentCard> _cards, string toClient)
     {
-        if (names == null) return;
-        CardNames _cardNames = JsonUtility.FromJson<CardNames>(names);
-        foreach (string name in _cardNames._cards)
+        if (toClient == null) return;
+        GeneralPurposeFunctions.ArrayWrapper<CardToClient> _cardNames = JsonUtility.FromJson<GeneralPurposeFunctions.ArrayWrapper<CardToClient>>(toClient);
+        CardToClient[] _cardToClient = _cardNames.array;
+
+        //CardToClient _cardNames = JsonUtility.FromJson<CardNames>(names);
+
+        for(int i = 0; i < _cardToClient.Length; i++)
         {
-            Card newCard = _deckManager.CardRepo.GetCard(name);
+            CardToClient fromServer = _cardToClient[i];
+            Card newCard = _deckManager.CardRepo.GetCard(fromServer._card);
             if (newCard == null)
             {
                 GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, $"Invalid card name from server to client: {name}");
                 return;
             }
 
-            _cards.Add(newCard);
+            GwentCard _newGwentCard = new GwentCard(fromServer._unique, newCard);
+            _cards.Add(_newGwentCard);
         }
     }
 
@@ -435,34 +460,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         }
     }
 
-    private void CreateInteractCardsOnServer(ref List<InteractCardsOnServer> _cards, string interacts)
-    {
-        if (interacts == null) return;
-        GeneralPurposeFunctions.ArrayWrapper<InteractTarget> _cardNames = JsonUtility.FromJson<GeneralPurposeFunctions.ArrayWrapper<InteractTarget>>(interacts);
-        InteractTarget[] _arrayOfInteracts = _cardNames.array;
-        for(int i = 0; i < _arrayOfInteracts.Length; i++)
-        {
-            Card newCard = _deckManager.CardRepo.GetCard(_arrayOfInteracts[i]._card);
-            if (newCard == null)
-            {
-                Debug.LogWarning(name);
-                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Invalid card name from server to client.");
-                return;
-            }
-            InteractCardsOnServer _newInteract = new InteractCardsOnServer();
-            _newInteract._card = newCard;
-            _newInteract._placement = _arrayOfInteracts[i]._placement;
-            _cards.Add(_newInteract);
-        }
-    }
-
     #region Validate Info From Client Related
 
-    private bool ValidateCardFromServer(string cardName, int cardSlot, List<Card> _cards)
+    private bool ValidateCardFromServer(string cardName, int cardSlot, List<GwentCard> _cards)
     {
         int whichCard = 0;
 
-        foreach (Card card in _cards)
+        foreach (GwentCard card in _cards)
         {
             if (card.id == cardName && cardSlot == whichCard) return true;
             whichCard++;
@@ -527,7 +531,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     /// <param name="_interactCards"></param>
     /// <returns></returns>
     private bool HandleLogicFromPlayedCard(
-        Card _card, 
+        GwentCard _card, 
         ulong clientId, 
         string cardName, 
         EnumUnitPlacement cardPlace,
@@ -536,8 +540,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         string _interactCards = null
         )
     {
-        List<InteractCardsOnServer> _interacted = new List<InteractCardsOnServer>();
-        if (_interactCards != null) CreateInteractCardsOnServer(ref _interacted, _interactCards);
+        CardToClient[] _arrayOfInteracts = new CardToClient[0];
+        if (_interactCards != null)
+        {
+            GeneralPurposeFunctions.ArrayWrapper<CardToClient> _cardNames = JsonUtility.FromJson<GeneralPurposeFunctions.ArrayWrapper<CardToClient>>(_interactCards);
+            _arrayOfInteracts = _cardNames.array;
+        }
         
         //Handle Card
         if (_card.unitType == EnumUnitType.Regular || _card.unitType == EnumUnitType.Spy)
@@ -545,10 +553,19 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             //Decoy
             if (_card.cardType == EnumCardType.Special && _interactCards != null)
             {
-                _spellsManager.HandleSpell(_card.cardEffects, _interacted, cardPlace, _play, cardSlot, _card);
+                _spellsManager.HandleSpell(_card.cardEffects, _arrayOfInteracts, cardPlace, _play, cardSlot, _card);
+                CardToClient _decoy = new CardToClient();
+                _decoy._card = cardName;
+                _decoy._unique = _card.UniqueGuid;
+                var _json = JsonUtility.ToJson(_decoy);
 
-                SwapCardInPlayClientRpc(cardName, cardPlace, _interacted[0]._placement);
-                SwapCardInHandClientRpc(_interacted[0]._card.id, cardSlot, _play.ClientRpcParams);
+                CardToClient _interact = new CardToClient();
+                _interact._card = _arrayOfInteracts[0]._card;
+                _interact._unique = _arrayOfInteracts[0]._unique;
+                var _json2 = JsonUtility.ToJson(_decoy);
+
+                SwapCardInPlayClientRpc(_json, _arrayOfInteracts[0]._unique, cardPlace);
+                SwapCardInHandClientRpc(_json2, cardSlot, _play.ClientRpcParams);
                 return true;
             }
 
@@ -560,7 +577,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                 return false;
             }
 
-            PlacePlayedCardClientRpc(cardName, cardPlace, _card.unitType);
+            CardToClient _cardToPlay = new CardToClient();
+            _cardToPlay._card = _card.id;
+            _cardToPlay._unique = _card.UniqueGuid;
+            var _json3 = JsonUtility.ToJson(_cardToPlay);
+            PlacePlayedCardClientRpc(_json3, cardPlace, _card.unitType);
+
             switch (_card.unitType)
             {
                 //Maybe refactor if game every doesn't have 1v1.
@@ -582,8 +604,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         //Process if not early skip.
         foreach (C_PlayerGamePlayLogic _player in _playersLogic)
         {
-            string[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
-            var _json = JsonUtility.ToJson(new CardNames(cardNames));
+            CardToClient[] cardNames = _player.ReturnCardIds(EnumCardListType.Graveyard);
+            //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+            var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
             UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
         }
 
@@ -604,9 +627,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             S_GameZones _zones = _player.CardsInPlay;
             ulong _whichPlayer = _player.ReturnID();
-            foreach(Card card in _zones.CardsInFront.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
-            foreach (Card card in _zones.CardsInRanged.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
-            foreach (Card card in _zones.CardsInSiege.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);
+            foreach(GwentCard card in _zones.CardsInFront.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
+            foreach (GwentCard card in _zones.CardsInRanged.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
+            foreach (GwentCard card in _zones.CardsInSiege.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);
         }
 
         var _json = _currentMatchScores.PassScoresToClient();
@@ -619,7 +642,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         List<C_PlayerGamePlayLogic.StoreAdditionalStepCards> _multiStepCards = _player.MultiStepCards;
         foreach(C_PlayerGamePlayLogic.StoreAdditionalStepCards _card in _multiStepCards)
         {
-            Card _data = _card.CardData;
+            GwentCard _data = _card.CardData;
 
             EnumUnitPlacement _placement = _card.CardPlace;
             int _slot = _card.CardSlot;
@@ -659,14 +682,14 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void UpdateGraveyardClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    private void UpdateGraveyardClientRpc(string cardToClient, ClientRpcParams clientRpcParams = default)
     {
         var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _graveYardManager, gameObject);
         if (!_found) return;
 
-        List<Card> _cards = new List<Card>();
-        CreateListOfCardsFromString(ref _cards, cardNames);
-        Debug.LogWarning(cardNames + " what's in graveyard?");
+        List<GwentCard> _cards = new List<GwentCard>();
+        CreateListOfCardsFromString(ref _cards, cardToClient);
+        Debug.LogWarning(cardToClient + " what's in graveyard?");
         _graveYardManager.PassCardsToGraveyard(_cards);
     }
 
@@ -690,12 +713,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void ShowMulliganScreenClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    private void ShowMulliganScreenClientRpc(string cardToClient, ClientRpcParams clientRpcParams = default)
     {
         var _found = GeneralPurposeFunctions.FetchComponentOnClient(ref _deckManager, gameObject);
         if (!_found) return;
 
-        Debug.LogWarning(cardNames);
+        Debug.LogWarning(cardToClient);
 
         var _mulligan = Resources.FindObjectsOfTypeAll<UI_MulliganCards>();
         if (_mulligan == null || _mulligan.Length > 1)
@@ -717,14 +740,14 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        List<Card> _cards = new List<Card>();
-        CreateListOfCardsFromString(ref _cards, cardNames);
+        List<GwentCard> _cards = new List<GwentCard>();
+        CreateListOfCardsFromString(ref _cards, cardToClient);
         _mulliganScreen.InitializeMulliganCards(_cards, GlobalConstantValues.GAME_MULLIGANSAMOUNT);
         _mulliganScreen.gameObject.SetActive(true);
     }
 
     [ClientRpc]
-    public void StartFirstRegularTurnClientRpc(string cardNames, bool isActive, ClientRpcParams clientRpcParams = default)
+    public void StartFirstRegularTurnClientRpc(string cardToClient, bool isActive, ClientRpcParams clientRpcParams = default)
     {
         _mulliganScreen.gameObject.SetActive(false);
 
@@ -741,8 +764,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        List<Card> _cards = new List<Card>();
-        CreateListOfCardsFromString(ref _cards, cardNames);
+        List<GwentCard> _cards = new List<GwentCard>();
+        CreateListOfCardsFromString(ref _cards, cardToClient);
         _cardsInHandScreen = _cardInHand[0];
         _cardsInHandScreen.InitializeHand(_cards, this);
         _cardsInHandScreen.gameObject.SetActive(true);
@@ -752,7 +775,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void PlaceCardInHandClientRpc(string cardNames, ClientRpcParams clientRpcParams = default)
+    public void PlaceCardInHandClientRpc(string cardToClient, ClientRpcParams clientRpcParams = default)
     {
         if (_cardsInHandScreen == null)
         {
@@ -760,8 +783,8 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        List<Card> _cards = new List<Card>();
-        CreateListOfCardsFromString(ref _cards, cardNames);
+        List<GwentCard> _cards = new List<GwentCard>();
+        CreateListOfCardsFromString(ref _cards, cardToClient);
         _cardsInHandScreen.DrawCards(_cards);
     }
 
@@ -775,31 +798,34 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        _mulliganScreen.UpdateMulliganedButton(newCard, mulliganCount);
+        GwentCard gwentCard = new GwentCard(newCard);
+
+        _mulliganScreen.UpdateMulliganedButton(gwentCard, mulliganCount);
     }
 
     [ClientRpc]
-    public void PlacePlayedCardClientRpc(string cardName, EnumUnitPlacement cardPlace, EnumUnitType cardType)
+    public void PlacePlayedCardClientRpc(string cardToClient, EnumUnitPlacement cardPlace, EnumUnitType cardType)
     {
         if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
         if (_zoneManager == null) return;
 
-        var _cardData = _deckManager.CardRepo.GetCard(cardName);
-        _zoneManager.AddCardToZone(_cardData, cardPlace, cardType);
+        CardToClient _card = JsonUtility.FromJson<CardToClient>(cardToClient);
+        Card _cardData = _deckManager.CardRepo.GetCard(_card._card);
+        GwentCard _gwentCard = new GwentCard(_card._unique, _cardData);
+
+        _zoneManager.AddCardToZone(_gwentCard, cardPlace, cardType);
     }
 
     [ClientRpc]
-    public void PlayMultipleCardsClientRpc(string cardNames, string placements, ClientRpcParams clientRpcParams = default)
+    public void PlayMultipleCardsClientRpc(string cardToClient, ClientRpcParams clientRpcParams = default)
     {
         if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
         if (_zoneManager == null) return;
 
-        List<Card> _cards = new List<Card>();
-        List<int> _placements = new List<int>();
-        CreateListOfCardsFromString(ref _cards, cardNames);
-        CreateListOfPlacementsFromString(ref _placements, placements);
+        List<GwentCard> _cards = new List<GwentCard>();
+        CreateListOfCardsFromString(ref _cards, cardToClient);
 
-        foreach (Card _card in _cards)
+        foreach (GwentCard _card in _cards)
         {
             _zoneManager.AddCardToZone(_card, _card.unitPlacement, _card.unitType);
         }
@@ -807,24 +833,29 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         var _playerOfCard = GeneralPurposeFunctions.GetPlayerLogicReference();
         if (!_playerOfCard.TurnActive) return;
 
-        _cardsInHandScreen.RemoveManyCardsFromHand(_placements);
+        _cardsInHandScreen.RemoveManyCardsFromHand(_cards);
     }
 
     [ClientRpc]
-    private void SwapCardInPlayClientRpc(string cardName, EnumUnitPlacement cardPlace, int inPlayLocation)
+    private void SwapCardInPlayClientRpc(string cardPlayed, string targetCard, EnumUnitPlacement cardPlace)
     {
         if (_zoneManager == null) _zoneManager = GeneralPurposeFunctions.GetComponentFromGameObject<C_ZonesManager>(gameObject);
         if (_zoneManager == null) return;
 
-        var _cardData = _deckManager.CardRepo.GetCard(cardName);
-        _zoneManager.SwapCardInZone(_cardData, cardPlace, inPlayLocation);
+        CardToClient _decoy = JsonUtility.FromJson<CardToClient>(cardPlayed);
+        Card _cardData = _deckManager.CardRepo.GetCard(_decoy._card);
+        GwentCard _gwentCard = new GwentCard(_decoy._unique, _cardData);
+        _zoneManager.SwapCardInZone(_gwentCard, cardPlace, targetCard);
     }
 
     [ClientRpc]
-    private void SwapCardInHandClientRpc(string cardName, int cardSlot, ClientRpcParams clientRpcParams = default)
+    private void SwapCardInHandClientRpc(string targetCard, int cardSlot, ClientRpcParams clientRpcParams = default)
     {
-        var _cardData = _deckManager.CardRepo.GetCard(cardName);
-        _cardsInHandScreen.SwapCardInHand(cardSlot, _cardData);
+        CardToClient _targetCard = JsonUtility.FromJson<CardToClient>(targetCard);
+        Card _cardData = _deckManager.CardRepo.GetCard(_targetCard._card);
+        GwentCard _gwentCard = new GwentCard(_targetCard._unique, _cardData);
+
+        _cardsInHandScreen.SwapCardInHand(cardSlot, _gwentCard);
     }
 
     [ClientRpc]
@@ -902,7 +933,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void PlayCardDuringTurnServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, string _interactCards = null, ServerRpcParams serverRpcParams = default)
+    public void PlayCardDuringTurnServerRpc(string cardToServer, int cardSlot, EnumUnitPlacement cardPlace, string _interactCards = null, ServerRpcParams serverRpcParams = default)
     {
         if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
 
@@ -915,21 +946,24 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        if (!ValidateCardFromServer(cardName, cardSlot, _play.CardsInHand))
+        CardToClient _cardFromClient = JsonUtility.FromJson<CardToClient>(cardToServer);
+
+        if (!ValidateCardFromServer(_cardFromClient._card, cardSlot, _play.CardsInHand))
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
             return;
         }
 
-        Card _card = _deckManager.CardRepo.GetCard(cardName);
-
+        Card _card = _deckManager.CardRepo.GetCard(_cardFromClient._card);
+        
         if (!ValidatePlayedMinionPlacement(_card, cardPlace))
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, $"Invalid placement for this card: {_card.id} {cardPlace}", _play.MyInfo.Username);
             return;
         }
 
-        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, cardSlot, _play, _interactCards);
+        GwentCard _gwentCard = new GwentCard(_cardFromClient._unique, _card);
+        var _continue = HandleLogicFromPlayedCard(_gwentCard, clientId, _cardFromClient._card, cardPlace, cardSlot, _play, _interactCards);
 
         if (!_continue) return;
 
@@ -956,7 +990,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void SelectedGraveyardCardServerRpc(string cardName, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
+    public void SelectedGraveyardCardServerRpc(string cardToServer, int cardSlot, EnumUnitPlacement cardPlace, ServerRpcParams serverRpcParams = default)
     {
         if (_turnManager == null || _turnManager.CurrentPhase != EnumGameplayPhases.Regular) return;
 
@@ -969,13 +1003,15 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
-        if (!ValidateCardFromServer(cardName, cardSlot, _play.CardsInGraveyard))
+        CardToClient _cardFromClient = JsonUtility.FromJson<CardToClient>(cardToServer);
+
+        if (!ValidateCardFromServer(_cardFromClient._card, cardSlot, _play.CardsInGraveyard))
         {
             GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.InvalidInput, "Invalid Card sent from client to server.", _play.MyInfo.Username);
             return;
         }
 
-        Card _card = _deckManager.CardRepo.GetCard(cardName);
+        Card _card = _deckManager.CardRepo.GetCard(_cardFromClient._card);
 
         if (!ValidatePlayedMinionPlacement(_card, cardPlace))
         {
@@ -983,11 +1019,13 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             return;
         }
 
+        GwentCard _gwentCard = new GwentCard(_cardFromClient._unique, _card);
         _play.RemoveCardFromGraveyard(cardSlot);
-        string[] cardNames = _play.ReturnCardIds(EnumCardListType.Graveyard);
-        var _json = JsonUtility.ToJson(new CardNames(cardNames));
+        CardToClient[] cardNames = _play.ReturnCardIds(EnumCardListType.Graveyard);
+        //var _json = JsonUtility.ToJson(new CardNames(cardNames));
+        var _json = GeneralPurposeFunctions.ConvertArrayToJson(cardNames);
         UpdateGraveyardClientRpc(_json, _play.ClientRpcParams);
-        var _continue = HandleLogicFromPlayedCard(_card, clientId, cardName, cardPlace, GlobalConstantValues.LOGIC_NULLINT, _play);
+        var _continue = HandleLogicFromPlayedCard(_gwentCard, clientId, _cardFromClient._card, cardPlace, GlobalConstantValues.LOGIC_NULLINT, _play);
 
         if (!_continue) return;
 

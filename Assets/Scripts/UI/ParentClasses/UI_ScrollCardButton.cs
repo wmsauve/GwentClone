@@ -10,7 +10,7 @@ public class UI_ScrollCardButton : UI_MainButtonGame
     private Color _onColor = Color.yellow;
     private Color _offColor = new Color(0f, 0f, 0f, 0f);
 
-    public override Card CardData 
+    public override GwentCard CardData 
     { 
         get { return m_myData; } 
         set 
@@ -35,7 +35,7 @@ public class UI_ScrollCardButton : UI_MainButtonGame
 
 
     protected UI_CardViewScroll _manager = null;
-    public virtual void InitializeButton(Card info, int order, UI_CardViewScroll manager)
+    public virtual void InitializeButton(GwentCard info, int order, UI_CardViewScroll manager)
     {
         if(m_cardSprite == null || m_cardBtn == null || m_highlight == null)
         {

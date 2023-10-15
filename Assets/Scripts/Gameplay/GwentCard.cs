@@ -27,9 +27,28 @@ public class GwentCard
     public int scorchAmount;
 
     private int basePower;
+    private string uniqueGuid;
+    public string UniqueGuid { get { return uniqueGuid.ToString(); } }
+    private Card _dataRef;
+    public Card DataRef { get { return _dataRef; } }
+
+
+    public GwentCard(Card card) 
+    {
+        uniqueGuid = new System.Guid().ToString();
+        InitializeCard(card);
+    }
+
+    public GwentCard(string oldGuid, Card card)
+    {
+        uniqueGuid = oldGuid;
+        InitializeCard(card);
+    }
 
     public void InitializeCard(Card card)
     {
+        _dataRef = card;
+
         id = card.id;
         cardImage = card.cardImage;
         unitType = card.unitType;

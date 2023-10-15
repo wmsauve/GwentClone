@@ -25,6 +25,7 @@ public class UI_CardViewScroll : MonoBehaviour
 
     //Send to Server Related
     protected string _cardToSelect;
+    protected string _cardUnique;
     protected int _cardSlot;
 
     protected int _rightMostIndex;
@@ -230,7 +231,7 @@ public class UI_CardViewScroll : MonoBehaviour
         }
     }
 
-    public virtual void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
+    public virtual void InteractWithScrollCard(string cardName, string unique, UI_ScrollCardButton pressed)
     {
         foreach (UI_ScrollCardButton button in _buttons)
         {
@@ -242,6 +243,7 @@ public class UI_CardViewScroll : MonoBehaviour
         }
         pressed.IsPressed = true;
         _cardToSelect = cardName;
+        _cardUnique = unique;
         _cardSlot = pressed.CardOrder;
     }
 }

@@ -59,10 +59,16 @@ public class UI_GraveyardCards : UI_CardViewScroll
     private void InteractWithSelectedGraveyard()
     {
         Debug.LogWarning("Trying to interact with graveyard.");
-        _gameManager.SelectedGraveyardCardServerRpc(_cardToSelect, _cardSlot, _cardPlace);
+
+        S_GamePlayLogicManager.CardToClient _cardToServer = new S_GamePlayLogicManager.CardToClient();
+        _cardToServer._card = _cardToSelect;
+        _cardToServer._unique = _cardUnique;
+        var json = JsonUtility.ToJson(_cardToServer);
+
+        _gameManager.SelectedGraveyardCardServerRpc(json, _cardSlot, _cardPlace);
     }
 
-    public void AddCardsToGraveyard(List<Card> cardInfo)
+    public void AddCardsToGraveyard(List<GwentCard> cardInfo)
     {
         if(m_viewTransform.childCount > 0)
         {
@@ -100,9 +106,9 @@ public class UI_GraveyardCards : UI_CardViewScroll
         }
     }
 
-    public override void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
+    public override void InteractWithScrollCard(string cardName, string unique, UI_ScrollCardButton pressed)
     {
-        base.InteractWithScrollCard(cardName, pressed);
+        base.InteractWithScrollCard(cardName, unique, pressed);
 
         if((pressed as UI_GraveyardScrollCard).CardData.cardEffects.Contains(EnumCardEffects.Agile))
         {

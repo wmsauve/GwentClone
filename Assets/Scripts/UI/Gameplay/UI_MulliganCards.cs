@@ -66,7 +66,7 @@ public class UI_MulliganCards : UI_CardViewScroll
         HideMulliganButton();
     }
 
-    public void InitializeMulliganCards(List<Card> cardInfo, int startMulligans)
+    public void InitializeMulliganCards(List<GwentCard> cardInfo, int startMulligans)
     {
         for (int i = 0; i < m_intialHandSize; i++)
         {
@@ -93,7 +93,7 @@ public class UI_MulliganCards : UI_CardViewScroll
         UpdateMulligansText(startMulligans);
     }
 
-    public void UpdateMulliganedButton(Card newCard, int mulliganCount)
+    public void UpdateMulliganedButton(GwentCard newCard, int mulliganCount)
     {
         foreach (UI_ScrollCardButton button in _buttons)
         {
@@ -124,9 +124,9 @@ public class UI_MulliganCards : UI_CardViewScroll
         _gameManager.MulliganACardServerRpc(_cardToSelect, _cardSlot);
     }
 
-    public override void InteractWithScrollCard(string cardName, UI_ScrollCardButton pressed)
+    public override void InteractWithScrollCard(string cardName, string unique, UI_ScrollCardButton pressed)
     {
-        base.InteractWithScrollCard(cardName, pressed);
+        base.InteractWithScrollCard(cardName, unique, pressed);
         m_mulliganBtn.gameObject.SetActive(true);
     }
 
