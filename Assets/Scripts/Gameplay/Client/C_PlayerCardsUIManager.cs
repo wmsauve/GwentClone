@@ -179,23 +179,16 @@ public class C_PlayerCardsUIManager : MonoBehaviour
         ReadjustCardPositionsInHand();
     }
 
+    public void RemoveSingleCardFromHand(GwentCard card)
+    {
+        int _index = m_cardInfo.FindIndex(x => x.CardData.UniqueGuid == card.UniqueGuid);
+        if (_index == -1) return;
+
+        RemoveCardFromHand(_index);
+    }
+
     public void RemoveManyCardsFromHand(List<GwentCard> cards)
     {
-        //slots.Sort();
-        //slots.Reverse();
-        //int j = 0;
-        //for(int i = m_cards.Count - 1; i >= 0; i--)
-        //{
-        //    Debug.LogWarning($"i {i} j {j}");
-        //    if(i == slots[j])
-        //    {
-        //        RemoveCardFromHand(i);
-        //        j++;
-        //    }
-
-        //    if (j == slots.Count) break;
-        //}
-
         foreach(GwentCard card in cards)
         {
             int _index = m_cardInfo.FindIndex(x => x.CardData.UniqueGuid == card.UniqueGuid);

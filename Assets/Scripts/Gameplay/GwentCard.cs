@@ -28,14 +28,14 @@ public class GwentCard
 
     private int basePower;
     private string uniqueGuid;
-    public string UniqueGuid { get { return uniqueGuid.ToString(); } }
+    public string UniqueGuid { get { return uniqueGuid; } }
     private Card _dataRef;
     public Card DataRef { get { return _dataRef; } }
 
 
     public GwentCard(Card card) 
     {
-        uniqueGuid = new System.Guid().ToString();
+        uniqueGuid = System.Guid.NewGuid().ToString();
         InitializeCard(card);
     }
 

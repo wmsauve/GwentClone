@@ -18,6 +18,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     /// <summary>
     /// Rename this later. Use to pass cards through network to identify cards.
     /// </summary>
+    [System.Serializable]
     public struct CardToClient
     {
         public string _card;
@@ -599,7 +600,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
 
         //Early skip depending on card. i.e. when multiple cards need handling
-        if (_card.cardEffects.Contains(EnumCardEffects.Muster)) return true;
+        if (_card.cardEffects.Contains(EnumCardEffects.Medic)) return true;
 
         //Process if not early skip.
         foreach (C_PlayerGamePlayLogic _player in _playersLogic)
@@ -610,10 +611,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             UpdateGraveyardClientRpc(_json, _player.ClientRpcParams);
         }
 
+        //Remove played card if reaching end.
+        GwentCard _cardtoDiscard = _play.CardsInHand.Find(x => x.UniqueGuid == _card.UniqueGuid);
+        int _indexToDiscard = _play.CardsInHand.FindIndex(x => x.UniqueGuid == _card.UniqueGuid);
+        CardToClient _discard = new CardToClient(_cardtoDiscard.id, _cardtoDiscard.UniqueGuid);
+        var _jsonD = JsonUtility.ToJson(_discard);
+
         if (cardSlot != GlobalConstantValues.LOGIC_NULLINT)
         {
-            RemoveCardFromHandClientRpc(cardSlot, _play.ClientRpcParams);
-            _play.RemoveCardFromHandServer(cardSlot);
+            RemoveCardFromHandClientRpc(_jsonD, _play.ClientRpcParams);
+            _play.RemoveCardFromHandServer(_indexToDiscard);
         }
 
         return true;
@@ -660,10 +667,16 @@ public class S_GamePlayLogicManager : NetworkBehaviour
                     break;
             }
 
+            //Remove played card if reaching end.
+            GwentCard _cardtoDiscard = _player.CardsInHand.Find(x => x.UniqueGuid == _data.UniqueGuid);
+            int _indexToDiscard = _player.CardsInHand.FindIndex(x => x.UniqueGuid == _data.UniqueGuid);
+            CardToClient _discard = new CardToClient(_cardtoDiscard.id, _cardtoDiscard.UniqueGuid);
+            var _jsonD = JsonUtility.ToJson(_discard);
+
             if (_slot != GlobalConstantValues.LOGIC_NULLINT)
             {
-                RemoveCardFromHandClientRpc(_slot, _player.ClientRpcParams);
-                _player.RemoveCardFromHandServer(_slot);
+                RemoveCardFromHandClientRpc(_jsonD, _player.ClientRpcParams);
+                _player.RemoveCardFromHandServer(_indexToDiscard);
             }
         }
     }
@@ -870,9 +883,12 @@ public class S_GamePlayLogicManager : NetworkBehaviour
     } 
 
     [ClientRpc]
-    public void RemoveCardFromHandClientRpc(int cardSlot, ClientRpcParams clientRpcParams = default)
+    public void RemoveCardFromHandClientRpc(string cardToClient, ClientRpcParams clientRpcParams = default)
     {
-        _cardsInHandScreen.RemoveCardFromHand(cardSlot);
+        CardToClient _fromServer = JsonUtility.FromJson<CardToClient>(cardToClient);
+        Card _cardInfo = _deckManager.CardRepo.GetCard(_fromServer._card);
+        GwentCard _newCard = new GwentCard(_fromServer._unique, _cardInfo);
+        _cardsInHandScreen.RemoveSingleCardFromHand(_newCard);
     }
 
     [ClientRpc]

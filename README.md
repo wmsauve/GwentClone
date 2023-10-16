@@ -2,7 +2,7 @@
 Just for fun.
 
 # Current Task Being Worked On
-To Test: After changing Card to GwentCard whenever game logic is being dealt with, make sure everything works the same.
+To Test: Muster seems to work without having to do an odd ordering to playing cards on server. Test scorch and medic before moving forward.
 
 Work on stat boosting effects. (horn)
 

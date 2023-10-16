@@ -71,7 +71,6 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
             Card inHand = _myInfo.Deck.Cards[which];
             _myInfo.Deck.RemoveCard(inHand);
             GwentCard _newCard = new GwentCard(inHand);
-
             S_GamePlayLogicManager.CardToClient _clientCard = new S_GamePlayLogicManager.CardToClient(_newCard.id, _newCard.UniqueGuid);
 
             toClient.Add(_clientCard);
@@ -162,6 +161,11 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     public void RemoveCardFromHandServer(int cardSlot)
     {
         _cardsInHand.RemoveAt(cardSlot);
+
+        foreach(GwentCard _card in _cardsInHand)
+        {
+            Debug.LogWarning($"Cards left in hand {_card.id}");
+        }
     }
 
     public void PlaceCardInPlay(GwentCard playedCard, EnumUnitPlacement cardPlace)
@@ -190,11 +194,11 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
         for (int i = _hand.Count - 1; i >= 0; i--)
         {
             //We are not mustering the muster card that was played.
-            //if (_hand[i].UniqueMusterID == _played.UniqueMusterID)
-            //{
-            //    Debug.LogWarning($" is this a thing? {i} _hand id {_hand[i].UniqueMusterID} _played id {_played.UniqueMusterID}");
-            //    continue;
-            //}
+            if (_hand[i].UniqueGuid == _played.UniqueGuid)
+            {
+                Debug.LogWarning($" is this a thing? {i} _hand id {_hand[i].UniqueGuid} _played id {_played.UniqueGuid}");
+                continue;
+            }
 
             if (_hand[i].cardEffects.Contains(EnumCardEffects.Muster) && _hand[i].musterTag == _tag)
             {
