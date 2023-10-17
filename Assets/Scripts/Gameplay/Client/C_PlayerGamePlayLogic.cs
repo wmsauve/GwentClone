@@ -162,10 +162,10 @@ public class C_PlayerGamePlayLogic : NetworkBehaviour
     {
         _cardsInHand.RemoveAt(cardSlot);
 
-        foreach(GwentCard _card in _cardsInHand)
-        {
-            Debug.LogWarning($"Cards left in hand {_card.id}");
-        }
+        //foreach(GwentCard _card in _cardsInHand)
+        //{
+        //    Debug.LogWarning($"Cards left in hand {_card.id}");
+        //}
     }
 
     public void PlaceCardInPlay(GwentCard playedCard, EnumUnitPlacement cardPlace)

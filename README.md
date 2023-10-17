@@ -2,8 +2,6 @@
 Just for fun.
 
 # Current Task Being Worked On
-To Test: Muster seems to work without having to do an odd ordering to playing cards on server. Test scorch and medic before moving forward.
-
 Work on stat boosting effects. (horn)
 
 # TODO
@@ -13,6 +11,8 @@ Move card order in hierarchy to render moused over card on top. Put card back in
 Work on Medic. Need to add functionality to cancel button so that people can decide not to continue playing a medic.
 ## Server Logic
 Playing multi stage cards like medic should be a single client rpc call, not multiple calls in a loop.
+## Refactor Code
+Create a method to create the card struct that is converted to JSON since the logic will expand. Rename it from CardToClient.
 
 # Known Major Bugs
 ## Mulligan bug
