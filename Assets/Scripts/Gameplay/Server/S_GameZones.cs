@@ -11,6 +11,33 @@ public class S_GameZones
         public List<GwentCard> HighestPowerCards = new List<GwentCard>();
         public int HighestPowerCard;
         public int FlaggedPowerForDestroy;
+
+        private bool _weather = false;
+        private bool _horn = false;
+        private int _moraleBoosts = 0;
+
+        public bool WeatherActive 
+        {
+            get
+            {
+                return _weather;
+            }
+            set
+            {
+                _weather = value;
+            }
+        }
+        public bool HornActive
+        {
+            get
+            {
+                return _horn;
+            }
+            set
+            {
+                _horn = value;
+            }
+        }
         
         public void AddCardToZone(GwentCard _newCard)
         {
@@ -31,56 +58,57 @@ public class S_GameZones
             RunHighestCardCheck();
         }
 
-        public void ApplyWeather()
+        public void RunMoraleBoostCheck()
+        {
+            foreach (GwentCard _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) _moraleBoosts++;
+            }
+        }
+
+        private void ApplyMoraleBoost()
+        {
+            foreach (GwentCard _card in Cards)
+            {
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero) || _card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) continue;
+                _card.cardPower += _moraleBoosts;
+            }
+        }
+
+        private void ApplyWeather()
         {
             foreach(GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
                 _card.cardPower = 1;
             }
-
-            RunHighestCardCheck();
         }
 
-        public void ApplyPowerFromEffect(EnumCardEffects _effect)
+        private void ApplyHorn()
         {
-            switch (_effect)
+            foreach (GwentCard _card in Cards)
             {
-                case EnumCardEffects.MoraleBoost:
-                    int numOfChars = 0;
-                    foreach(GwentCard _card in Cards)
-                    {
-                        if (_card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) numOfChars++;
-                    }
-
-                    foreach (GwentCard _card in Cards)
-                    {
-                        if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.MoraleBoost)) continue;
-                        _card.cardPower += numOfChars;
-                    }
-                    break;
-                case EnumCardEffects.CommandersHorn:
-                    foreach (GwentCard _card in Cards)
-                    {
-                        if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.CommandersHorn)) continue;
-                        _card.cardPower *= 2;
-                    }
-                    break;
-                default:
-                    Debug.LogWarning("You are not checking a card effect that alters card power.");
-                    break;
+                if (_card.cardEffects.Contains(EnumCardEffects.Hero) && _card.cardEffects.Contains(EnumCardEffects.CommandersHorn)) continue;
+                _card.cardPower *= 2;
             }
-
-            RunHighestCardCheck();
         }
 
-        public void ResetCards()
+        private void ResetCards()
         {
             foreach (GwentCard _card in Cards)
             {
                 if (_card.cardEffects.Contains(EnumCardEffects.Hero)) continue;
-                //_card.ResetToBasePower();
+                _card.ResetToBasePower();
             }
+        }
+
+        public void RunStatChangeCheck()
+        {
+            ResetCards();
+            if (_weather) ApplyWeather();
+            if (_horn) ApplyHorn();
+            ApplyMoraleBoost();
+            RunHighestCardCheck();
         }
 
         private void RunHighestCardCheck()
@@ -109,24 +137,9 @@ public class S_GameZones
         }
     }
 
-    public class StatChangeEffects
-    {
-        public bool FrontWeather = false;
-        public bool RangedWeather = false;
-        public bool SiegeWeather = false;
-        public bool FrontHorns = false;
-        public bool RangedHorns = false;
-        public bool SiegeHorns = false;
-        public bool FrontMoraleBoost = false;
-        public bool RangedMoraleBoost = false;
-        public bool SiegeMoraleBoost = false;
-    }
-
     private GameZone _cardsInFront = new GameZone();
     private GameZone _cardsInRanged = new GameZone();
     private GameZone _cardsInSiege = new GameZone();
-
-    private StatChangeEffects _effectsActive = new StatChangeEffects();
 
     public GameZone CardsInFront { get { return _cardsInFront; } }
     public GameZone CardsInRanged { get { return _cardsInRanged; } }
@@ -173,26 +186,44 @@ public class S_GameZones
     }
 
     #region Adjust Card Power Related
-    public void RunEvaluationForStatChanges()
+
+    public void ActivateStatChangeRow(EnumUnitPlacement _placement, EnumCardEffects _which)
     {
-        _cardsInFront.ResetCards();
-        _cardsInRanged.ResetCards();
-        _cardsInSiege.ResetCards();
+        GameZone _zone = null;
+        switch (_placement)
+        {
+            case EnumUnitPlacement.Frontline: _zone = _cardsInFront; break;
+            case EnumUnitPlacement.Ranged: _zone = _cardsInRanged; break;
+            case EnumUnitPlacement.Siege: _zone = _cardsInSiege; break;
+            default:
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Wrong zone for this method.");
+                break;
+        }
 
-        //weather first
-        if (_effectsActive.FrontWeather) _cardsInFront.ApplyWeather();
-        if (_effectsActive.RangedWeather) _cardsInRanged.ApplyWeather();
-        if (_effectsActive.SiegeWeather) _cardsInSiege.ApplyWeather();
+        if (_zone == null) return;
 
-        //abilities second
-        if (_effectsActive.FrontMoraleBoost) _cardsInFront.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
-        if (_effectsActive.RangedMoraleBoost) _cardsInRanged.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
-        if (_effectsActive.SiegeMoraleBoost) _cardsInSiege.ApplyPowerFromEffect(EnumCardEffects.MoraleBoost);
-
-        //horns
-        if (_effectsActive.FrontHorns) _cardsInFront.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
-        if (_effectsActive.RangedHorns) _cardsInRanged.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
-        if (_effectsActive.SiegeHorns) _cardsInSiege.ApplyPowerFromEffect(EnumCardEffects.CommandersHorn);
+        switch (_which)
+        {
+            case EnumCardEffects.CommandersHorn: _zone.HornActive = true; break;
+            case EnumCardEffects.MoraleBoost: _zone.RunMoraleBoostCheck(); break;
+            case EnumCardEffects.Weather: _zone.WeatherActive = true; break;
+            default:
+                GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.Error, "Wrong effect for this method.");
+                break;
+        }
     }
+
+    public void UpdateScoresRelated()
+    {
+        _cardsInFront.RunStatChangeCheck();
+        _cardsInRanged.RunStatChangeCheck();
+        _cardsInSiege.RunStatChangeCheck();
+    }
+
+    public void ActivateStatChangeSingle()
+    {
+
+    }
+
     #endregion Adjust Card Power Related
 }

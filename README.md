@@ -2,7 +2,9 @@
 Just for fun.
 
 # Current Task Being Worked On
-Work on stat boosting effects. (horn)
+Make horn effect on client to show horn is active in the lane.
+Work on weather. (weather actives first, then abilities, then horn).
+Add Weather effect to client to show when a weather is active.
 
 # TODO
 ## Card Order

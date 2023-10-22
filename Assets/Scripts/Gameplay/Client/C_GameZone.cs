@@ -8,6 +8,7 @@ public class C_GameZone : G_OutlinedGameObject
     [Header("Gameplay Related")]
     [SerializeField] private bool m_playerZone;
     [SerializeField] private List<EnumUnitPlacement> m_allowableCards = new List<EnumUnitPlacement>();
+    [SerializeField] private GameObject m_tempHorn;
 
     [Header("Settings Related")]
     [SerializeField] private float availableWidth = 10f;
@@ -29,6 +30,14 @@ public class C_GameZone : G_OutlinedGameObject
         _cardPlace = transform.parent;
 
         m_cardWidth += (m_padding * 2);
+
+        if(m_tempHorn == null)
+        {
+            GeneralPurposeFunctions.GamePlayLogger(EnumLoggerGameplay.MissingComponent, "You need this test reference to show the horn being played.");
+            return;
+        }
+
+        HornInactive();
     }
 
 
@@ -56,5 +65,15 @@ public class C_GameZone : G_OutlinedGameObject
             _cardPlace.GetChild(i + 1).transform.localPosition = cardLocalPosition;
         }
 
+    }
+
+    public void HornPlayed()
+    {
+        m_tempHorn.SetActive(true);
+    }
+
+    public void HornInactive()
+    {
+        m_tempHorn.SetActive(false);
     }
 }

@@ -5,16 +5,6 @@ using System.Linq;
 
 public class S_GamePlayLogicManager : NetworkBehaviour
 {
-    //public struct CardNames
-    //{
-    //    public string[] _cards;
-
-    //    public CardNames(string[] cards)
-    //    {
-    //        _cards = cards;
-    //    }
-    //}
-
     /// <summary>
     /// Rename this later. Use to pass cards through network to identify cards.
     /// </summary>
@@ -40,31 +30,6 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             _placements = placements;
         }
     }
-    [System.Serializable]
-    //public struct InteractTarget
-    //{
-    //    public string _card;
-    //    public int _placement;
-
-    //    public InteractTarget(string name, int placement)
-    //    {
-    //        _card = name;
-    //        _placement = placement;
-    //    }
-    //}
-
-    //public struct InteractCardsOnServer
-    //{
-    //    public GwentCard _card;
-    //    public int _placement;
-
-    //    public InteractCardsOnServer(GwentCard card, int placement)
-    //    {
-    //        _card = card;
-    //        _placement = placement;
-    //    }
-    //}
-
 
     public struct PlayerScores
     {
@@ -573,7 +538,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             //Cards that don't just drop right away. For example, medic needs to go to graveyard.
             if (_card.cardEffects.Contains(EnumCardEffects.Medic) && _play.CardsInGraveyard.Count > 0)
             {
-                _spellsManager.HandleSpell(_card, _playersLogic, clientId);
+                _spellsManager.HandleSpell(_card, _playersLogic, clientId, cardPlace);
                 _play.StoreReferenceToPlayingMultiStepCard(_card, cardPlace, cardSlot);
                 return false;
             }
@@ -597,10 +562,7 @@ public class S_GamePlayLogicManager : NetworkBehaviour
             }
         }
 
-        if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId);
-
-        //Early skip depending on card. i.e. when multiple cards need handling
-        if (_card.cardEffects.Contains(EnumCardEffects.Medic)) return true;
+        if(_card.cardEffects != null && _card.cardEffects.Count > 0) _spellsManager.HandleSpell(_card, _playersLogic, clientId, cardPlace);
 
         //Process if not early skip.
         foreach (C_PlayerGamePlayLogic _player in _playersLogic)
@@ -633,6 +595,9 @@ public class S_GamePlayLogicManager : NetworkBehaviour
         {
             S_GameZones _zones = _player.CardsInPlay;
             ulong _whichPlayer = _player.ReturnID();
+
+            _zones.UpdateScoresRelated();
+
             foreach(GwentCard card in _zones.CardsInFront.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Frontline, card.cardPower, _whichPlayer);
             foreach (GwentCard card in _zones.CardsInRanged.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Ranged, card.cardPower, _whichPlayer);
             foreach (GwentCard card in _zones.CardsInSiege.Cards) _currentMatchScores.IncrementScore(EnumUnitPlacement.Siege, card.cardPower, _whichPlayer);

@@ -267,6 +267,7 @@ public class GeneralPurposeFunctions
             case EnumUnitPlacement.Agile_FR:
             case EnumUnitPlacement.Agile_FS:
             case EnumUnitPlacement.Agile_RS:
+            case EnumUnitPlacement.AnyPlayer:
                 return EnumPlayCardStatus.PlayToZone;
             case EnumUnitPlacement.Global:
                 return EnumPlayCardStatus.Global;

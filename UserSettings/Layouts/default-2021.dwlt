@@ -207,18 +207,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12006, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: ClonesManagerWindow
+  m_Name: SceneView
   m_EditorClassIdentifier: 
   m_Children: []
   m_Position:
     serializedVersion: 2
     x: 423.33334
     y: 0
-    width: 381.33334
+    width: 489.99997
     height: 827.3333
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
-  m_ActualView: {fileID: 20}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
+  m_ActualView: {fileID: 15}
   m_Panes:
   - {fileID: 15}
   - {fileID: 16}
@@ -227,7 +227,7 @@ MonoBehaviour:
   - {fileID: 19}
   - {fileID: 20}
   - {fileID: 13}
-  m_Selected: 5
+  m_Selected: 0
   m_LastSelected: 1
 --- !u!114 &10
 MonoBehaviour:
@@ -244,9 +244,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 804.6667
+    x: 913.3333
     y: 0
-    width: 843.99994
+    width: 735.3333
     height: 827.3333
   m_MinSize: {x: 202, y: 221}
   m_MaxSize: {x: 4002, y: 4021}
@@ -420,9 +420,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: d6630000
-      m_LastClickedID: 25558
-      m_ExpandedIDs: 36fbfffffc640000
+      m_SelectedIDs: 1c6e0000
+      m_LastClickedID: 0
+      m_ExpandedIDs: fc63fffffab7ffff36fbffffa6630000fe640000ba650000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -468,7 +468,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 423.33334
     y: 72.66667
-    width: 379.33334
+    width: 487.99997
     height: 806.3333
   m_ViewDataDictionary: {fileID: 0}
   m_OverlayCanvas:
@@ -704,9 +704,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 970.1873, y: 384.17648, z: -1478.4409}
+    m_Target: {x: 11.790419, y: -2.6361976, z: 5.43853}
     speed: 2
-    m_Value: {x: 970.1873, y: 384.17648, z: -1478.4409}
+    m_Value: {x: 11.790419, y: -2.6361976, z: 5.43853}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -753,13 +753,13 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.07526269, y: -0.019407474, z: 0.0008484349, w: -0.9973439}
+    m_Target: {x: 0.16861054, y: 0.8324211, z: -0.3560886, w: 0.39062783}
     speed: 2
-    m_Value: {x: -0.07523499, y: -0.01940033, z: 0.00084812264, w: -0.9969768}
+    m_Value: {x: 0.1685479, y: 0.83211184, z: -0.35595632, w: 0.3904827}
   m_Size:
-    m_Target: 3.6751528
+    m_Target: 4.3472958
     speed: 2
-    m_Value: 3.6751528
+    m_Value: 4.3472958
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -1020,9 +1020,9 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 804.6667
+    x: 913.3334
     y: 72.66667
-    width: 841.99994
+    width: 733.3333
     height: 806.3333
   m_ViewDataDictionary: {fileID: 0}
   m_OverlayCanvas:
@@ -1072,10 +1072,10 @@ MonoBehaviour:
       serializedVersion: 2
       x: 0
       y: 21
-      width: 841.99994
+      width: 733.3333
       height: 785.3333
-    m_Scale: {x: 0.49335933, y: 0.49335933}
-    m_Translation: {x: 420.99997, y: 392.66666}
+    m_Scale: {x: 0.42968747, y: 0.42968747}
+    m_Translation: {x: 366.66666, y: 392.66666}
     m_MarginLeft: 0
     m_MarginRight: 0
     m_MarginTop: 0
@@ -1083,12 +1083,12 @@ MonoBehaviour:
     m_LastShownAreaInsideMargins:
       serializedVersion: 2
       x: -853.3334
-      y: -795.904
+      y: -913.84247
       width: 1706.6667
-      height: 1591.808
+      height: 1827.6849
     m_MinimalGUI: 1
-  m_defaultScale: 0.49335933
-  m_LastWindowPixelSize: {x: 1262.9999, y: 1209.5}
+  m_defaultScale: 0.42968747
+  m_LastWindowPixelSize: {x: 1100, y: 1209.5}
   m_ClearInEditMode: 1
   m_NoCameraWarning: 1
   m_LowResolutionForAspectRatios: 01000000000000000000
@@ -1135,22 +1135,22 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/Gameplay/Server
+    - Assets/Scripts/Cards/CardData/Units/NorthernRealms
     m_Globs: []
     m_OriginalText: 
   m_ViewMode: 1
   m_StartGridSize: 80
   m_LastFolders:
-  - Assets/Scripts/Gameplay/Server
+  - Assets/Scripts/Cards/CardData/Units/NorthernRealms
   m_LastFoldersGridSize: 80
   m_LastProjectPath: D:\UnityProjects\Gwent
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 216.99994}
-    m_SelectedIDs: 72bd0000
-    m_LastClickedID: 48498
-    m_ExpandedIDs: 0000000088bc00008abc00008cbc00008ebc000090bc000092bc000094bc000096bc000098bc00009abc00009cbc000000ca9a3bffffff7f
+    scrollPos: {x: 0, y: 156.99994}
+    m_SelectedIDs: 82bd0000
+    m_LastClickedID: 48514
+    m_ExpandedIDs: 0000000096bc000098bc00009abc00009cbc00009ebc0000a0bc0000a2bc0000a4bc0000a6bc0000a8bc0000aabc000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1178,7 +1178,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000088bc00008abc00008cbc00008ebc000090bc000092bc000094bc000096bc000098bc00009abc00009cbc0000
+    m_ExpandedIDs: 0000000096bc000098bc00009abc00009cbc00009ebc0000a0bc0000a2bc0000a4bc0000a6bc0000a8bc0000aabc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1203,8 +1203,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: d6630000
-    m_LastClickedInstanceID: 25558
+    m_SelectedInstanceIDs: 1c6e0000
+    m_LastClickedInstanceID: 28188
     m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: c6230000ca810000e664000032660000b8010000be6d000000000000f4c2000070bf0700d4c00700cec0070094bd0000
     m_RenameOverlay:

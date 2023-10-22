@@ -8,12 +8,12 @@ public class S_SpellsManager : NetworkBehaviour
     public S_GamePlayLogicManager _gameManager = null;
 
     /// <summary>
-    /// Used for: Scorch, Spy
+    /// Used for: Scorch, Spy, Medic, Muster, Morale Boost, Commanders Horn
     /// </summary>
     /// <param name="_effect"></param>
     /// <param name="_players"></param>
     /// <param name="_whosCard"></param>
-    public void HandleSpell(GwentCard _playedCard, List<C_PlayerGamePlayLogic> _players, ulong _whosCard)
+    public void HandleSpell(GwentCard _playedCard, List<C_PlayerGamePlayLogic> _players, ulong _whosCard, EnumUnitPlacement _placement)
     {
         var _effect = _playedCard.cardEffects;
         foreach(EnumCardEffects effect in _effect)
@@ -25,7 +25,7 @@ public class S_SpellsManager : NetworkBehaviour
                 case EnumCardEffects.Medic: Medic(_players.Find(x => x.ReturnID() == _whosCard)); break;
                 case EnumCardEffects.Muster: Muster(_players, _whosCard, _playedCard); break;
                 case EnumCardEffects.MoraleBoost: 
-                case EnumCardEffects.CommandersHorn: PowerAdjustRelated(_players, _playedCard); break;
+                case EnumCardEffects.CommandersHorn: PowerAdjustRelatedZone(_players.Find(x => x.ReturnID() == _whosCard), _placement, effect); break;
             }
         }
 
@@ -214,11 +214,8 @@ public class S_SpellsManager : NetworkBehaviour
         }
     }
 
-    private void PowerAdjustRelated(List<C_PlayerGamePlayLogic> _players, GwentCard _card)
+    private void PowerAdjustRelatedZone(C_PlayerGamePlayLogic _players, EnumUnitPlacement _placement, EnumCardEffects _effect)
     {
-        foreach(C_PlayerGamePlayLogic player in _players)
-        {
-            //player.
-        }
+        _players.CardsInPlay.ActivateStatChangeRow(_placement, _effect);
     }
 }
